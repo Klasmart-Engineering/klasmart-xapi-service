@@ -9,7 +9,6 @@ import { Model } from "./model"
 collectDefaultMetrics({})
 
 export interface Context {
-    roomId?: string,
     sessionId?: string,
     token?: JWT
 }
@@ -18,10 +17,31 @@ export const connectionCount = new Map<string, number>()
 
 async function main() {
     const model = new Model();
+    let connectionCount = 0
+
     const server = new ApolloServer({
         typeDefs: loadTypedefsSync('./schema.graphql', {
             loaders: [new GraphQLFileLoader()],
         })[0].document,
+        subscriptions: {
+            keepAlive: 1000,
+            onConnect: async ({sessionId, authToken}: any, _webSocket, connectionData: any) => {
+                const token = await checkToken(authToken);
+                connectionCount++
+                console.log(`Connection(${connectionCount}) from ${sessionId}`)
+                connectionData.counted = true
+                connectionData.sessionId = sessionId;
+                return {sessionId, token} as Context;
+            },
+            onDisconnect: (websocket, connectionData) => {
+                if (!(connectionData as any).counted) {
+                    return
+                }
+                connectionCount--
+                const {sessionId} = connectionData as any
+                console.log(`Disconnection(${connectionCount}) from ${sessionId}`)
+            }
+        },
         resolvers: {
             Query: {
                 ready: () => true,
