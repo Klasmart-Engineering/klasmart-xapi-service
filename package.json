@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "ts-node src/entry.ts",
+    "example": "ts-node src/bulkExample.ts",
     "dev": "nodemon src/entry.ts"
   },
   "repository": {
