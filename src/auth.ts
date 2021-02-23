@@ -1,5 +1,4 @@
 import {decode, Secret, verify, VerifyOptions} from "jsonwebtoken"
-import {Logger} from "./entry";
 
 const issuers = new Map<
     string,
@@ -98,22 +97,22 @@ export type JWT = {
 export async function checkToken(token?: string): Promise<JWT> {
     try {
         if (!token) {
-            Logger.error("Missing JWT Token")
+            console.error("Missing JWT Token")
             throw new Error("Missing JWT token")
         }
         const payload = decode(token)
         if (!payload || typeof payload === "string") {
-            Logger.error("JWT Payload is incorrect")
+            console.error("JWT Payload is incorrect")
             throw new Error("JWT Payload is incorrect")
         }
         const issuer = payload["iss"]
         if (!issuer || typeof issuer !== "string") {
-            Logger.error("JWT Issuer is incorrect")
+            console.error("JWT Issuer is incorrect")
             throw new Error("JWT Issuer is incorrect")
         }
         const issuerOptions = issuers.get(issuer)
         if (!issuerOptions) {
-            Logger.error("JWT IssuerOptions are incorrect")
+            console.error("JWT IssuerOptions are incorrect")
             throw new Error("JWT IssuerOptions are incorrect")
         }
         const {options, secretOrPublicKey} = issuerOptions
@@ -129,7 +128,7 @@ export async function checkToken(token?: string): Promise<JWT> {
             })
         })
     } catch (e) {
-        Logger.error(e)
+        console.error(e)
         throw e
     }
 }

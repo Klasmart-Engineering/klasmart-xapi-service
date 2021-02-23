@@ -1,0 +1,12 @@
+type Query {
+    ready: Boolean,
+}
+
+type Mutation {
+    sendEvents(xAPIEvents: [XAPIEvent!]!): Boolean,
+}
+
+input XAPIEvent {
+    actor: String
+    verb: String
+}
