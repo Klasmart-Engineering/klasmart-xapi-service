@@ -51,14 +51,14 @@ async function main() {
         ready: () => true
       },
       Mutation: {
-        sendEvents: (_parent, { xAPIEvents }, context: Context) =>
-          model.sendEvents(context, xAPIEvents)
+        sendEvents: (_parent, args, _context, _info) => model.sendEvents(args)
       }
     },
     context: async ({ req, connection }) => {
       if (connection) {
         return connection.context;
       }
+      // TODO: Uncomment when we start enforcing authentication.
       //const token = await checkToken(req.headers.authorization)
       return {};
     }
