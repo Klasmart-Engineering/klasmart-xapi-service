@@ -1,10 +1,10 @@
-'use strict'
+'use strict';
 
-import { Client } from '@elastic/elasticsearch'
-const client = new Client({ node: 'http://localhost:9200' })
+import { Client } from '@elastic/elasticsearch';
+const client = new Client({ node: 'http://localhost:9200' });
 
 async function run() {
-  await indexDummyData()
+  await indexDummyData();
   //await client.indices.refresh({ index: 'game-of-thrones' })
 
   // Let's search!
@@ -17,9 +17,9 @@ async function run() {
         }
       }
     }
-  })
+  });
 
-  console.log(body.hits.hits)
+  console.log(body.hits.hits);
 }
 
 async function indexDummyData() {
@@ -30,7 +30,7 @@ async function indexDummyData() {
       character: 'Ned Stark',
       quote: 'Winter is coming.'
     }
-  })
+  });
 
   await client.index({
     index: 'game-of-thrones',
@@ -38,7 +38,7 @@ async function indexDummyData() {
       character: 'Daenerys Targaryen',
       quote: 'I am the blood of the dragon.'
     }
-  })
+  });
 
   await client.index({
     index: 'game-of-thrones',
@@ -50,7 +50,7 @@ async function indexDummyData() {
       character: 'Tyrion Lannister',
       quote: 'A mind needs books like a sword needs a whetstone.'
     }
-  })
+  });
 }
 
-run().catch(console.log)
+run().catch(console.log);
