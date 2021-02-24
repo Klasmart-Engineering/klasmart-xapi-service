@@ -20,7 +20,7 @@ async function main() {
   let connectionCount = 0;
 
   const server = new ApolloServer({
-    typeDefs: loadTypedefsSync('./schema.graphql', {
+    typeDefs: loadTypedefsSync('./src/schema.graphql', {
       loaders: [new GraphQLFileLoader()]
     })[0].document,
     subscriptions: {
