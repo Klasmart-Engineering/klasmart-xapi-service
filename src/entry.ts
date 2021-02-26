@@ -6,6 +6,8 @@ import { loadTypedefsSync } from '@graphql-tools/load';
 import { GraphQLFileLoader } from '@graphql-tools/graphql-file-loader';
 import { Model } from './model';
 
+const routePrefix = process.env.ROUTE_PREFIX || '';
+
 collectDefaultMetrics({});
 
 export interface Context {
@@ -75,7 +77,11 @@ async function main() {
       res.status(500).end(ex.toString());
     }
   });
-  server.applyMiddleware({ app });
+
+  server.applyMiddleware({
+    app,
+    path: routePrefix
+  });
 
   const port = process.env.PORT || 8080;
   app.listen(port, () =>
