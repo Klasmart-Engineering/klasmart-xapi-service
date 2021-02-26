@@ -4,7 +4,7 @@ import { checkToken, JWT } from './auth';
 import { register, collectDefaultMetrics } from 'prom-client';
 import { loadTypedefsSync } from '@graphql-tools/load';
 import { GraphQLFileLoader } from '@graphql-tools/graphql-file-loader';
-import { Model } from './model';
+import { ElasticSearch } from './elasticSearch';
 
 const routePrefix = process.env.ROUTE_PREFIX || '';
 
@@ -18,7 +18,7 @@ export interface Context {
 export const connectionCount = new Map<string, number>();
 
 async function main() {
-  const model = new Model();
+  const elasticSearch = await ElasticSearch.create();
   let connectionCount = 0;
 
   const server = new ApolloServer({
@@ -53,7 +53,7 @@ async function main() {
         ready: () => true
       },
       Mutation: {
-        sendEvents: (_parent, args, _context, _info) => model.sendEvents(args)
+        sendEvents: (_parent, args, _context, _info) => elasticSearch.sendEvents(args)
       }
     },
     context: async ({ req, connection }) => {
