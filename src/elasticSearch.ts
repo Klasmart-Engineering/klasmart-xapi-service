@@ -1,5 +1,6 @@
 import { Client, ClientOptions } from '@elastic/elasticsearch';
 import { ApiKeyAuth, BasicAuth } from '@elastic/elasticsearch/lib/pool';
+import { Context } from './entry';
 
 function getEnvironmentVariableOrDefault(
   variableName: string,
@@ -62,8 +63,13 @@ export class ElasticSearch {
     this.client = client;
   }
 
-  public async sendEvents({ xAPIEvents }: any): Promise<boolean> {
+  public async sendEvents(
+    { xAPIEvents }: any,
+    context: Context
+  ): Promise<boolean> {
     console.log('sendEvents received: ', xAPIEvents);
+    const email = context?.token?.email;
+    console.log(`received events from: ${email}`);
 
     const body = xAPIEvents.flatMap((doc: any) => [
       { index: { _index: 'xapi' } },

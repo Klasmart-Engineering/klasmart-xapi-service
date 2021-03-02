@@ -1,6 +1,6 @@
 import express from 'express';
 import { ApolloServer } from 'apollo-server-express';
-import { checkToken, JWT } from './auth';
+import { checkToken } from './auth';
 import { register, collectDefaultMetrics } from 'prom-client';
 import { loadTypedefsSync } from '@graphql-tools/load';
 import { GraphQLFileLoader } from '@graphql-tools/graphql-file-loader';
@@ -12,7 +12,7 @@ collectDefaultMetrics({});
 
 export interface Context {
   sessionId?: string;
-  token?: JWT;
+  token?: any;
 }
 
 export const connectionCount = new Map<string, number>();
@@ -39,7 +39,7 @@ async function main() {
         connectionData.sessionId = sessionId;
         return { sessionId, token } as Context;
       },
-      onDisconnect: (websocket, connectionData) => {
+      onDisconnect: (_websocket, connectionData) => {
         if (!(connectionData as any).counted) {
           return;
         }
@@ -53,16 +53,19 @@ async function main() {
         ready: () => true
       },
       Mutation: {
-        sendEvents: (_parent, args, _context, _info) => elasticSearch.sendEvents(args)
+        sendEvents: (_parent, args, context, _info) =>
+          elasticSearch.sendEvents(args, context)
       }
     },
     context: async ({ req, connection }) => {
       if (connection) {
         return connection.context;
       }
-      // TODO: Uncomment when we start enforcing authentication.
-      //const token = await checkToken(req.headers.authorization)
-      return {};
+
+      const encodedToken = req.headers.authorization || req.cookies?.access;
+      const token = await checkToken(encodedToken);
+
+      return { token };
     }
   });
 
