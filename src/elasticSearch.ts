@@ -64,16 +64,17 @@ export class ElasticSearch {
   }
 
   public async sendEvents(
-    { xAPIEvents }: any,
+    { xAPIEvents, clientTimestamp }: any,
     context: Context
   ): Promise<boolean> {
     console.log('sendEvents received: ', xAPIEvents);
     const userId = context?.token?.id;
     const email = context?.token?.email;
+    const serverTimestamp = Date.now();
 
     const body = xAPIEvents.flatMap((doc: any) => [
       { index: { _index: 'xapi' } },
-      { xapi: JSON.parse(doc), userId: userId, email: email }
+      { xapi: JSON.parse(doc), userId, email, serverTimestamp, clientTimestamp }
     ]);
 
     const { body: bulkResponse } = await this.client.bulk({
