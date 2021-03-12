@@ -5,6 +5,7 @@ import { register, collectDefaultMetrics } from 'prom-client';
 import { loadTypedefsSync } from '@graphql-tools/load';
 import { GraphQLFileLoader } from '@graphql-tools/graphql-file-loader';
 import { ElasticSearch } from './elasticSearch';
+import { createServer } from 'http';
 
 const routePrefix = process.env.ROUTE_PREFIX || '';
 
@@ -32,7 +33,8 @@ async function main() {
         _webSocket,
         connectionData: any
       ) => {
-        const token = await checkToken(authToken);
+        let token = undefined;
+        if (authToken) token = await checkToken(authToken);
         connectionCount++;
         console.log(`Connection(${connectionCount}) from ${sessionId}`);
         connectionData.counted = true;
@@ -62,8 +64,9 @@ async function main() {
         return connection.context;
       }
 
-      const encodedToken = req.headers.authorization || req.cookies?.access;
-      const token = await checkToken(encodedToken);
+      const encodedToken = req.headers?.authorization || req.cookies?.access;
+      let token = undefined;
+      if (encodedToken) token = await checkToken(encodedToken);
 
       return { token };
     }
@@ -86,12 +89,18 @@ async function main() {
     path: routePrefix
   });
 
+  const httpServer = createServer(app);
+  server.installSubscriptionHandlers(httpServer);
+
   const port = process.env.PORT || 8080;
-  app.listen(port, () =>
+  httpServer.listen(port, () => {
     console.log(
       `🌎 Server ready at http://localhost:${port}${server.graphqlPath}`
-    )
-  );
+    );
+    console.log(
+      `🌎 Subscriptions ready at ws://localhost:${port}${server.subscriptionsPath}`
+    );
+  });
 }
 
 main().catch((e) => {
