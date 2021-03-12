@@ -68,12 +68,12 @@ export class ElasticSearch {
     context: Context
   ): Promise<boolean> {
     console.log('sendEvents received: ', xAPIEvents);
+    const userId = context?.token?.id;
     const email = context?.token?.email;
-    console.log(`received events from: ${email}`);
 
     const body = xAPIEvents.flatMap((doc: any) => [
       { index: { _index: 'xapi' } },
-      { json: doc }
+      { xapi: JSON.parse(doc), userId: userId, email: email }
     ]);
 
     const { body: bulkResponse } = await this.client.bulk({

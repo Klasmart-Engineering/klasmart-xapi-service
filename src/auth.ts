@@ -1,5 +1,12 @@
 import { verify, decode, VerifyOptions, Secret } from 'jsonwebtoken';
 
+export type JWT = {
+  id: string;
+  email: string;
+  exp: number;
+  iss: string;
+};
+
 const issuers = new Map<
   string,
   {

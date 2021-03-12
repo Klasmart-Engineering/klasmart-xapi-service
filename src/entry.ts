@@ -1,6 +1,6 @@
 import express from 'express';
 import { ApolloServer } from 'apollo-server-express';
-import { checkToken } from './auth';
+import { checkToken, JWT } from './auth';
 import { register, collectDefaultMetrics } from 'prom-client';
 import { loadTypedefsSync } from '@graphql-tools/load';
 import { GraphQLFileLoader } from '@graphql-tools/graphql-file-loader';
@@ -13,7 +13,7 @@ collectDefaultMetrics({});
 
 export interface Context {
   sessionId?: string;
-  token?: any;
+  token?: JWT;
 }
 
 export const connectionCount = new Map<string, number>();
@@ -27,6 +27,7 @@ async function main() {
       loaders: [new GraphQLFileLoader()]
     })[0].document,
     subscriptions: {
+      path: `${routePrefix}/graphql`,
       keepAlive: 1000,
       onConnect: async (
         { sessionId, authToken }: any,
@@ -55,8 +56,9 @@ async function main() {
         ready: () => true
       },
       Mutation: {
-        sendEvents: (_parent, args, context, _info) =>
-          elasticSearch.sendEvents(args, context)
+        sendEvents: (_parent, args, context, _info) => {
+          elasticSearch.sendEvents(args, context);
+        }
       }
     },
     context: async ({ req, connection }) => {
