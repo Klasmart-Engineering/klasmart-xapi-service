@@ -67,7 +67,6 @@ export class ElasticSearch {
     { xAPIEvents, clientTimestamp }: any,
     context: Context
   ): Promise<boolean> {
-    console.log('sendEvents received: ', xAPIEvents);
     const userId = context?.token?.id;
     const email = context?.token?.email;
     const serverTimestamp = Date.now();

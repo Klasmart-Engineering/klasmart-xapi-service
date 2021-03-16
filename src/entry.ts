@@ -6,22 +6,20 @@ import { loadTypedefsSync } from '@graphql-tools/load';
 import { GraphQLFileLoader } from '@graphql-tools/graphql-file-loader';
 import { ElasticSearch } from './elasticSearch';
 import { createServer } from 'http';
+import cookie from 'cookie';
 
 const routePrefix = process.env.ROUTE_PREFIX || '';
 
 collectDefaultMetrics({});
 
 export interface Context {
-  sessionId?: string;
   token?: JWT;
 }
 
-export const connectionCount = new Map<string, number>();
+export let connectionCount = 0;
 
 async function main() {
   const elasticSearch = await ElasticSearch.create();
-  let connectionCount = 0;
-
   const server = new ApolloServer({
     typeDefs: loadTypedefsSync('./src/schema.graphql', {
       loaders: [new GraphQLFileLoader()]
@@ -29,26 +27,18 @@ async function main() {
     subscriptions: {
       path: `${routePrefix}/graphql`,
       keepAlive: 1000,
-      onConnect: async (
-        { sessionId, authToken }: any,
-        _webSocket,
-        connectionData: any
-      ) => {
-        let token = undefined;
-        if (authToken) token = await checkToken(authToken);
+      onConnect: async (_, websocket) => {
+        console.log('Connect');
         connectionCount++;
-        console.log(`Connection(${connectionCount}) from ${sessionId}`);
-        connectionData.counted = true;
-        connectionData.sessionId = sessionId;
-        return { sessionId, token } as Context;
+        const rawCookies = (websocket as any)?.upgradeReq?.headers?.cookie;
+        const cookies = rawCookies ? cookie.parse(rawCookies) : undefined;
+        const accessCookie = cookies?.access;
+        const token = await checkToken(accessCookie);
+        return { token };
       },
-      onDisconnect: (_websocket, connectionData) => {
-        if (!(connectionData as any).counted) {
-          return;
-        }
+      onDisconnect: () => {
+        console.log('Disconnect');
         connectionCount--;
-        const { sessionId } = connectionData as any;
-        console.log(`Disconnection(${connectionCount}) from ${sessionId}`);
       }
     },
     resolvers: {
@@ -56,21 +46,25 @@ async function main() {
         ready: () => true
       },
       Mutation: {
-        sendEvents: (_parent, args, context, _info) => {
-          elasticSearch.sendEvents(args, context);
-        }
+        sendEvents: (_parent, args, context, _info) =>
+          elasticSearch.sendEvents(args, context)
       }
     },
     context: async ({ req, connection }) => {
-      if (connection) {
-        return connection.context;
+      try {
+        if (connection) {
+          return connection.context;
+        }
+        const encodedToken =
+          req?.headers?.authorization || req?.cookies?.access;
+        if (encodedToken) {
+          const token = await checkToken(encodedToken);
+          return { token };
+        }
+        return {};
+      } catch (e) {
+        console.error(e);
       }
-
-      const encodedToken = req.headers?.authorization || req.cookies?.access;
-      let token = undefined;
-      if (encodedToken) token = await checkToken(encodedToken);
-
-      return { token };
     }
   });
 
