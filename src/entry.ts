@@ -3,6 +3,8 @@ import { register, collectDefaultMetrics } from 'prom-client';
 import { ElasticSearch } from './elasticSearch';
 import { createServer } from 'http';
 import { createApolloServer } from './createApolloServer';
+import { Firehose } from './firehose';
+import { XAPI } from './xapi';
 
 const routePrefix = process.env.ROUTE_PREFIX || '';
 
@@ -10,7 +12,9 @@ collectDefaultMetrics({});
 
 async function main() {
   const elasticSearch = await ElasticSearch.create();
-  const server = createApolloServer(elasticSearch, routePrefix);
+  const firehose = Firehose.create();
+  const xapi = new XAPI([elasticSearch, firehose]);
+  const server = createApolloServer(xapi, routePrefix);
 
   const app = express();
   app.get('/metrics', async (_req, res) => {

@@ -1,19 +1,10 @@
 import { Client, ClientOptions } from '@elastic/elasticsearch';
 import { ApiKeyAuth, BasicAuth } from '@elastic/elasticsearch/lib/pool';
-import {
-  FirehoseClient,
-  PutRecordCommand,
-  PutRecordBatchCommand,
-} from '@aws-sdk/client-firehose';
 import { getEnvironmentVariableOrDefault } from './envUtil';
-import { Context } from './context';
-import { XAPIRecord } from './xAPIRecord';
-import geoip from 'geoip-lite';
-import { createHash } from 'crypto';
+import { XAPIRecord } from './xapiRecord';
+import { XAPIRecordSender } from './xapiRecordSender';
 
-const client = new FirehoseClient({});
-
-export class ElasticSearch {
+export class ElasticSearch implements XAPIRecordSender {
   public static async create(
     options: ClientOptions = getDefaultClientOptions(),
   ): Promise<ElasticSearch> {
@@ -37,39 +28,12 @@ export class ElasticSearch {
   }
 
   private client: Client;
-  private deliveryStreamName: string | undefined;
 
   private constructor(client: Client) {
     this.client = client;
-    this.deliveryStreamName = getEnvironmentVariableOrDefault(
-      'FIREHOSE_STREAM_NAME',
-    );
   }
 
-  public async sendEvents(
-    { xAPIEvents }: any,
-    context: Context,
-  ): Promise<boolean> {
-    const userId = context?.token?.id;
-    const ip = context.ip;
-    const serverTimestamp = Date.now();
-
-    const geo = geoip.lookup(ip);
-    const ipHash = createHash('sha256').update(ip).digest('hex');
-
-    const xAPIRecords: XAPIRecord[] = xAPIEvents.map((xapi: any) => {
-      return { xapi: JSON.parse(xapi), userId, ipHash, geo, serverTimestamp };
-    });
-
-    await Promise.allSettled([
-      this.batchSendToFirehose(xAPIRecords),
-      this.sendToElasticSearch(xAPIRecords),
-    ]);
-
-    return true;
-  }
-
-  private async sendToElasticSearch(xAPIRecords: XAPIRecord[]) {
+  public async send(xAPIRecords: XAPIRecord[]): Promise<boolean> {
     const body = xAPIRecords.flatMap((xAPIRecord) => [
       { index: { _index: 'xapi' } },
       xAPIRecord,
@@ -96,35 +60,8 @@ export class ElasticSearch {
       console.log(erroredDocuments);
       return false;
     }
-  }
 
-  private async sendToFirehose(xAPIRecord: XAPIRecord) {
-    try {
-      const json = JSON.stringify(xAPIRecord);
-      const record = { Data: Buffer.from(json) };
-      const command = new PutRecordCommand({
-        DeliveryStreamName: this.deliveryStreamName,
-        Record: record,
-      });
-      const output = await client.send(command);
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
-  private async batchSendToFirehose(xAPIRecords: XAPIRecord[]) {
-    try {
-      const command = new PutRecordBatchCommand({
-        DeliveryStreamName: this.deliveryStreamName,
-        Records: xAPIRecords.map((xAPIRecord) => {
-          const json = JSON.stringify(xAPIRecord) + '\n';
-          return { Data: Buffer.from(json) };
-        }),
-      });
-      const output = await client.send(command);
-    } catch (error) {
-      console.log(error);
-    }
+    return true;
   }
 }
 

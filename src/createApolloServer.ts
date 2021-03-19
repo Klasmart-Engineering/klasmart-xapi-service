@@ -3,12 +3,12 @@ import { loadTypedefsSync } from '@graphql-tools/load';
 import { ApolloServer } from 'apollo-server-express';
 import cookie from 'cookie';
 import { checkToken } from './auth';
-import { ElasticSearch } from './elasticSearch';
+import { XAPI } from './xapi';
 
 let connectionCount = 0;
 
 export function createApolloServer(
-  elasticSearch: ElasticSearch,
+  xapi: XAPI,
   routePrefix: string,
 ): ApolloServer {
   return new ApolloServer({
@@ -45,7 +45,7 @@ export function createApolloServer(
       },
       Mutation: {
         sendEvents: (_parent, args, context, _info) =>
-          elasticSearch.sendEvents(args, context),
+          xapi.sendEvents(args, context),
       },
     },
     context: async ({ req, connection }) => {

@@ -3,7 +3,7 @@ import {
   PutRecordCommand,
   PutRecordBatchCommand,
 } from '@aws-sdk/client-firehose';
-import { XAPIRecord } from '../xAPIRecord';
+import { XAPIRecord } from '../xapiRecord';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const xapiJson = require('./firehoseExampleData.json');
 
