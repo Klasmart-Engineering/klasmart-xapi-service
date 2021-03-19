@@ -1,43 +1,21 @@
 import { Client, ClientOptions } from '@elastic/elasticsearch';
 import { ApiKeyAuth, BasicAuth } from '@elastic/elasticsearch/lib/pool';
-import { Context } from './entry';
+import {
+  FirehoseClient,
+  PutRecordCommand,
+  PutRecordBatchCommand,
+} from '@aws-sdk/client-firehose';
+import { getEnvironmentVariableOrDefault } from './envUtil';
+import { Context } from './context';
+import { XAPIRecord } from './xAPIRecord';
+import geoip from 'geoip-lite';
+import { createHash } from 'crypto';
 
-function getEnvironmentVariableOrDefault(
-  variableName: string,
-  defaultValue?: string
-) {
-  if (process.env[variableName]) {
-    return process.env[variableName];
-  }
-  console.warn(
-    `${variableName} environment variable was not provided${
-      defaultValue ?? ` using default value '${defaultValue}'`
-    }`
-  );
-  return defaultValue;
-}
+const client = new FirehoseClient({});
 
-function getDefaultClientOptions(): ClientOptions {
-  const node = getEnvironmentVariableOrDefault(
-    'ELASTICSEARCH_URL',
-    'http://localhost:9200'
-  );
-  const username = getEnvironmentVariableOrDefault('ELASTICSEARCH_USERNAME');
-  const password = getEnvironmentVariableOrDefault('ELASTICSEARCH_PASSWORD');
-
-  const auth: BasicAuth | ApiKeyAuth | undefined =
-    username && password
-      ? {
-          username,
-          password
-        }
-      : undefined;
-
-  return { node, auth };
-}
 export class ElasticSearch {
   public static async create(
-    options: ClientOptions = getDefaultClientOptions()
+    options: ClientOptions = getDefaultClientOptions(),
   ): Promise<ElasticSearch> {
     const client = new Client(options);
     try {
@@ -47,7 +25,7 @@ export class ElasticSearch {
       }
       if (result.statusCode < 200 || result.statusCode >= 300) {
         throw new Error(
-          `Elasticsearch ping responded with status code ${result.statusCode}`
+          `Elasticsearch ping responded with status code ${result.statusCode}`,
         );
       }
       console.log('🔎 Connected to Elasticsearch');
@@ -59,25 +37,46 @@ export class ElasticSearch {
   }
 
   private client: Client;
+  private deliveryStreamName: string | undefined;
+
   private constructor(client: Client) {
     this.client = client;
+    this.deliveryStreamName = getEnvironmentVariableOrDefault(
+      'FIREHOSE_STREAM_NAME',
+    );
   }
 
   public async sendEvents(
-    { xAPIEvents, clientTimestamp }: any,
-    context: Context
+    { xAPIEvents }: any,
+    context: Context,
   ): Promise<boolean> {
     const userId = context?.token?.id;
-    const email = context?.token?.email;
+    const ip = context.ip;
     const serverTimestamp = Date.now();
 
-    const body = xAPIEvents.flatMap((doc: any) => [
+    const geo = geoip.lookup(ip);
+    const ipHash = createHash('sha256').update(ip).digest('hex');
+
+    const xAPIRecords: XAPIRecord[] = xAPIEvents.map((xapi: any) => {
+      return { xapi: JSON.parse(xapi), userId, ipHash, geo, serverTimestamp };
+    });
+
+    await Promise.allSettled([
+      this.batchSendToFirehose(xAPIRecords),
+      this.sendToElasticSearch(xAPIRecords),
+    ]);
+
+    return true;
+  }
+
+  private async sendToElasticSearch(xAPIRecords: XAPIRecord[]) {
+    const body = xAPIRecords.flatMap((xAPIRecord) => [
       { index: { _index: 'xapi' } },
-      { xapi: JSON.parse(doc), userId, email, serverTimestamp, clientTimestamp }
+      xAPIRecord,
     ]);
 
     const { body: bulkResponse } = await this.client.bulk({
-      body: body
+      body: body,
     });
 
     if (bulkResponse.errors) {
@@ -89,7 +88,7 @@ export class ElasticSearch {
             status: action[operation].status,
             error: action[operation].error,
             operation: body[i * 2],
-            document: body[i * 2 + 1]
+            document: body[i * 2 + 1],
           });
         }
       });
@@ -97,7 +96,53 @@ export class ElasticSearch {
       console.log(erroredDocuments);
       return false;
     }
-
-    return true;
   }
+
+  private async sendToFirehose(xAPIRecord: XAPIRecord) {
+    try {
+      const json = JSON.stringify(xAPIRecord);
+      const record = { Data: Buffer.from(json) };
+      const command = new PutRecordCommand({
+        DeliveryStreamName: this.deliveryStreamName,
+        Record: record,
+      });
+      const output = await client.send(command);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  private async batchSendToFirehose(xAPIRecords: XAPIRecord[]) {
+    try {
+      const command = new PutRecordBatchCommand({
+        DeliveryStreamName: this.deliveryStreamName,
+        Records: xAPIRecords.map((xAPIRecord) => {
+          const json = JSON.stringify(xAPIRecord);
+          return { Data: Buffer.from(json) };
+        }),
+      });
+      const output = await client.send(command);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+}
+
+function getDefaultClientOptions(): ClientOptions {
+  const node = getEnvironmentVariableOrDefault(
+    'ELASTICSEARCH_URL',
+    'http://localhost:9200',
+  );
+  const username = getEnvironmentVariableOrDefault('ELASTICSEARCH_USERNAME');
+  const password = getEnvironmentVariableOrDefault('ELASTICSEARCH_PASSWORD');
+
+  const auth: BasicAuth | ApiKeyAuth | undefined =
+    username && password
+      ? {
+          username,
+          password,
+        }
+      : undefined;
+
+  return { node, auth };
 }

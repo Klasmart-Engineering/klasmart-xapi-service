@@ -13,10 +13,10 @@ async function run() {
     body: {
       query: {
         match: {
-          quote: 'winter'
-        }
-      }
-    }
+          quote: 'winter',
+        },
+      },
+    },
   });
 
   console.log(body.hits.hits);
@@ -28,16 +28,16 @@ async function indexDummyData() {
     index: 'game-of-thrones',
     body: {
       character: 'Ned Stark',
-      quote: 'Winter is coming.'
-    }
+      quote: 'Winter is coming.',
+    },
   });
 
   await client.index({
     index: 'game-of-thrones',
     body: {
       character: 'Daenerys Targaryen',
-      quote: 'I am the blood of the dragon.'
-    }
+      quote: 'I am the blood of the dragon.',
+    },
   });
 
   await client.index({
@@ -48,8 +48,8 @@ async function indexDummyData() {
     refresh: true,
     body: {
       character: 'Tyrion Lannister',
-      quote: 'A mind needs books like a sword needs a whetstone.'
-    }
+      quote: 'A mind needs books like a sword needs a whetstone.',
+    },
   });
 }
 

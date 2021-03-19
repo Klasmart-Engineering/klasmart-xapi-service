@@ -2,7 +2,7 @@
 
 import { Client } from '@elastic/elasticsearch';
 const client = new Client({
-  node: 'http://localhost:9200'
+  node: 'http://localhost:9200',
 });
 
 async function run() {
@@ -15,9 +15,9 @@ async function run() {
     index: 'tweets',
     body: {
       query: {
-        match: { text: 'winter' }
-      }
-    }
+        match: { text: 'winter' },
+      },
+    },
   });
 
   console.log(result.body.hits.hits);
@@ -33,12 +33,12 @@ async function indexDummyData() {
             id: { type: 'integer' },
             text: { type: 'text' },
             user: { type: 'keyword' },
-            time: { type: 'date' }
-          }
-        }
-      }
+            time: { type: 'date' },
+          },
+        },
+      },
     },
-    { ignore: [400] }
+    { ignore: [400] },
   );
 
   const dataset = [
@@ -46,32 +46,32 @@ async function indexDummyData() {
       id: 1,
       text: "If I fall, don't bring me back.",
       user: 'jon',
-      date: new Date()
+      date: new Date(),
     },
     {
       id: 2,
       text: 'Winter is coming',
       user: 'ned',
-      date: new Date()
+      date: new Date(),
     },
     {
       id: 3,
       text: 'A Lannister always pays his debts.',
       user: 'tyrion',
-      date: new Date()
+      date: new Date(),
     },
     {
       id: 4,
       text: 'I am the blood of the dragon.',
       user: 'daenerys',
-      date: new Date()
+      date: new Date(),
     },
     {
       id: 5, // change this value to a string to see the bulk response with errors
       text: "A girl is Arya Stark of Winterfell. And I'm going home.",
       user: 'arya',
-      date: new Date()
-    }
+      date: new Date(),
+    },
   ];
 
   const body = dataset.flatMap((doc) => [{ index: { _index: 'tweets' } }, doc]);
@@ -93,7 +93,7 @@ async function indexDummyData() {
           status: action[operation].status,
           error: action[operation].error,
           operation: body[i * 2],
-          document: body[i * 2 + 1]
+          document: body[i * 2 + 1],
         });
       }
     });
