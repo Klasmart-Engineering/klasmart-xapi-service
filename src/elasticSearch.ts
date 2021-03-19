@@ -117,7 +117,7 @@ export class ElasticSearch {
       const command = new PutRecordBatchCommand({
         DeliveryStreamName: this.deliveryStreamName,
         Records: xAPIRecords.map((xAPIRecord) => {
-          const json = JSON.stringify(xAPIRecord);
+          const json = JSON.stringify(xAPIRecord) + '\n';
           return { Data: Buffer.from(json) };
         }),
       });
