@@ -6,7 +6,7 @@ import { XAPIRecordSender } from './xapiRecordSender';
 
 export class ElasticSearch implements XAPIRecordSender {
   public static async create(
-    options: ClientOptions = getDefaultClientOptions(),
+    options: ClientOptions = getDefaultClientOptions()
   ): Promise<ElasticSearch> {
     const client = new Client(options);
     try {
@@ -16,7 +16,7 @@ export class ElasticSearch implements XAPIRecordSender {
       }
       if (result.statusCode < 200 || result.statusCode >= 300) {
         throw new Error(
-          `Elasticsearch ping responded with status code ${result.statusCode}`,
+          `Elasticsearch ping responded with status code ${result.statusCode}`
         );
       }
       console.log('🔎 Connected to Elasticsearch');
@@ -36,11 +36,11 @@ export class ElasticSearch implements XAPIRecordSender {
   public async send(xAPIRecords: XAPIRecord[]): Promise<boolean> {
     const body = xAPIRecords.flatMap((xAPIRecord) => [
       { index: { _index: 'xapi' } },
-      xAPIRecord,
+      xAPIRecord
     ]);
 
     const { body: bulkResponse } = await this.client.bulk({
-      body: body,
+      body: body
     });
 
     if (bulkResponse.errors) {
@@ -52,7 +52,7 @@ export class ElasticSearch implements XAPIRecordSender {
             status: action[operation].status,
             error: action[operation].error,
             operation: body[i * 2],
-            document: body[i * 2 + 1],
+            document: body[i * 2 + 1]
           });
         }
       });
@@ -66,10 +66,12 @@ export class ElasticSearch implements XAPIRecordSender {
 }
 
 function getDefaultClientOptions(): ClientOptions {
-  const node = getEnvironmentVariableOrDefault(
-    'ELASTICSEARCH_URL',
-    'http://localhost:9200',
-  );
+  const node = getEnvironmentVariableOrDefault('ELASTICSEARCH_URL');
+  if (!node) {
+    throw new Error(
+      'To use elastic search specify ELASTICSEARCH_URL enviroment variable'
+    );
+  }
   const username = getEnvironmentVariableOrDefault('ELASTICSEARCH_USERNAME');
   const password = getEnvironmentVariableOrDefault('ELASTICSEARCH_PASSWORD');
 
@@ -77,7 +79,7 @@ function getDefaultClientOptions(): ClientOptions {
     username && password
       ? {
           username,
-          password,
+          password
         }
       : undefined;
 

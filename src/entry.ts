@@ -5,15 +5,36 @@ import { createServer } from 'http';
 import { createApolloServer } from './createApolloServer';
 import { Firehose } from './firehose';
 import { XAPI } from './xapi';
-
+import { XAPIRecordSender } from './xapiRecordSender';
 const routePrefix = process.env.ROUTE_PREFIX || '';
 
 collectDefaultMetrics({});
 
 async function main() {
-  const elasticSearch = await ElasticSearch.create();
-  const firehose = Firehose.create();
-  const xapi = new XAPI([elasticSearch, firehose]);
+  const recordSenders: XAPIRecordSender[] = [];
+  try {
+    const elasticSearch = await ElasticSearch.create();
+    recordSenders.push(elasticSearch);
+    console.log('🔎 Elastic search record sender added');
+  } catch (e) {
+    console.error(e);
+  }
+
+  try {
+    const firehoseRecordSender = Firehose.create();
+    recordSenders.push(firehoseRecordSender);
+    console.log('🚒 Firehose record sender added');
+  } catch (e) {
+    console.error(e);
+  }
+
+  if (recordSenders.length <= 0) {
+    throw new Error(
+      '❌ No record senders configured, specify FIREHOSE_STREAM_NAME or ELASTICSEARCH_URL enviroment variables'
+    );
+  }
+
+  const xapi = new XAPI(recordSenders);
   const server = createApolloServer(xapi, routePrefix);
 
   const app = express();

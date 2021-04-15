@@ -1,6 +1,6 @@
 import {
   FirehoseClient,
-  PutRecordBatchCommand,
+  PutRecordBatchCommand
 } from '@aws-sdk/client-firehose';
 import { getEnvironmentVariableOrDefault } from './envUtil';
 import { XAPIRecord } from './xapiRecord';
@@ -9,8 +9,13 @@ import { XAPIRecordSender } from './xapiRecordSender';
 export class Firehose implements XAPIRecordSender {
   public static create(
     client: FirehoseClient = new FirehoseClient({}),
-    deliveryStreamName = getDefaultDeliveryStreamName(),
+    deliveryStreamName = getEnvironmentVariableOrDefault('FIREHOSE_STREAM_NAME')
   ): Firehose {
+    if (!deliveryStreamName) {
+      throw new Error(
+        'To use firehose specify FIREHOSE_STREAM_NAME env variable'
+      );
+    }
     return new Firehose(client || new FirehoseClient({}), deliveryStreamName);
   }
 
@@ -29,7 +34,7 @@ export class Firehose implements XAPIRecordSender {
         Records: xAPIRecords.map((xAPIRecord) => {
           const json = JSON.stringify(xAPIRecord) + '\n';
           return { Data: Buffer.from(json) };
-        }),
+        })
       });
       const output = await this.client.send(command);
     } catch (error) {
@@ -39,7 +44,4 @@ export class Firehose implements XAPIRecordSender {
 
     return true;
   }
-}
-function getDefaultDeliveryStreamName() {
-  return getEnvironmentVariableOrDefault('FIREHOSE_STREAM_NAME');
 }
