@@ -30,7 +30,7 @@ async function main() {
 
   server.applyMiddleware({
     app,
-    path: routePrefix,
+    path: routePrefix
   });
 
   const httpServer = createServer(app);
@@ -39,10 +39,10 @@ async function main() {
   const port = process.env.PORT || 8080;
   httpServer.listen(port, () => {
     console.log(
-      `🌎 Server ready at http://localhost:${port}${server.graphqlPath}`,
+      `🌎 Server ready at http://localhost:${port}${server.graphqlPath}`
     );
     console.log(
-      `🌎 Subscriptions ready at ws://localhost:${port}${server.subscriptionsPath}`,
+      `🌎 Subscriptions ready at ws://localhost:${port}${server.subscriptionsPath}`
     );
   });
 }
