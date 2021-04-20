@@ -1,0 +1,21 @@
+pipelines:
+  custom:
+    deploy:
+      - step:
+          name: "Build & Push Docker image"
+          image: python:3.7.4-alpine3.10
+          script:
+            - apk update && apk add git
+            - pip3 install -U awscli
+
+            - aws ecr get-login-password --region eu-west-2 | docker login --username AWS --password-stdin $DOCKER_REPO_URL
+            - docker build -t xapi-server .
+            - export COMMIT_HASH=$(git rev-parse --short HEAD)
+            - docker tag xapi-server:latest $DOCKER_REPO_URL/$DOCKER_REPO_NAME:$COMMIT_HASH
+            - docker push $DOCKER_REPO_URL/$DOCKER_REPO_NAME:$COMMIT_HASH
+          services:
+            - docker
+
+definitions:
+  caches:
+    nodemodules: ./node_modules
