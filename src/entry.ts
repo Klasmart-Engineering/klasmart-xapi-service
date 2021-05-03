@@ -6,12 +6,28 @@ import { createApolloServer } from './createApolloServer';
 import { Firehose } from './firehose';
 import { XAPI } from './xapi';
 import { XAPIRecordSender } from './xapiRecordSender';
+import { DynamoDBSender } from './dynamodb';
 const routePrefix = process.env.ROUTE_PREFIX || '';
 
 collectDefaultMetrics({});
 
 async function main() {
   const recordSenders: XAPIRecordSender[] = [];
+
+  try {
+    const TableName = process.env.DYNAMODB_TABLE_NAME;
+    if (typeof TableName !== 'string') {
+      throw new Error(
+        `To use dynamoDB record sender use DYNAMODB_TABLE_NAME enviroment variable`,
+      );
+    }
+    const dynamoDBRecordSender = await DynamoDBSender.create(TableName);
+    recordSenders.push(dynamoDBRecordSender);
+    console.log('🔵 DynamoDB record sender added');
+  } catch (e) {
+    console.error(e);
+  }
+
   try {
     const elasticSearch = await ElasticSearch.create();
     recordSenders.push(elasticSearch);
@@ -30,7 +46,11 @@ async function main() {
 
   if (recordSenders.length <= 0) {
     throw new Error(
-      '❌ No record senders configured, specify FIREHOSE_STREAM_NAME or ELASTICSEARCH_URL enviroment variables'
+      '❌ No record senders configured, specify at least one of the following enviroment variables\n' +
+        '- DYNAMODB_TABLE_NAME\n' +
+        '- FIREHOSE_STREAM_NAME\n' +
+        '- ELASTICSEARCH_URL\n' +
+        '',
     );
   }
 
@@ -51,7 +71,7 @@ async function main() {
 
   server.applyMiddleware({
     app,
-    path: routePrefix
+    path: routePrefix,
   });
 
   const httpServer = createServer(app);
@@ -60,10 +80,10 @@ async function main() {
   const port = process.env.PORT || 8080;
   httpServer.listen(port, () => {
     console.log(
-      `🌎 Server ready at http://localhost:${port}${server.graphqlPath}`
+      `🌎 Server ready at http://localhost:${port}${server.graphqlPath}`,
     );
     console.log(
-      `🌎 Subscriptions ready at ws://localhost:${port}${server.subscriptionsPath}`
+      `🌎 Subscriptions ready at ws://localhost:${port}${server.subscriptionsPath}`,
     );
   });
 }

@@ -24,6 +24,7 @@
   "license": "ISC",
   "homepage": "https://bitbucket.org/calmisland/h5p-xapi-server#readme",
   "devDependencies": {
+    "@types/aws-sdk": "^2.7.0",
     "@types/chai": "^4.2.15",
     "@types/cookie": "^0.4.0",
     "@types/elasticsearch": "^5.0.37",
@@ -50,6 +51,7 @@
     "@graphql-tools/graphql-file-loader": "^6.2.7",
     "@graphql-tools/load": "^6.2.7",
     "apollo-server-express": "^2.21.0",
+    "aws-sdk": "^2.897.0",
     "cookie": "^0.4.1",
     "express": "^4.17.1",
     "geoip-lite": "^1.4.2",
