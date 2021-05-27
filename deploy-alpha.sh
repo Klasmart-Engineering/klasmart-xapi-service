@@ -1,3 +1,4 @@
+# TODO: Alpha should pull images from infra account (942095822719)
 aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin 871601235178.dkr.ecr.ap-northeast-2.amazonaws.com
 docker build -t kidsloop-alpha-xapi-ace-ray .
 docker tag kidsloop-alpha-xapi-ace-ray:latest 871601235178.dkr.ecr.ap-northeast-2.amazonaws.com/kidsloop-alpha-xapi-ace-ray:latest
