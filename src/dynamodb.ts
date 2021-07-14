@@ -34,7 +34,9 @@ export class DynamoDBSender implements XAPIRecordSender {
         })
         .promise();
     } catch (e) {
-      console.error(`Could not write batch to dynamodb, attempting: ${e}`);
+      console.error(
+        `Could not write batch to dynamodb: ${e}\nNow attempting to send one at a time...`,
+      );
       this.sendLoop(xAPIRecords);
     }
     return true;
@@ -49,7 +51,9 @@ export class DynamoDBSender implements XAPIRecordSender {
           })
           .promise();
       } catch (e) {
-        console.error(e);
+        console.error(
+          `Could not write event for user(${xAPIRecord.userId}) with server timestamp (${xAPIRecord.serverTimestamp}) to dynamodb: ${e}`,
+        );
       }
     }
   }

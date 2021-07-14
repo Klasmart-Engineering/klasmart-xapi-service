@@ -19,7 +19,6 @@ export function createApolloServer(
       path: `${routePrefix}/graphql`,
       keepAlive: 1000,
       onConnect: async (_, _websocket, connectionContext) => {
-        console.log('Connect');
         connectionCount++;
         const headers = connectionContext?.request?.headers;
         const ip = headers
@@ -35,7 +34,6 @@ export function createApolloServer(
         return { ip };
       },
       onDisconnect: () => {
-        console.log('Disconnect');
         connectionCount--;
       },
     },
