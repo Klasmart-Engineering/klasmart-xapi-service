@@ -15,16 +15,24 @@ export class XAPI {
     { xAPIEvents }: any,
     context: Context,
   ): Promise<boolean> {
-    const userId = context?.token?.id;
+    const userId = context?.token?.id || 'unauthenticated';
     const ip = context.ip;
     const serverTimestamp = Date.now();
 
     const geo = geoip.lookup(ip);
     const ipHash = createHash('sha256').update(ip).digest('hex');
 
-    const xAPIRecords: XAPIRecord[] = xAPIEvents.map((xapi: any) => {
-      return { xapi: JSON.parse(xapi), userId, ipHash, geo, serverTimestamp };
-    });
+    const xAPIRecords: XAPIRecord[] = xAPIEvents.map(
+      (xapi: any, index: number) => {
+        return {
+          xapi: JSON.parse(xapi),
+          userId,
+          ipHash,
+          geo,
+          serverTimestamp: serverTimestamp + index,
+        };
+      },
+    );
 
     await Promise.allSettled(
       this.recordSenders.map((x) => x.send(xAPIRecords)),
