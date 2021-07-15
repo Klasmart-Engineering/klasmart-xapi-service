@@ -1,15 +1,15 @@
 import { DocumentClient } from 'aws-sdk/clients/dynamodb';
-import { XAPIRecord } from './xapiRecord';
-import { XAPIRecordSender } from './xapiRecordSender';
+import { XapiRecord } from '../interfaces/xapiRecord';
+import { IXapiRecordSender } from '../interfaces/xapiRecordSender';
 
 const docClient = new DocumentClient({
   apiVersion: '2012-08-10',
 });
 
-export class DynamoDBSender implements XAPIRecordSender {
-  public static async create(TableName: string): Promise<DynamoDBSender> {
+export class DynamoDbRecordSender implements IXapiRecordSender {
+  public static async create(TableName: string): Promise<DynamoDbRecordSender> {
     try {
-      return new DynamoDBSender(TableName);
+      return new DynamoDbRecordSender(TableName);
     } catch (e) {
       throw new Error(`❌ Unable to query DynamoDB table' ${TableName}: ${e}`);
     }
@@ -18,14 +18,14 @@ export class DynamoDBSender implements XAPIRecordSender {
   private constructor(TableName: string) {
     this.TableName = TableName;
   }
-  public async send(xAPIRecords: XAPIRecord[]): Promise<boolean> {
+  public async sendRecords(xapiRecords: XapiRecord[]): Promise<boolean> {
     try {
       const RequestItems: DocumentClient.BatchWriteItemRequestMap = {};
       RequestItems[
         this.TableName
-      ] = xAPIRecords.map<DocumentClient.WriteRequest>((xAPIRecord) => ({
+      ] = xapiRecords.map<DocumentClient.WriteRequest>((xapiRecord) => ({
         PutRequest: {
-          Item: xAPIRecord,
+          Item: xapiRecord,
         },
       }));
       await docClient
@@ -37,22 +37,22 @@ export class DynamoDBSender implements XAPIRecordSender {
       console.error(
         `Could not write batch to dynamodb: ${e}\nNow attempting to send one at a time...`,
       );
-      this.sendLoop(xAPIRecords);
+      this.sendLoop(xapiRecords);
     }
     return true;
   }
-  private async sendLoop(xAPIRecords: XAPIRecord[]) {
-    for (const xAPIRecord of xAPIRecords) {
+  private async sendLoop(xapiRecords: XapiRecord[]) {
+    for (const xapiRecord of xapiRecords) {
       try {
         await docClient
           .put({
             TableName: this.TableName,
-            Item: xAPIRecord,
+            Item: xapiRecord,
           })
           .promise();
       } catch (e) {
         console.error(
-          `Could not write event for user(${xAPIRecord.userId}) with server timestamp (${xAPIRecord.serverTimestamp}) to dynamodb: ${e}`,
+          `Could not write event for user(${xapiRecord.userId}) with server timestamp (${xapiRecord.serverTimestamp}) to dynamodb: ${e}`,
         );
       }
     }

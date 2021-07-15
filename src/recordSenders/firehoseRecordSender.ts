@@ -1,22 +1,27 @@
 import {
   FirehoseClient,
-  PutRecordBatchCommand
+  PutRecordBatchCommand,
 } from '@aws-sdk/client-firehose';
-import { getEnvironmentVariableOrDefault } from './envUtil';
-import { XAPIRecord } from './xapiRecord';
-import { XAPIRecordSender } from './xapiRecordSender';
+import { getEnvironmentVariableOrDefault } from '../helpers/envUtil';
+import { XapiRecord } from '../interfaces/xapiRecord';
+import { IXapiRecordSender } from '../interfaces/xapiRecordSender';
 
-export class Firehose implements XAPIRecordSender {
+export class FirehoseRecordSender implements IXapiRecordSender {
   public static create(
     client: FirehoseClient = new FirehoseClient({}),
-    deliveryStreamName = getEnvironmentVariableOrDefault('FIREHOSE_STREAM_NAME')
-  ): Firehose {
+    deliveryStreamName = getEnvironmentVariableOrDefault(
+      'FIREHOSE_STREAM_NAME',
+    ),
+  ): FirehoseRecordSender {
     if (!deliveryStreamName) {
       throw new Error(
-        'To use firehose specify FIREHOSE_STREAM_NAME env variable'
+        'To use firehose specify FIREHOSE_STREAM_NAME env variable',
       );
     }
-    return new Firehose(client || new FirehoseClient({}), deliveryStreamName);
+    return new FirehoseRecordSender(
+      client || new FirehoseClient({}),
+      deliveryStreamName,
+    );
   }
 
   private client: FirehoseClient;
@@ -27,14 +32,14 @@ export class Firehose implements XAPIRecordSender {
     this.deliveryStreamName = deliveryStreamName;
   }
 
-  public async send(xAPIRecords: XAPIRecord[]): Promise<boolean> {
+  public async sendRecords(xAPIRecords: XapiRecord[]): Promise<boolean> {
     try {
       const command = new PutRecordBatchCommand({
         DeliveryStreamName: this.deliveryStreamName,
         Records: xAPIRecords.map((xAPIRecord) => {
           const json = JSON.stringify(xAPIRecord) + '\n';
           return { Data: Buffer.from(json) };
-        })
+        }),
       });
       const output = await this.client.send(command);
     } catch (error) {

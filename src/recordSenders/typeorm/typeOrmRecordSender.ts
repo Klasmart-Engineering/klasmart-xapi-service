@@ -1,15 +1,15 @@
 import { getRepository } from 'typeorm';
-import { XAPIRecord } from '../xapiRecord';
-import { XAPIRecordSender } from '../xapiRecordSender';
-import { USERS_CONNECTION_NAME } from './connectToUserDatabase';
-import { XapiDbRecord } from './entities/entities';
+import { XapiRecord } from '../../interfaces/xapiRecord';
+import { IXapiRecordSender } from '../../interfaces/xapiRecordSender';
+import { XAPI_CONNECTION_NAME } from './connectToTypeOrmDatabase';
+import { XapiDbRecord } from './entities/xapiDbRecord';
 
-export class TypeORMRecordSender implements XAPIRecordSender {
+export class TypeOrmRecordSender implements IXapiRecordSender {
   public constructor(
-    private repository = getRepository(XapiDbRecord, USERS_CONNECTION_NAME),
+    private repository = getRepository(XapiDbRecord, XAPI_CONNECTION_NAME),
   ) {}
 
-  public async send(xAPIRecords: XAPIRecord[]): Promise<boolean> {
+  public async sendRecords(xAPIRecords: XapiRecord[]): Promise<boolean> {
     const promises = xAPIRecords.map(async (x) => {
       try {
         const record = this.repository.create();

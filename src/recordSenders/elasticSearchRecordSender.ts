@@ -1,13 +1,13 @@
 import { Client, ClientOptions } from '@elastic/elasticsearch';
 import { ApiKeyAuth, BasicAuth } from '@elastic/elasticsearch/lib/pool';
-import { getEnvironmentVariableOrDefault } from './envUtil';
-import { XAPIRecord } from './xapiRecord';
-import { XAPIRecordSender } from './xapiRecordSender';
+import { getEnvironmentVariableOrDefault } from '../helpers/envUtil';
+import { XapiRecord } from '../interfaces/xapiRecord';
+import { IXapiRecordSender } from '../interfaces/xapiRecordSender';
 
-export class ElasticSearch implements XAPIRecordSender {
+export class ElasticSearchRecordSender implements IXapiRecordSender {
   public static async create(
-    options: ClientOptions = getDefaultClientOptions()
-  ): Promise<ElasticSearch> {
+    options: ClientOptions = getDefaultClientOptions(),
+  ): Promise<ElasticSearchRecordSender> {
     const client = new Client(options);
     try {
       const result = await client.ping();
@@ -16,11 +16,11 @@ export class ElasticSearch implements XAPIRecordSender {
       }
       if (result.statusCode < 200 || result.statusCode >= 300) {
         throw new Error(
-          `Elasticsearch ping responded with status code ${result.statusCode}`
+          `Elasticsearch ping responded with status code ${result.statusCode}`,
         );
       }
       console.log('🔎 Connected to Elasticsearch');
-      return new ElasticSearch(client);
+      return new ElasticSearchRecordSender(client);
     } catch (e) {
       console.error('Failed to connect to Elasticsearch: ', e);
       throw e;
@@ -33,14 +33,14 @@ export class ElasticSearch implements XAPIRecordSender {
     this.client = client;
   }
 
-  public async send(xAPIRecords: XAPIRecord[]): Promise<boolean> {
+  public async sendRecords(xAPIRecords: XapiRecord[]): Promise<boolean> {
     const body = xAPIRecords.flatMap((xAPIRecord) => [
       { index: { _index: 'xapi' } },
-      xAPIRecord
+      xAPIRecord,
     ]);
 
     const { body: bulkResponse } = await this.client.bulk({
-      body: body
+      body: body,
     });
 
     if (bulkResponse.errors) {
@@ -52,7 +52,7 @@ export class ElasticSearch implements XAPIRecordSender {
             status: action[operation].status,
             error: action[operation].error,
             operation: body[i * 2],
-            document: body[i * 2 + 1]
+            document: body[i * 2 + 1],
           });
         }
       });
@@ -69,7 +69,7 @@ function getDefaultClientOptions(): ClientOptions {
   const node = getEnvironmentVariableOrDefault('ELASTICSEARCH_URL');
   if (!node) {
     throw new Error(
-      'To use elastic search specify ELASTICSEARCH_URL enviroment variable'
+      'To use elastic search specify ELASTICSEARCH_URL enviroment variable',
     );
   }
   const username = getEnvironmentVariableOrDefault('ELASTICSEARCH_USERNAME');
@@ -79,7 +79,7 @@ function getDefaultClientOptions(): ClientOptions {
     username && password
       ? {
           username,
-          password
+          password,
         }
       : undefined;
 

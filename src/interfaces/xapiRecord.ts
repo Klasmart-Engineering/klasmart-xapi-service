@@ -1,6 +1,6 @@
 import { Lookup } from 'geoip-lite';
 
-export interface XAPIRecord {
+export interface XapiRecord {
   xapi: any;
   userId?: string;
   geo?: Lookup;

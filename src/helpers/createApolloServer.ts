@@ -3,12 +3,10 @@ import { loadTypedefsSync } from '@graphql-tools/load';
 import { ApolloServer } from 'apollo-server-express';
 import cookie from 'cookie';
 import { checkToken } from './auth';
-import { XAPI } from './xapi';
-
-let connectionCount = 0;
+import { XapiEventDispatcher } from '../xapiEventDispatcher';
 
 export function createApolloServer(
-  xapi: XAPI,
+  xapiEventDispatcher: XapiEventDispatcher,
   routePrefix: string,
 ): ApolloServer {
   return new ApolloServer({
@@ -19,7 +17,6 @@ export function createApolloServer(
       path: `${routePrefix}/graphql`,
       keepAlive: 1000,
       onConnect: async (_, _websocket, connectionContext) => {
-        connectionCount++;
         const headers = connectionContext?.request?.headers;
         const ip = headers
           ? headers['x-forwarded-for']
@@ -33,9 +30,7 @@ export function createApolloServer(
         }
         return { ip };
       },
-      onDisconnect: () => {
-        connectionCount--;
-      },
+      onDisconnect: () => {},
     },
     resolvers: {
       Query: {
@@ -43,7 +38,7 @@ export function createApolloServer(
       },
       Mutation: {
         sendEvents: (_parent, args, context, _info) =>
-          xapi.sendEvents(args, context),
+          xapiEventDispatcher.dispatchEvents(args, context),
       },
     },
     context: async ({ req, connection }) => {

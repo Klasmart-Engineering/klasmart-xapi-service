@@ -3,38 +3,38 @@ config();
 
 import express from 'express';
 import { register, collectDefaultMetrics } from 'prom-client';
-import { ElasticSearch } from './elasticSearch';
+import { ElasticSearchRecordSender } from './recordSenders/elasticSearchRecordSender';
 import { createServer } from 'http';
-import { createApolloServer } from './createApolloServer';
-import { Firehose } from './firehose';
-import { XAPI } from './xapi';
-import { XAPIRecordSender } from './xapiRecordSender';
-import { DynamoDBSender } from './dynamodb';
-import { connectToUserDatabase } from './typeorm/connectToUserDatabase';
-import { TypeORMRecordSender } from './typeorm/recordSender';
+import { createApolloServer } from './helpers/createApolloServer';
+import { FirehoseRecordSender } from './recordSenders/firehoseRecordSender';
+import { XapiEventDispatcher } from './xapiEventDispatcher';
+import { IXapiRecordSender } from './interfaces/xapiRecordSender';
+import { DynamoDbRecordSender } from './recordSenders/dynamoDbRecordSender';
+import { connectToTypeOrmDatabase } from './recordSenders/typeorm/connectToTypeOrmDatabase';
+import { TypeOrmRecordSender } from './recordSenders/typeorm/typeOrmRecordSender';
 
 const routePrefix = process.env.ROUTE_PREFIX || '';
 
 collectDefaultMetrics({});
 
 async function main() {
-  const recordSenders: XAPIRecordSender[] = [];
+  const recordSenders: IXapiRecordSender[] = [];
   try {
     const TableName = process.env.DYNAMODB_TABLE_NAME;
     if (typeof TableName !== 'string') {
       throw new Error(
-        `To use dynamoDB record sender use DYNAMODB_TABLE_NAME enviroment variable`,
+        `To use DynamoDB record sender use DYNAMODB_TABLE_NAME enviroment variable`,
       );
     }
-    const dynamoDBRecordSender = await DynamoDBSender.create(TableName);
-    recordSenders.push(dynamoDBRecordSender);
+    const dynamoDbRecordSender = await DynamoDbRecordSender.create(TableName);
+    recordSenders.push(dynamoDbRecordSender);
     console.log('🔵 DynamoDB record sender added');
   } catch (e) {
     console.error(e);
   }
 
   try {
-    const elasticSearch = await ElasticSearch.create();
+    const elasticSearch = await ElasticSearchRecordSender.create();
     recordSenders.push(elasticSearch);
     console.log('🔎 Elastic search record sender added');
   } catch (e) {
@@ -42,18 +42,16 @@ async function main() {
   }
 
   try {
-    connectToUserDatabase().catch((e) => {
-      console.error(e);
-    });
-    const typeORM = new TypeORMRecordSender();
+    await connectToTypeOrmDatabase();
+    const typeORM = new TypeOrmRecordSender();
     recordSenders.push(typeORM);
-    console.log('🔎 TypeORM search record sender added');
+    console.log('🐘 TypeORM record sender added');
   } catch (e) {
     console.error(e);
   }
 
   try {
-    const firehoseRecordSender = Firehose.create();
+    const firehoseRecordSender = FirehoseRecordSender.create();
     recordSenders.push(firehoseRecordSender);
     console.log('🚒 Firehose record sender added');
   } catch (e) {
@@ -70,8 +68,8 @@ async function main() {
     );
   }
 
-  const xapi = new XAPI(recordSenders);
-  const server = createApolloServer(xapi, routePrefix);
+  const xapiEventDispatcher = new XapiEventDispatcher(recordSenders);
+  const server = createApolloServer(xapiEventDispatcher, routePrefix);
 
   const app = express();
   app.get('/metrics', async (_req, res) => {

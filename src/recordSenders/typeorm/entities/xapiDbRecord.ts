@@ -5,12 +5,16 @@ import { Entity, Column, PrimaryColumn } from 'typeorm';
 export class XapiDbRecord {
   @PrimaryColumn({ name: 'userId' })
   userId!: string;
+
   @PrimaryColumn({ type: 'bigint', name: 'serverTimestamp' })
   serverTimestamp!: number;
+
   @Column({ type: 'json', name: 'data' })
   xapi?: Record<string, unknown>;
+
   @Column({ name: 'iphash' })
   ipHash!: string;
+
   @Column({ nullable: true, type: 'json', name: 'geo' })
   geo?: Lookup;
 }

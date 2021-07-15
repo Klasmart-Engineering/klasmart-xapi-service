@@ -3,7 +3,7 @@ import {
   PutRecordCommand,
   PutRecordBatchCommand,
 } from '@aws-sdk/client-firehose';
-import { XAPIRecord } from '../xapiRecord';
+import { XapiRecord } from '../interfaces/xapiRecord';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const xapiJson = require('./firehoseExampleData.json');
 
@@ -14,7 +14,7 @@ async function sendEvents(xAPIEvents: string[]): Promise<boolean> {
   const email = 'my-email';
   const serverTimestamp = Date.now();
 
-  const xAPIRecords: XAPIRecord[] = xAPIEvents.map((xapi: any) => {
+  const xAPIRecords: XapiRecord[] = xAPIEvents.map((xapi: any) => {
     return { xapi: JSON.parse(xapi), userId, email, serverTimestamp };
   });
 
@@ -22,7 +22,7 @@ async function sendEvents(xAPIEvents: string[]): Promise<boolean> {
   return true;
 }
 
-async function sendToFirehose(xAPIRecord: XAPIRecord) {
+async function sendToFirehose(xAPIRecord: XapiRecord) {
   try {
     const json = JSON.stringify(xAPIRecord);
     const record = { Data: Buffer.from(json) };
@@ -36,7 +36,7 @@ async function sendToFirehose(xAPIRecord: XAPIRecord) {
   }
 }
 
-async function batchSendToFirehose(xAPIRecords: XAPIRecord[]) {
+async function batchSendToFirehose(xAPIRecords: XapiRecord[]) {
   try {
     const command = new PutRecordBatchCommand({
       DeliveryStreamName: 'kidsloop-alpha-xapi-ace-ray',
