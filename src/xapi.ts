@@ -33,7 +33,6 @@ export class XAPI {
         };
       },
     );
-
     await Promise.allSettled(
       this.recordSenders.map((x) => x.send(xAPIRecords)),
     );

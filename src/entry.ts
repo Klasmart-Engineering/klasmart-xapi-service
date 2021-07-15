@@ -1,3 +1,6 @@
+import { config } from 'dotenv';
+config();
+
 import express from 'express';
 import { register, collectDefaultMetrics } from 'prom-client';
 import { ElasticSearch } from './elasticSearch';
@@ -7,13 +10,15 @@ import { Firehose } from './firehose';
 import { XAPI } from './xapi';
 import { XAPIRecordSender } from './xapiRecordSender';
 import { DynamoDBSender } from './dynamodb';
+import { connectToUserDatabase } from './typeorm/connectToUserDatabase';
+import { TypeORMRecordSender } from './typeorm/recordSender';
+
 const routePrefix = process.env.ROUTE_PREFIX || '';
 
 collectDefaultMetrics({});
 
 async function main() {
   const recordSenders: XAPIRecordSender[] = [];
-
   try {
     const TableName = process.env.DYNAMODB_TABLE_NAME;
     if (typeof TableName !== 'string') {
@@ -32,6 +37,17 @@ async function main() {
     const elasticSearch = await ElasticSearch.create();
     recordSenders.push(elasticSearch);
     console.log('🔎 Elastic search record sender added');
+  } catch (e) {
+    console.error(e);
+  }
+
+  try {
+    connectToUserDatabase().catch((e) => {
+      console.error(e);
+    });
+    const typeORM = new TypeORMRecordSender();
+    recordSenders.push(typeORM);
+    console.log('🔎 TypeORM search record sender added');
   } catch (e) {
     console.error(e);
   }
