@@ -1,17 +1,17 @@
-import { verify, decode, VerifyOptions, Secret } from 'jsonwebtoken';
+import { verify, decode, VerifyOptions, Secret } from 'jsonwebtoken'
 
 export type JWT = {
-  id: string;
-  email: string;
-  exp: number;
-  iss: string;
-};
+  id: string
+  email: string
+  exp: number
+  iss: string
+}
 
 const issuers = new Map<
   string,
   {
-    options: VerifyOptions;
-    secretOrPublicKey: Secret;
+    options: VerifyOptions
+    secretOrPublicKey: Secret
   }
 >([
   [
@@ -59,39 +59,39 @@ FwIDAQAB
       ].join('\n'),
     },
   ],
-]);
+])
 
 export async function checkToken(token?: string) {
   try {
     if (!token) {
-      return;
+      return
     }
-    const payload = decode(token);
+    const payload = decode(token)
     if (!payload || typeof payload === 'string') {
-      return;
+      return
     }
-    const issuer = payload['iss'];
+    const issuer = payload['iss']
     if (!issuer || typeof issuer !== 'string') {
-      return;
+      return
     }
-    const issuerOptions = issuers.get(issuer);
+    const issuerOptions = issuers.get(issuer)
     if (!issuerOptions) {
-      return;
+      return
     }
-    const { options, secretOrPublicKey } = issuerOptions;
+    const { options, secretOrPublicKey } = issuerOptions
     const verifiedToken = await new Promise<any>((resolve, reject) => {
       verify(token, secretOrPublicKey, options, (err, decoded) => {
         if (err) {
-          reject(err);
+          reject(err)
         }
         if (decoded) {
-          resolve(decoded);
+          resolve(decoded)
         }
-        reject(new Error('Unexpected authorization error'));
-      });
-    });
-    return verifiedToken;
+        reject(new Error('Unexpected authorization error'))
+      })
+    })
+    return verifiedToken
   } catch (e) {
-    console.error(e);
+    console.error(e)
   }
 }

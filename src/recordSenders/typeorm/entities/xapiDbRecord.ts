@@ -1,20 +1,20 @@
-import { Lookup } from 'geoip-lite';
-import { Entity, Column, PrimaryColumn } from 'typeorm';
+import { Lookup } from 'geoip-lite'
+import { Entity, Column, PrimaryColumn } from 'typeorm'
 
 @Entity('XapiDbRecord')
 export class XapiDbRecord {
   @PrimaryColumn({ name: 'userId' })
-  userId!: string;
+  userId!: string
 
   @PrimaryColumn({ type: 'bigint', name: 'serverTimestamp' })
-  serverTimestamp!: number;
+  serverTimestamp!: number
 
   @Column({ type: 'json', name: 'data' })
-  xapi?: Record<string, unknown>;
+  xapi?: Record<string, unknown>
 
   @Column({ name: 'iphash' })
-  ipHash!: string;
+  ipHash!: string
 
   @Column({ nullable: true, type: 'json', name: 'geo' })
-  geo?: Lookup;
+  geo?: Lookup
 }

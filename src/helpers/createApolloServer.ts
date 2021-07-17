@@ -1,9 +1,9 @@
-import { GraphQLFileLoader } from '@graphql-tools/graphql-file-loader';
-import { loadTypedefsSync } from '@graphql-tools/load';
-import { ApolloServer } from 'apollo-server-express';
-import cookie from 'cookie';
-import { checkToken } from './auth';
-import { XapiEventDispatcher } from '../xapiEventDispatcher';
+import { GraphQLFileLoader } from '@graphql-tools/graphql-file-loader'
+import { loadTypedefsSync } from '@graphql-tools/load'
+import { ApolloServer } from 'apollo-server-express'
+import cookie from 'cookie'
+import { checkToken } from './auth'
+import { XapiEventDispatcher } from '../xapiEventDispatcher'
 
 export function createApolloServer(
   xapiEventDispatcher: XapiEventDispatcher,
@@ -17,18 +17,18 @@ export function createApolloServer(
       path: `${routePrefix}/graphql`,
       keepAlive: 1000,
       onConnect: async (_, _websocket, connectionContext) => {
-        const headers = connectionContext?.request?.headers;
+        const headers = connectionContext?.request?.headers
         const ip = headers
           ? headers['x-forwarded-for']
-          : connectionContext.request.socket.remoteAddress;
-        const rawCookie = headers?.cookie;
-        const cookies = rawCookie ? cookie.parse(rawCookie) : undefined;
-        const accessCookie = cookies?.access;
+          : connectionContext.request.socket.remoteAddress
+        const rawCookie = headers?.cookie
+        const cookies = rawCookie ? cookie.parse(rawCookie) : undefined
+        const accessCookie = cookies?.access
         if (accessCookie) {
-          const token = await checkToken(accessCookie);
-          return { token, ip };
+          const token = await checkToken(accessCookie)
+          return { token, ip }
         }
-        return { ip };
+        return { ip }
       },
       onDisconnect: () => {},
     },
@@ -44,21 +44,20 @@ export function createApolloServer(
     context: async ({ req, connection }) => {
       try {
         if (connection) {
-          return connection.context;
+          return connection.context
         }
 
-        const ip = req.headers['x-forwarded-for'] || req.ip;
+        const ip = req.headers['x-forwarded-for'] || req.ip
 
-        const encodedToken =
-          req?.headers?.authorization || req?.cookies?.access;
+        const encodedToken = req?.headers?.authorization || req?.cookies?.access
         if (encodedToken) {
-          const token = await checkToken(encodedToken);
-          return { token, ip };
+          const token = await checkToken(encodedToken)
+          return { token, ip }
         }
-        return { ip };
+        return { ip }
       } catch (e) {
-        console.error(e);
+        console.error(e)
       }
     },
-  });
+  })
 }

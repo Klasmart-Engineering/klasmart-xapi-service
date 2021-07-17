@@ -1,6 +1,6 @@
-import { JWT } from './auth';
+import { JWT } from './auth'
 
 export interface Context {
-  token?: JWT;
-  ip: string;
+  token?: JWT
+  ip: string
 }

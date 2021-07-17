@@ -1,15 +1,15 @@
-'use strict';
+'use strict'
 
-import { Client } from '@elastic/elasticsearch';
+import { Client } from '@elastic/elasticsearch'
 const client = new Client({
   node: 'http://localhost:9200',
-});
+})
 
 async function run() {
-  await indexDummyData();
+  await indexDummyData()
 
-  const { body: count } = await client.count({ index: 'tweets' });
-  console.log(count);
+  const { body: count } = await client.count({ index: 'tweets' })
+  console.log(count)
 
   const result = await client.search({
     index: 'tweets',
@@ -18,9 +18,9 @@ async function run() {
         match: { text: 'winter' },
       },
     },
-  });
+  })
 
-  console.log(result.body.hits.hits);
+  console.log(result.body.hits.hits)
 }
 
 async function indexDummyData() {
@@ -39,7 +39,7 @@ async function indexDummyData() {
       },
     },
     { ignore: [400] },
-  );
+  )
 
   const dataset = [
     {
@@ -72,19 +72,19 @@ async function indexDummyData() {
       user: 'arya',
       date: new Date(),
     },
-  ];
+  ]
 
-  const body = dataset.flatMap((doc) => [{ index: { _index: 'tweets' } }, doc]);
+  const body = dataset.flatMap((doc) => [{ index: { _index: 'tweets' } }, doc])
 
-  const { body: bulkResponse } = await client.bulk({ refresh: true, body });
+  const { body: bulkResponse } = await client.bulk({ refresh: true, body })
 
   if (bulkResponse.errors) {
-    const erroredDocuments: any = [];
+    const erroredDocuments: any = []
     // The items array has the same order of the dataset we just indexed.
     // The presence of the `error` key indicates that the operation
     // that we did for the document has failed.
     bulkResponse.items.forEach((action: any, i: number) => {
-      const operation = Object.keys(action)[0];
+      const operation = Object.keys(action)[0]
       if (action[operation].error) {
         erroredDocuments.push({
           // If the status is 429 it means that you can retry the document,
@@ -94,11 +94,11 @@ async function indexDummyData() {
           error: action[operation].error,
           operation: body[i * 2],
           document: body[i * 2 + 1],
-        });
+        })
       }
-    });
-    console.log(erroredDocuments);
+    })
+    console.log(erroredDocuments)
   }
 }
 
-run().catch(console.log);
+run().catch(console.log)
