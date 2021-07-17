@@ -6,9 +6,7 @@ export function getEnvironmentVariableOrDefault(
     return process.env[variableName]
   }
   console.warn(
-    `${variableName} environment variable was not provided. ${
-      defaultValue ?? `using default value '${defaultValue}'`
-    }`,
+    `${variableName} environment variable was not provided. Using default value '${defaultValue}'`,
   )
   return defaultValue
 }

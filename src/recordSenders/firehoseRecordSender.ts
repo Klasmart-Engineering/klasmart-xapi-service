@@ -12,7 +12,7 @@ export class FirehoseRecordSender implements IXapiRecordSender {
   ): FirehoseRecordSender {
     if (!deliveryStreamName) {
       throw new Error(
-        'To use firehose specify FIREHOSE_STREAM_NAME env variable',
+        'To use Firehose specify FIREHOSE_STREAM_NAME environment variable',
       )
     }
     return new FirehoseRecordSender(

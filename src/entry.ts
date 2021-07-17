@@ -3,7 +3,7 @@ config()
 
 import express from 'express'
 import { register, collectDefaultMetrics } from 'prom-client'
-import { ElasticSearchRecordSender } from './recordSenders/elasticSearchRecordSender'
+import { ElasticsearchRecordSender } from './recordSenders/elasticsearchRecordSender'
 import { createServer } from 'http'
 import { createApolloServer } from './helpers/createApolloServer'
 import { FirehoseRecordSender } from './recordSenders/firehoseRecordSender'
@@ -23,7 +23,7 @@ async function main() {
     const TableName = process.env.DYNAMODB_TABLE_NAME
     if (typeof TableName !== 'string') {
       throw new Error(
-        `To use DynamoDB record sender use DYNAMODB_TABLE_NAME enviroment variable`,
+        `To use DynamoDB record sender use DYNAMODB_TABLE_NAME environment variable`,
       )
     }
     const dynamoDbRecordSender = await DynamoDbRecordSender.create(TableName)
@@ -34,9 +34,9 @@ async function main() {
   }
 
   try {
-    const elasticSearch = await ElasticSearchRecordSender.create()
-    recordSenders.push(elasticSearch)
-    console.log('🔎 Elastic search record sender added')
+    const elasticsearch = await ElasticsearchRecordSender.create()
+    recordSenders.push(elasticsearch)
+    console.log('🔎 Elasticsearch record sender added')
   } catch (e) {
     console.error(e)
   }
@@ -60,7 +60,7 @@ async function main() {
 
   if (recordSenders.length <= 0) {
     throw new Error(
-      '❌ No record senders configured, specify at least one of the following enviroment variables\n' +
+      '❌ No record senders configured, specify at least one of the following environment variables\n' +
         '- DYNAMODB_TABLE_NAME\n' +
         '- FIREHOSE_STREAM_NAME\n' +
         '- ELASTICSEARCH_URL\n' +

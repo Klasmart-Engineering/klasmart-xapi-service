@@ -4,15 +4,15 @@ import { getEnvironmentVariableOrDefault } from '../helpers/envUtil'
 import { XapiRecord } from '../interfaces/xapiRecord'
 import { IXapiRecordSender } from '../interfaces/xapiRecordSender'
 
-export class ElasticSearchRecordSender implements IXapiRecordSender {
+export class ElasticsearchRecordSender implements IXapiRecordSender {
   public static async create(
     options: ClientOptions = getDefaultClientOptions(),
-  ): Promise<ElasticSearchRecordSender> {
+  ): Promise<ElasticsearchRecordSender> {
     const client = new Client(options)
     try {
       const result = await client.ping()
       if (!result.statusCode) {
-        throw new Error('Unable to ping elsasticsearch')
+        throw new Error('Unable to ping Elasticsearch')
       }
       if (result.statusCode < 200 || result.statusCode >= 300) {
         throw new Error(
@@ -20,7 +20,7 @@ export class ElasticSearchRecordSender implements IXapiRecordSender {
         )
       }
       console.log('🔎 Connected to Elasticsearch')
-      return new ElasticSearchRecordSender(client)
+      return new ElasticsearchRecordSender(client)
     } catch (e) {
       console.error('Failed to connect to Elasticsearch: ', e)
       throw e
@@ -69,7 +69,7 @@ function getDefaultClientOptions(): ClientOptions {
   const node = getEnvironmentVariableOrDefault('ELASTICSEARCH_URL')
   if (!node) {
     throw new Error(
-      'To use elastic search specify ELASTICSEARCH_URL enviroment variable',
+      'To use Elasticsearch specify ELASTICSEARCH_URL environment variable',
     )
   }
   const username = getEnvironmentVariableOrDefault('ELASTICSEARCH_USERNAME')
