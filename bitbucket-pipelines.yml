@@ -1,13 +1,23 @@
 definitions:
+  services:
+    postgres:
+      image: postgres
+      environment:
+        POSTGRES_DB: test_xapi_db
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: xapiserver
   caches:
     nodemodules: ./node_modules
   steps:
     - step: &build-and-test
-        name: "Build and test"
+        name: 'Build and test'
         image: node:lts
+        services:
+          - postgres
         script:
           - npm ci
           - npm audit fix
+          - TEST_POSTGRES_PORT=5432 npm run test:codecov
         caches:
           - nodemodules
         artifacts:
@@ -27,9 +37,9 @@ definitions:
     - export REPO=$DOCKER_REPO_URL/$DOCKER_REPO_NAME # DOCKER_REPO_URL is workspace wide variable
     - export COMMIT_TAG=$(echo $BITBUCKET_COMMIT | cut -c1-7)
     - printf '"Git tag":"%s", "Git commit":"%s" "ECR repo":"%s"' $BRANCH_TAG $COMMIT_TAG $REPO
-    
+
     - aws ecr get-login-password --region eu-west-2 | docker login --username AWS --password-stdin $DOCKER_REPO_URL
-    
+
     - docker build -t xapi-server .
     - docker tag xapi-server:latest $REPO:$BRANCH_TAG
     - docker tag xapi-server:latest $REPO:$BRANCH_TAG-latest
@@ -52,7 +62,7 @@ pipelines:
     alpha:
       - step: *build-and-test
       - step:
-          name: "Build and push docker image to AWS"
+          name: 'Build and push docker image to AWS'
           deployment: alpha
           image: python:3.9-alpine
           script: *build-and-push-to-aws
@@ -68,7 +78,7 @@ pipelines:
             - pipe: atlassian/git-secrets-scan:0.5.1
       - step: *build-and-test
       - step:
-          name: "Build and push docker image to AWS"
+          name: 'Build and push docker image to AWS'
           deployment: production
           image: python:3.9-alpine
           script: *build-and-push-to-aws
