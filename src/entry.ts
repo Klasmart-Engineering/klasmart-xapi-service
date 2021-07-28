@@ -9,6 +9,7 @@ import { IXapiRecordSender } from './interfaces/xapiRecordSender'
 import { DynamoDbRecordSender } from './recordSenders/dynamoDbRecordSender'
 import { connectToTypeOrmDatabase } from './recordSenders/typeorm/connectToTypeOrmDatabase'
 import { TypeOrmRecordSender } from './recordSenders/typeorm/typeOrmRecordSender'
+import { GeoIPLite } from './helpers/geoipLite'
 
 const routePrefix = process.env.ROUTE_PREFIX || ''
 
@@ -17,13 +18,7 @@ collectDefaultMetrics({})
 async function main() {
   const recordSenders: IXapiRecordSender[] = []
   try {
-    const TableName = process.env.DYNAMODB_TABLE_NAME
-    if (typeof TableName !== 'string') {
-      throw new Error(
-        `To use DynamoDB record sender use DYNAMODB_TABLE_NAME environment variable`,
-      )
-    }
-    const dynamoDbRecordSender = await DynamoDbRecordSender.create(TableName)
+    const dynamoDbRecordSender = DynamoDbRecordSender.create()
     recordSenders.push(dynamoDbRecordSender)
     console.log('🔵 DynamoDB record sender added')
   } catch (e) {
@@ -40,8 +35,8 @@ async function main() {
 
   try {
     await connectToTypeOrmDatabase()
-    const typeORM = new TypeOrmRecordSender()
-    recordSenders.push(typeORM)
+    const typeOrm = new TypeOrmRecordSender()
+    recordSenders.push(typeOrm)
     console.log('🐘 TypeORM record sender added')
   } catch (e) {
     console.error(e)
@@ -61,11 +56,15 @@ async function main() {
         '- DYNAMODB_TABLE_NAME\n' +
         '- FIREHOSE_STREAM_NAME\n' +
         '- ELASTICSEARCH_URL\n' +
-        '',
+        '- XAPI_DATABASE_URL',
     )
   }
 
-  const xapiEventDispatcher = new XapiEventDispatcher(recordSenders)
+  const geolocationProvider = new GeoIPLite()
+  const xapiEventDispatcher = new XapiEventDispatcher(
+    recordSenders,
+    geolocationProvider,
+  )
   const server = createApolloServer(xapiEventDispatcher, routePrefix)
 
   const app = express()

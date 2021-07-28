@@ -1,19 +1,24 @@
 import { verify, decode, VerifyOptions, Secret } from 'jsonwebtoken'
 
-export type JWT = {
-  id: string
-  email: string
-  exp: number
-  iss: string
+export interface IToken {
+  id?: string
+  email?: string
 }
 
-const issuers = new Map<
-  string,
-  {
-    options: VerifyOptions
-    secretOrPublicKey: Secret
-  }
->([
+type Issuer = {
+  options: VerifyOptions
+  secretOrPublicKey: Secret
+}
+
+export const debugJwtIssuer: Issuer = {
+  options: {
+    issuer: 'calmid-debug',
+    algorithms: ['HS512', 'HS384', 'HS256'],
+  },
+  secretOrPublicKey: 'iXtZx1D5AqEB0B9pfn+hRQ==',
+}
+
+const issuers = new Map<string, Issuer>([
   [
     'kidsloop',
     {
@@ -32,16 +37,7 @@ FwIDAQAB
 -----END PUBLIC KEY-----`,
     },
   ],
-  [
-    'calmid-debug',
-    {
-      options: {
-        issuer: 'calmid-debug',
-        algorithms: ['HS512', 'HS384', 'HS256'],
-      },
-      secretOrPublicKey: 'iXtZx1D5AqEB0B9pfn+hRQ==',
-    },
-  ],
+  ['calmid-debug', debugJwtIssuer],
   [
     'KidsLoopChinaUser-live',
     {
@@ -61,37 +57,42 @@ FwIDAQAB
   ],
 ])
 
-export async function checkToken(token?: string) {
-  try {
-    if (!token) {
-      return
-    }
-    const payload = decode(token)
-    if (!payload || typeof payload === 'string') {
-      return
-    }
-    const issuer = payload['iss']
-    if (!issuer || typeof issuer !== 'string') {
-      return
-    }
-    const issuerOptions = issuers.get(issuer)
-    if (!issuerOptions) {
-      return
-    }
-    const { options, secretOrPublicKey } = issuerOptions
-    const verifiedToken = await new Promise<any>((resolve, reject) => {
-      verify(token, secretOrPublicKey, options, (err, decoded) => {
-        if (err) {
-          reject(err)
-        }
-        if (decoded) {
-          resolve(decoded)
-        }
-        reject(new Error('Unexpected authorization error'))
-      })
-    })
-    return verifiedToken
-  } catch (e) {
-    console.error(e)
+export class TokenDecoder {
+  public decode(token: string): null | { [key: string]: unknown } | string {
+    return decode(token)
   }
+}
+
+export async function checkToken(
+  token: string | undefined,
+  tokenDecoder: TokenDecoder,
+): Promise<IToken | undefined> {
+  if (!token) {
+    return
+  }
+  const payload = tokenDecoder.decode(token)
+  if (!payload || typeof payload === 'string') {
+    return
+  }
+  const issuer = payload['iss']
+  if (!issuer || typeof issuer !== 'string') {
+    return
+  }
+  const issuerOptions = issuers.get(issuer)
+  if (!issuerOptions) {
+    return
+  }
+  const { options, secretOrPublicKey } = issuerOptions
+  const verifiedToken = await new Promise<IToken>((resolve, reject) => {
+    verify(token, secretOrPublicKey, options, (err, decoded) => {
+      if (err) {
+        reject(err)
+      }
+      if (decoded) {
+        resolve(decoded)
+      }
+      reject(new Error('Unexpected authorization error'))
+    })
+  })
+  return verifiedToken
 }

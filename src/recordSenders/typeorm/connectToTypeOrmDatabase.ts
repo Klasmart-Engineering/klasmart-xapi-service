@@ -3,12 +3,14 @@ import { createConnection } from 'typeorm'
 
 export const XAPI_CONNECTION_NAME = 'xapi'
 
-export async function connectToTypeOrmDatabase(): Promise<void> {
-  const url = process.env.XAPI_DATABASE_URL
+export async function connectToTypeOrmDatabase(
+  url = process.env.XAPI_DATABASE_URL,
+): Promise<void> {
   if (!url) {
-    throw new Error('Please specify a value for XAPI_DATABASE_URL')
+    throw new Error(
+      'To use Elasticsearch specify XAPI_DATABASE_URL environment variable',
+    )
   }
-
   try {
     await createConnection({
       name: XAPI_CONNECTION_NAME,

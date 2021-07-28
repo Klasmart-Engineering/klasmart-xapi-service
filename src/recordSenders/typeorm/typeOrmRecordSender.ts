@@ -9,8 +9,8 @@ export class TypeOrmRecordSender implements IXapiRecordSender {
     private repository = getRepository(XapiDbRecord, XAPI_CONNECTION_NAME),
   ) {}
 
-  public async sendRecords(xAPIRecords: XapiRecord[]): Promise<boolean> {
-    const promises = xAPIRecords.map(async (x) => {
+  public async sendRecords(xapiRecords: XapiRecord[]): Promise<boolean> {
+    const promises = xapiRecords.map(async (x) => {
       try {
         const record = this.repository.create()
         record.userId = x.userId || 'undefined'

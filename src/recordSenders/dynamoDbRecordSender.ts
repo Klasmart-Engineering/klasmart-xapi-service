@@ -2,35 +2,37 @@ import { DocumentClient } from 'aws-sdk/clients/dynamodb'
 import { XapiRecord } from '../interfaces/xapiRecord'
 import { IXapiRecordSender } from '../interfaces/xapiRecordSender'
 
-const docClient = new DocumentClient({
-  apiVersion: '2012-08-10',
-})
-
 export class DynamoDbRecordSender implements IXapiRecordSender {
-  public static async create(TableName: string): Promise<DynamoDbRecordSender> {
-    try {
-      return new DynamoDbRecordSender(TableName)
-    } catch (e) {
-      throw new Error(`❌ Unable to query DynamoDB table' ${TableName}: ${e}`)
+  public static create(
+    documentClient = DynamoDbRecordSender.getDefaultClient(),
+    tableName = process.env.DYNAMODB_TABLE_NAME,
+  ): DynamoDbRecordSender {
+    if (typeof tableName !== 'string') {
+      throw new Error(
+        `To use DynamoDB record sender use DYNAMODB_TABLE_NAME environment variable`,
+      )
     }
+    return new DynamoDbRecordSender(documentClient, tableName)
   }
-  private TableName: string
-  private constructor(TableName: string) {
-    this.TableName = TableName
-  }
+
+  private constructor(
+    private readonly documentClient: DocumentClient,
+    private readonly tableName: string,
+  ) {}
+
   public async sendRecords(xapiRecords: XapiRecord[]): Promise<boolean> {
     try {
-      const RequestItems: DocumentClient.BatchWriteItemRequestMap = {}
-      RequestItems[
-        this.TableName
+      const requestItems: DocumentClient.BatchWriteItemRequestMap = {}
+      requestItems[
+        this.tableName
       ] = xapiRecords.map<DocumentClient.WriteRequest>((xapiRecord) => ({
         PutRequest: {
           Item: xapiRecord,
         },
       }))
-      await docClient
+      await this.documentClient
         .batchWrite({
-          RequestItems,
+          RequestItems: requestItems,
         })
         .promise()
     } catch (e) {
@@ -44,9 +46,9 @@ export class DynamoDbRecordSender implements IXapiRecordSender {
   private async sendLoop(xapiRecords: XapiRecord[]) {
     for (const xapiRecord of xapiRecords) {
       try {
-        await docClient
+        await this.documentClient
           .put({
-            TableName: this.TableName,
+            TableName: this.tableName,
             Item: xapiRecord,
           })
           .promise()
@@ -56,5 +58,11 @@ export class DynamoDbRecordSender implements IXapiRecordSender {
         )
       }
     }
+  }
+
+  private static getDefaultClient() {
+    return new DocumentClient({
+      apiVersion: '2012-08-10',
+    })
   }
 }

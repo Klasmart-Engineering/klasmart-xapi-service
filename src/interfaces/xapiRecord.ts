@@ -1,9 +1,9 @@
-import { Lookup } from 'geoip-lite'
+import { IGeolocationInfo } from './geolocationInfo'
 
 export interface XapiRecord {
-  xapi: any
-  userId?: string
-  geo?: Lookup
+  xapi: unknown
+  userId: string
+  geo: IGeolocationInfo | null
   ipHash: string
   serverTimestamp: number
 }

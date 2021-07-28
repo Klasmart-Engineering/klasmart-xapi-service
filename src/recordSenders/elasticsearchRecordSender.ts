@@ -1,4 +1,4 @@
-import { Client, ClientOptions } from '@elastic/elasticsearch'
+import { Client } from '@elastic/elasticsearch'
 import { ApiKeyAuth, BasicAuth } from '@elastic/elasticsearch/lib/pool'
 import { getEnvironmentVariableOrDefault } from '../helpers/envUtil'
 import { XapiRecord } from '../interfaces/xapiRecord'
@@ -6,37 +6,28 @@ import { IXapiRecordSender } from '../interfaces/xapiRecordSender'
 
 export class ElasticsearchRecordSender implements IXapiRecordSender {
   public static async create(
-    options: ClientOptions = getDefaultClientOptions(),
+    client = getDefaultClient(),
   ): Promise<ElasticsearchRecordSender> {
-    const client = new Client(options)
-    try {
-      const result = await client.ping()
-      if (!result.statusCode) {
-        throw new Error('Unable to ping Elasticsearch')
-      }
-      if (result.statusCode < 200 || result.statusCode >= 300) {
-        throw new Error(
-          `Elasticsearch ping responded with status code ${result.statusCode}`,
-        )
-      }
-      console.log('🔎 Connected to Elasticsearch')
-      return new ElasticsearchRecordSender(client)
-    } catch (e) {
-      console.error('Failed to connect to Elasticsearch: ', e)
-      throw e
+    const result = await client.ping()
+    if (!result.statusCode) {
+      throw new Error('Unable to ping Elasticsearch')
     }
+    if (result.statusCode < 200 || result.statusCode >= 300) {
+      throw new Error(
+        `Elasticsearch ping responded with status code ${result.statusCode}`,
+      )
+    }
+    return new ElasticsearchRecordSender(client)
   }
 
-  private client: Client
-
-  private constructor(client: Client) {
+  private constructor(private readonly client: Client) {
     this.client = client
   }
 
-  public async sendRecords(xAPIRecords: XapiRecord[]): Promise<boolean> {
-    const body = xAPIRecords.flatMap((xAPIRecord) => [
+  public async sendRecords(xapiRecords: XapiRecord[]): Promise<boolean> {
+    const body = xapiRecords.flatMap((xapiRecord) => [
       { index: { _index: 'xapi' } },
-      xAPIRecord,
+      xapiRecord,
     ])
 
     const { body: bulkResponse } = await this.client.bulk({
@@ -65,7 +56,7 @@ export class ElasticsearchRecordSender implements IXapiRecordSender {
   }
 }
 
-function getDefaultClientOptions(): ClientOptions {
+function getDefaultClient(): Client {
   const node = getEnvironmentVariableOrDefault('ELASTICSEARCH_URL')
   if (!node) {
     throw new Error(
@@ -83,5 +74,5 @@ function getDefaultClientOptions(): ClientOptions {
         }
       : undefined
 
-  return { node, auth }
+  return new Client({ node, auth })
 }

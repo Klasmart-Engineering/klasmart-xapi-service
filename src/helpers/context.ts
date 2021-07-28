@@ -1,6 +1,6 @@
-import { JWT } from './auth'
+import { IToken } from './auth'
 
 export interface Context {
-  token?: JWT
+  token?: IToken
   ip: string
 }
