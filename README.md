@@ -1,6 +1,6 @@
 # H5P xAPI Server
 
-[![codecov](https://codecov.io/bb/calmisland/h5p-xapi-server/branch/master/graph/badge.svg?token=53QIJCNIEF)](https://codecov.io/bb/calmisland/h5p-xapi-server)
+[![codecov](https://codecov.io/bb/calmisland/h5p-xapi-server/branch/master/graph/badge.svg?token=53QIJCNIEF)](https://codecov.io/bb/calmisland/h5p-xapi-server) [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
 
 [TOC]
 
@@ -12,24 +12,7 @@ Used by [kidsloop-h5p-library](https://bitbucket.org/calmisland/kidsloop-h5p-lib
 
 Branching model: `feature/fix/etc` -> `master` -> `alpha` -> `production`
 
-Include Jira ticket IDs in your commit messages.
-
-Add/update tests when making code modifications.
-
-Merge conventions: Fast forward after rebasing, or squash if your branch has a lot of minor commits that would clutter the commit history.
-
-We don't enforce conventional commits, but maybe at some point in the future. Regardless, the categorization can be useful for branch names, PR titles, or commit messages:
-
-- `feat`: adds a new feature
-- `fix`: fixes a bug
-- `refactor`: restructures code, without functional changes
-- `perf`: improves performance, without functional changes
-- `docs`: adds or improves documentation
-- `style`: white-space, formatting, missing semi-colons, etc.
-- `test`: adds or updates tests
-- `chore`: catch-all type for any other modifications
-
----
+Contributing: Follow the specification covered in [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ## Design
 
