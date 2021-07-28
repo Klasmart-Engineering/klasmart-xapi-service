@@ -15,6 +15,7 @@ definitions:
         services:
           - postgres
         script:
+          - export HUSKY=0
           - npm ci
           - npm audit fix
           - TEST_POSTGRES_PORT=5432 npm run test:codecov
