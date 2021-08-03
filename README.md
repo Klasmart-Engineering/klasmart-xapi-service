@@ -1,6 +1,6 @@
 # H5P xAPI Server
 
-[![codecov](https://codecov.io/bb/calmisland/h5p-xapi-server/branch/master/graph/badge.svg?token=53QIJCNIEF)](https://codecov.io/bb/calmisland/h5p-xapi-server) [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
+[![codecov](https://codecov.io/bb/calmisland/h5p-xapi-server/branch/master/graph/badge.svg?token=53QIJCNIEF)](https://codecov.io/bb/calmisland/h5p-xapi-server) [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org) [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
 
 [TOC]
 

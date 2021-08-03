@@ -24,6 +24,11 @@
       "prettier --check"
     ]
   },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  },
   "repository": {
     "type": "git",
     "url": "git+https://bitbucket.org/calmisland/h5p-xapi-server.git"
@@ -49,6 +54,7 @@
     "chai": "^4.3.4",
     "codecov": "^3.8.2",
     "commitlint": "^13.1.0",
+    "cz-conventional-changelog": "^3.3.0",
     "dotenv": "^10.0.0",
     "eslint": "^7.20.0",
     "eslint-config-prettier": "^8.0.0",
