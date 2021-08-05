@@ -10,6 +10,7 @@ import { DynamoDbRecordSender } from './recordSenders/dynamoDbRecordSender'
 import { connectToTypeOrmDatabase } from './recordSenders/typeorm/connectToTypeOrmDatabase'
 import { TypeOrmRecordSender } from './recordSenders/typeorm/typeOrmRecordSender'
 import { GeoIPLite } from './helpers/geoipLite'
+import { KinesisProducer } from './recordSenders/kinesisRecordSender'
 
 const routePrefix = process.env.ROUTE_PREFIX || ''
 
@@ -34,6 +35,14 @@ async function main() {
   }
 
   try {
+    const kinesisStream = new KinesisProducer()
+    recordSenders.push(kinesisStream)
+    console.log('🚿 Kinesis Stream record sender added')
+  } catch (e) {
+    console.error(e)
+  }
+
+  try {
     await connectToTypeOrmDatabase()
     const typeOrm = new TypeOrmRecordSender()
     recordSenders.push(typeOrm)
@@ -53,6 +62,7 @@ async function main() {
   if (recordSenders.length <= 0) {
     throw new Error(
       '❌ No record senders configured, specify at least one of the following environment variables\n' +
+        '- KINESIS_STREAM_NAME\n' +
         '- DYNAMODB_TABLE_NAME\n' +
         '- FIREHOSE_STREAM_NAME\n' +
         '- ELASTICSEARCH_URL\n' +
