@@ -12,7 +12,7 @@ Used by [kidsloop-h5p-library](https://bitbucket.org/calmisland/kidsloop-h5p-lib
 
 Branching model: `feature/fix/etc` -> `master` -> `alpha` -> `production`
 
-Contributing: Follow the specification covered in [CONTRIBUTING.md](CONTRIBUTING.md)
+📢 Follow the specification covered in [CONTRIBUTING.md](CONTRIBUTING.md) 📢
 
 ## Design
 
@@ -31,7 +31,7 @@ Contributing: Follow the specification covered in [CONTRIBUTING.md](CONTRIBUTING
 - AWS DynamoDB: This one is currently the most important because kidsloop-assessment-service reads from this table to calculate assessments.
 - AWS Firehose: Long-term storage. Not actively queried at the time of writing.
 - AWS ElasticSearch: Events viewable from [Kibana](https://search-kidsloop-default-y5iifvhvcenbxnkknv2q3ovc5i.ap-northeast-2.es.amazonaws.com/_plugin/kibana/app/home#/). Accessible via Google Suite once you've been granted access.
-- TypeORM (Postgres): Currently in development. Motivation was getting rid of the DynamoDB AWS dependency for regions that don't support AWS.
+- TypeORM (Postgres): Motivation was getting rid of the DynamoDB AWS dependency for regions that don't support AWS.
 
 ---
 
@@ -49,13 +49,17 @@ Contributing: Follow the specification covered in [CONTRIBUTING.md](CONTRIBUTING
 
 Copy/paste `.env.example` in the root directory, rename it to `.env`, and modify as necessary.
 
+Copy/paste `.env.test.example` in the root directory, rename it to `.env.test`, and modify as necessary.
+
 All record sender implementations are optional, but at least one must be included. To exclude an implementation, comment out the corresponding environment variable in your `.env` file.
 
 Create Postgres container
 
 ```
-docker run -d --name=xapiserver-postgres -p 5443:5432 -e POSTGRES_PASSWORD=xapiserver -e POSTGRES_DB=xapi_db postgres
+docker run -d --name=postgres -p 5432:5432 -e POSTGRES_PASSWORD=kidsloop -e POSTGRES_DB=xapi_db postgres
 ```
+
+If you already have a Postgres container that you'd like to reuse, the database `xapi_db` will be created automatically.
 
 Create ElasticSearch container
 

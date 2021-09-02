@@ -26,16 +26,10 @@ Each commit message consists of a **header**, a **body**, and a **footer**.
 ```
 <header>
 <BLANK LINE>
-<body>
+<optional body>
 <BLANK LINE>
-<footer>
+<optional footer(s)>
 ```
-
-The `header` is mandatory and must conform to the [Commit Message Header](#markdown-header-commit-message-header) format.
-
-The `body` is optional and must conform to the [Commit Message Body](#markdown-header-commit-message-body) format.
-
-The `footer` is optional. The [Commit Message Footer](#markdown-header-commit-message-footer) format describes what the footer is used for and the structure it must have.
 
 A commit that has the text `BREAKING CHANGE: ` at the beginning of its optional body or footer section introduces a breaking API change.
 
@@ -70,6 +64,7 @@ The `<type>` and `<summary>` fields are mandatory, the `(<scope>)` field is opti
 | `ci`        | Changes to our CI configuration files and scripts (example scopes: Travis, Circle, BrowserStack, SauceLabs) | ⚙️     |
 | `chore`     | Other changes that don't modify src or test files                                                           | ♻️     |
 | `revert`    | Reverts a previous commit                                                                                   | 🗑     |
+| `wip`       | Work in progress                                                                                            | 🚧     |
 
 #### Scope
 
@@ -98,14 +93,5 @@ The footer can contain information about breaking changes, and is also the place
 
 ```
 BREAKING CHANGE: <breaking change description>
-Fixes/Closes/etc #<issue number>
+<Jira issue ID>
 ```
-
-### Revert commits
-
-If the commit reverts a previous commit, it should begin with `revert: `, followed by the header of the reverted commit.
-
-The content of the commit message body should contain:
-
-- information about the SHA of the commit being reverted in the following format: `This reverts commit <SHA>`,
-- a clear description of the reason for reverting the commit message.
