@@ -1,16 +1,19 @@
 import { expect } from 'chai'
 import { Connection, Repository } from 'typeorm'
+import { connectToTypeOrmDatabase } from '../../src/recordSenders/typeorm/connectToTypeOrmDatabase'
 import { XapiDbRecord } from '../../src/recordSenders/typeorm/entities/xapiDbRecord'
 import { TypeOrmRecordSender } from '../../src/recordSenders/typeorm/typeOrmRecordSender'
 import { XapiRecordBuilder } from '../toolbox/builders/xapiRecordBuilder'
-import { createXapiDbConnection } from '../toolbox/helpers/testConnection'
+
+import dotenv from 'dotenv'
+dotenv.config({ path: process.env.CI ? '.env.test.ci' : '.env.test' })
 
 describe('typeOrmRecordSender', () => {
   let connection: Connection
   let xapiRepository: Repository<XapiDbRecord>
 
   before(async () => {
-    connection = await createXapiDbConnection()
+    connection = await connectToTypeOrmDatabase()
     xapiRepository = connection.getRepository(XapiDbRecord)
   })
 

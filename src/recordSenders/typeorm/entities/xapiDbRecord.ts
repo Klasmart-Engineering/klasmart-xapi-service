@@ -1,13 +1,14 @@
 import { IGeolocationInfo } from '../../../interfaces/geolocationInfo'
 import { Entity, Column, PrimaryColumn } from 'typeorm'
 
-@Entity('XapiDbRecord')
+@Entity('xapi_record')
 export class XapiDbRecord {
-  @PrimaryColumn({ name: 'userId' })
+  @PrimaryColumn({ name: 'user_id' })
   userId!: string
 
   @PrimaryColumn({
     type: 'bigint',
+    name: 'server_timestamp',
     transformer: {
       to: (entityValue: number) => entityValue,
       from: (databaseValue: string): number => Number(databaseValue),
@@ -15,12 +16,12 @@ export class XapiDbRecord {
   })
   serverTimestamp!: number
 
-  @Column({ type: 'json', name: 'data' })
+  @Column({ type: 'json' })
   xapi?: unknown
 
-  @Column({ name: 'iphash' })
+  @Column({ name: 'ip_hash' })
   ipHash!: string
 
-  @Column({ nullable: true, type: 'json', name: 'geo' })
+  @Column({ nullable: true, type: 'json' })
   geo?: IGeolocationInfo | null
 }

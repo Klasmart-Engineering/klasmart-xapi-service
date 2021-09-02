@@ -8,12 +8,15 @@ import {
 } from '../toolbox/helpers/createTestClient'
 import { createApolloServer } from '../../src/helpers/createApolloServer'
 import { XapiEventDispatcher } from '../../src/xapiEventDispatcher'
-import { createXapiDbConnection } from '../toolbox/helpers/testConnection'
 import { sendEventsMutation } from '../toolbox/helpers/sendEventsMutation'
 import EndUserBuilder from '../toolbox/builders/endUserBuilder'
 import { createHash } from 'crypto'
 import { GeoIPLite } from '../../src/helpers/geoipLite'
 import geoip from 'geoip-lite'
+import { connectToTypeOrmDatabase } from '../../src/recordSenders/typeorm/connectToTypeOrmDatabase'
+
+import dotenv from 'dotenv'
+dotenv.config({ path: process.env.CI ? '.env.test.ci' : '.env.test' })
 
 describe('xapiEventDispatcher', () => {
   let connection: Connection
@@ -23,7 +26,7 @@ describe('xapiEventDispatcher', () => {
   before(async () => {
     const routePrefix = ''
     const geolocationProvider = new GeoIPLite()
-    connection = await createXapiDbConnection()
+    connection = await connectToTypeOrmDatabase()
     xapiRepository = connection.getRepository(XapiDbRecord)
     const typeOrmRecordSender = new TypeOrmRecordSender(xapiRepository)
     const server = createApolloServer(
