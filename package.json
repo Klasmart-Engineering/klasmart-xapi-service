@@ -26,7 +26,7 @@
   },
   "config": {
     "commitizen": {
-      "path": "./node_modules/cz-conventional-changelog"
+      "path": "@commitlint/cz-commitlint"
     }
   },
   "repository": {
@@ -37,7 +37,9 @@
   "license": "ISC",
   "homepage": "https://bitbucket.org/calmisland/h5p-xapi-server#readme",
   "devDependencies": {
+    "@commitlint/cli": "^13.1.0",
     "@commitlint/config-conventional": "^13.1.0",
+    "@commitlint/cz-commitlint": "^13.1.0",
     "@fluffy-spoon/substitute": "^1.198.0",
     "@types/aws-sdk": "^2.7.0",
     "@types/chai": "^4.2.15",
@@ -53,14 +55,14 @@
     "@typescript-eslint/parser": "^4.15.2",
     "chai": "^4.3.4",
     "codecov": "^3.8.2",
-    "commitlint": "^13.1.0",
-    "cz-conventional-changelog": "^3.3.0",
+    "commitizen": "^4.2.4",
     "dotenv": "^10.0.0",
     "eslint": "^7.20.0",
     "eslint-config-prettier": "^8.0.0",
     "eslint-plugin-prettier": "^3.3.1",
     "graphql-upload": "^12.0.0",
     "husky": "^7.0.1",
+    "inquirer": "^8.1.2",
     "lint-staged": "^11.1.1",
     "mocha": "^8.3.2",
     "node-mocks-http": "^1.10.1",
