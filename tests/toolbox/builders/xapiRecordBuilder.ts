@@ -1,8 +1,9 @@
+import { v4 } from 'uuid'
 import { IGeolocationInfo } from '../../../src/interfaces/geolocationInfo'
 import { XapiRecord } from '../../../src/interfaces/xapiRecord'
 
 export class XapiRecordBuilder {
-  private userId = 'user1'
+  private userId = v4()
   private serverTimestamp = Date.now()
   private ipHash = '123'
   private geo: IGeolocationInfo | null = {}

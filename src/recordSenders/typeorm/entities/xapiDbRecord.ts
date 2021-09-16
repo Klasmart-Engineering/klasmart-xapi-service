@@ -3,7 +3,7 @@ import { Entity, Column, PrimaryColumn } from 'typeorm'
 
 @Entity('xapi_record')
 export class XapiDbRecord {
-  @PrimaryColumn({ name: 'user_id' })
+  @PrimaryColumn({ name: 'user_id', type: 'uuid' })
   userId!: string
 
   @PrimaryColumn({
@@ -16,7 +16,7 @@ export class XapiDbRecord {
   })
   serverTimestamp!: number
 
-  @Column({ type: 'json' })
+  @Column({ type: 'jsonb' })
   xapi?: unknown
 
   @Column({ name: 'ip_hash' })

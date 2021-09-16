@@ -1,9 +1,10 @@
+import { v4 } from 'uuid'
 import { sign, SignOptions } from 'jsonwebtoken'
 import { debugJwtIssuer } from '../../../src/helpers/auth'
 import EndUser from '../helpers/endUser'
 
 export default class EndUserBuilder {
-  private userId = 'user1'
+  private userId = v4()
   private email = 'user1@gmail.com'
   private isAuthenticated = false
   private isExpired = false

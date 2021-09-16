@@ -45,14 +45,12 @@ describe('xapiEventDispatcher', () => {
   })
 
   context('not authenticated, 1 record sender (TypeORM), 1 xapi record', () => {
-    it('returns true and adds 1 entry to the database', async () => {
+    it('returns false and adds NO entries to the database', async () => {
       // Arrange
       const xapiEventObj = { a: '1', b: '2' }
       const xapiEvent = JSON.stringify(xapiEventObj)
       const xapiEvents = [xapiEvent]
       const ip = '220.80.15.135'
-      const ipHash = createHash('sha256').update(ip).digest('hex')
-      const geo = geoip.lookup(ip)
       const endUser = new EndUserBuilder().dontAuthenticate().build()
       const headers = {
         authorization: endUser.token,
@@ -60,24 +58,13 @@ describe('xapiEventDispatcher', () => {
       }
 
       // Act
-      const success = await sendEventsMutation(testClient, xapiEvents, headers)
+      const response = await sendEventsMutation(testClient, xapiEvents, headers)
 
       // Assert
-      expect(success).to.be.true
+      expect(response).to.be.false
 
-      const expected = {
-        ipHash: ipHash,
-        // TODO: Not really a way to specify the expected serverTimestamp.
-        // Might be useful to create a 'withinRange' helper function to
-        // at least enforce a good estimate.
-        //serverTimestamp: serverTimestamp,
-        userId: 'unauthenticated',
-        geo: geo,
-        xapi: xapiEventObj,
-      }
-
-      const actual = await xapiRepository.findOne()
-      expect(actual).to.deep.include(expected)
+      const numRecords = await xapiRepository.count()
+      expect(numRecords).to.equal(0)
     })
   })
 

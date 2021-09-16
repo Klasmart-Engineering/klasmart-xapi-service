@@ -62,26 +62,16 @@ describe('xapiEventDispatcher.dispatchEvents', () => {
       geolocationProvider.getInfo(ip).returns(geo)
     })
 
-    it('executes successfully and returns true', async () => {
+    it('executes dispatch and returns false', async () => {
       const sut = new XapiEventDispatcher([recordSender], geolocationProvider)
-      const success = await sut.dispatchEvents(
+      const response = await sut.dispatchEvents(
         { xAPIEvents: xapiEvents },
         authContext,
       )
-      geolocationProvider.received(1).getInfo(ip)
+      geolocationProvider.received(0).getInfo(ip)
+      recordSender.received(0).sendRecords(Arg.any())
 
-      recordSender.received(1).sendRecords(
-        Arg.is((records) => {
-          return (
-            records.length === 1 &&
-            records[0].userId === 'unauthenticated' &&
-            records[0].ipHash === ipHash &&
-            records[0].geo === geo
-          )
-        }),
-      )
-
-      expect(success).to.be.true
+      expect(response).to.be.false
     })
   })
 

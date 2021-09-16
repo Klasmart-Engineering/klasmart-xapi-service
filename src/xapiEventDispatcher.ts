@@ -20,7 +20,13 @@ export class XapiEventDispatcher {
       )
       return false
     }
-    const userId = context?.token?.id || 'unauthenticated'
+
+    const userId = context?.token?.id
+    if (!userId) {
+      console.warn('User not authenticated, will not dispatch the xapi record.')
+      return false
+    }
+
     const ip = context.ip
     const serverTimestamp = Date.now()
     const geo = this.geolocationProvider.getInfo(ip)

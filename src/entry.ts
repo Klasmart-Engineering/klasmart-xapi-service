@@ -73,7 +73,7 @@ async function main() {
       res.set('Content-Type', register.contentType)
       const metrics = await register.metrics()
       res.end(metrics)
-    } catch (ex) {
+    } catch (ex: any) {
       console.error(ex)
       res.status(500).end(ex.toString())
     }
