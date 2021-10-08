@@ -1,3 +1,4 @@
+import 'newrelic'
 import express from 'express'
 import { register, collectDefaultMetrics } from 'prom-client'
 import { ElasticsearchRecordSender } from './recordSenders/elasticsearchRecordSender'

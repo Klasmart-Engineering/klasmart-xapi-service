@@ -1,3 +1,4 @@
+import newRelicApolloServerPlugin from '@newrelic/apollo-server-plugin'
 import { GraphQLFileLoader } from '@graphql-tools/graphql-file-loader'
 import { loadTypedefsSync } from '@graphql-tools/load'
 import { ApolloServer } from 'apollo-server-express'
@@ -59,5 +60,9 @@ export function createApolloServer(
         console.error(e)
       }
     },
+    plugins: [
+      // Note: New Relic plugin should always be listed last
+      newRelicApolloServerPlugin
+    ]
   })
 }
