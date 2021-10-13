@@ -62,7 +62,7 @@ export function createApolloServer(
     },
     plugins: [
       // Note: New Relic plugin should always be listed last
-      newRelicApolloServerPlugin
-    ]
+      newRelicApolloServerPlugin,
+    ],
   })
 }
