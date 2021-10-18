@@ -6,6 +6,7 @@
   "scripts": {
     "start": "ts-node -r dotenv/config src/entry.ts",
     "dev": "nodemon -r dotenv/config src/entry.ts",
+    "release": "standard-version",
     "test": "npm run test:unit && npm run test:integration",
     "test:coverage": "nyc --reporter=lcov --report-dir ./test-results/coverage.lcov npm run test",
     "test:codecov": "nyc --reporter=cobertura --report-dir ./test-results/coverage.xml npm test && codecov",
