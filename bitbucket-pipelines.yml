@@ -9,7 +9,7 @@ definitions:
   caches:
     nodemodules: ./node_modules
   steps:
-    - step: &build-and-test
+    - step: &npm-install-and-test
         name: 'Build and test'
         image: node:lts
         services:
@@ -17,7 +17,6 @@ definitions:
         script:
           - export HUSKY=0
           - npm ci
-          - npm audit fix
           - CI=true npm run test:codecov
         caches:
           - nodemodules
@@ -55,7 +54,7 @@ definitions:
 pipelines:
   pull-requests:
     '**': # This runs as default for any branch not elsewhere defined.:
-      - step: *build-and-test
+      - step: *npm-install-and-test
       - step:
           name: 'Conventional Commits check'
           image: node:lts
@@ -64,9 +63,9 @@ pipelines:
 
   branches:
     master:
-      - step: *build-and-test
+      - step: *npm-install-and-test
     alpha:
-      - step: *build-and-test
+      - step: *npm-install-and-test
       - step:
           name: 'Build and push docker image to AWS'
           deployment: alpha
@@ -82,7 +81,7 @@ pipelines:
           name: Atlassian Security Secrets Scan
           script:
             - pipe: atlassian/git-secrets-scan:0.5.1
-      - step: *build-and-test
+      - step: *npm-install-and-test
       - step:
           name: 'Build and push docker image to AWS'
           deployment: production
