@@ -41,7 +41,7 @@ Branching model: `feature/fix/etc` -> `master` -> `alpha` -> `production`
 
 #### Installation
 
-- Node v14.x.x
+- Node v16.x.x
 - Npm v6.x.x
 - Docker (if you plan on testing ElasticSearch and/or Postgres)
 
