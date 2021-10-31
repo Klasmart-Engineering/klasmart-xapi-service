@@ -1,7 +1,6 @@
 import { v4 } from 'uuid'
-import { sign, SignOptions } from 'jsonwebtoken'
-import { debugJwtIssuer } from '../../../src/helpers/auth'
 import EndUser from '../helpers/endUser'
+import generateAuthenticationToken from '../helpers/generateAuthenticationToken'
 
 export default class EndUserBuilder {
   private userId = v4()
@@ -28,20 +27,9 @@ export default class EndUserBuilder {
   public build(): EndUser {
     return {
       userId: this.userId,
-      token: this.isAuthenticated ? this.generateToken() : undefined,
+      token: this.isAuthenticated
+        ? generateAuthenticationToken(this.userId, this.email, this.isExpired)
+        : undefined,
     }
-  }
-
-  private generateToken(): string {
-    const payload = {
-      id: this.userId,
-      email: this.email,
-      iss: debugJwtIssuer.options.issuer,
-    }
-    const signOptions: SignOptions = {
-      expiresIn: this.isExpired ? '0s' : '2000s',
-    }
-    const token = sign(payload, debugJwtIssuer.secretOrPublicKey, signOptions)
-    return token
   }
 }

@@ -9,7 +9,7 @@ import { IGeolocationProvider } from '../../src/interfaces/geolocationProvider'
 
 describe('xapiEventDispatcher.dispatchEvents', () => {
   const ip = 'my-ip'
-  const token = {
+  const authenticationToken = {
     email: 'my_email@gmail.com',
     id: 'my-user-id',
     exp: 0,
@@ -21,8 +21,8 @@ describe('xapiEventDispatcher.dispatchEvents', () => {
   const xapiEvents = [xapiEvent]
   const geo: IGeolocationInfo = { country: 'KR' }
 
-  context('token is defined', () => {
-    const authContext: Context = { ip, token }
+  context('authenticationToken is defined', () => {
+    const authContext: Context = { ip, authenticationToken }
     const geolocationProvider = Substitute.for<IGeolocationProvider>()
     const recordSender = Substitute.for<IXapiRecordSender>()
 
@@ -42,7 +42,7 @@ describe('xapiEventDispatcher.dispatchEvents', () => {
         Arg.is((records) => {
           return (
             records.length === 1 &&
-            records[0].userId === authContext.token?.id &&
+            records[0].userId === authContext.authenticationToken?.id &&
             records[0].ipHash === ipHash &&
             records[0].geo === geo
           )
@@ -53,8 +53,8 @@ describe('xapiEventDispatcher.dispatchEvents', () => {
     })
   })
 
-  context('token is undefined', () => {
-    const authContext: Context = { ip, token: undefined }
+  context('authenticationToken is undefined', () => {
+    const authContext: Context = { ip, authenticationToken: undefined }
     const geolocationProvider = Substitute.for<IGeolocationProvider>()
     const recordSender = Substitute.for<IXapiRecordSender>()
 
@@ -76,7 +76,7 @@ describe('xapiEventDispatcher.dispatchEvents', () => {
   })
 
   context('recordSender1 throws an exception', () => {
-    const authContext: Context = { ip, token }
+    const authContext: Context = { ip, authenticationToken }
     const geolocationProvider = Substitute.for<IGeolocationProvider>()
     const recordSender1 = Substitute.for<IXapiRecordSender>()
     const recordSender2 = Substitute.for<IXapiRecordSender>()
@@ -102,7 +102,7 @@ describe('xapiEventDispatcher.dispatchEvents', () => {
         Arg.is((records) => {
           return (
             records.length === 1 &&
-            records[0].userId === authContext.token?.id &&
+            records[0].userId === authContext.authenticationToken?.id &&
             records[0].ipHash === ipHash &&
             records[0].geo === geo
           )

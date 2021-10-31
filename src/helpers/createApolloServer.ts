@@ -3,13 +3,12 @@ import { GraphQLFileLoader } from '@graphql-tools/graphql-file-loader'
 import { loadTypedefsSync } from '@graphql-tools/load'
 import { ApolloServer } from 'apollo-server-express'
 import cookie from 'cookie'
-import { checkToken, TokenDecoder } from './auth'
 import { XapiEventDispatcher } from '../xapiEventDispatcher'
+import { checkAuthenticationToken } from 'kidsloop-token-validation'
 
 export function createApolloServer(
   xapiEventDispatcher: XapiEventDispatcher,
   routePrefix: string,
-  tokenDecoder = new TokenDecoder(),
 ): ApolloServer {
   return new ApolloServer({
     typeDefs: loadTypedefsSync('./src/schema.graphql', {
@@ -27,8 +26,10 @@ export function createApolloServer(
         const cookies = rawCookie ? cookie.parse(rawCookie) : undefined
         const accessCookie = cookies?.access
         if (accessCookie) {
-          const token = await checkToken(accessCookie, tokenDecoder)
-          return { token, ip }
+          const authenticationToken = await checkAuthenticationToken(
+            accessCookie,
+          )
+          return { authenticationToken, ip }
         }
         return { ip }
       },
@@ -52,8 +53,10 @@ export function createApolloServer(
 
         const encodedToken = req?.headers?.authorization || req?.cookies?.access
         if (encodedToken) {
-          const token = await checkToken(encodedToken, tokenDecoder)
-          return { token, ip }
+          const authenticationToken = await checkAuthenticationToken(
+            encodedToken,
+          )
+          return { authenticationToken, ip }
         }
         return { ip }
       } catch (e) {

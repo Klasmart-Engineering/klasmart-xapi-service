@@ -1,6 +1,6 @@
-import { IToken } from './auth'
+import { KidsloopAuthenticationToken } from 'kidsloop-token-validation'
 
 export interface Context {
-  token?: IToken
+  authenticationToken?: KidsloopAuthenticationToken
   ip: string
 }
