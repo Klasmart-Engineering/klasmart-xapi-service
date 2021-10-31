@@ -6,7 +6,6 @@ import {
   ApolloServerTestClient,
   createTestClient,
 } from '../toolbox/helpers/createTestClient'
-import { createApolloServer } from '../../src/helpers/createApolloServer'
 import { XapiEventDispatcher } from '../../src/xapiEventDispatcher'
 import { sendEventsMutation } from '../toolbox/helpers/sendEventsMutation'
 import EndUserBuilder from '../toolbox/builders/endUserBuilder'
@@ -16,6 +15,7 @@ import geoip from 'geoip-lite'
 import { connectToTypeOrmDatabase } from '../../src/recordSenders/typeorm/connectToTypeOrmDatabase'
 
 import dotenv from 'dotenv'
+import createXapiServer from '../../src/helpers/createXapiServer'
 dotenv.config({ path: process.env.CI ? '.env.test.ci' : '.env.test' })
 
 describe('xapiEventDispatcher', () => {
@@ -24,16 +24,14 @@ describe('xapiEventDispatcher', () => {
   let testClient: ApolloServerTestClient
 
   before(async () => {
-    const routePrefix = ''
     const geolocationProvider = new GeoIPLite()
     connection = await connectToTypeOrmDatabase()
     xapiRepository = connection.getRepository(XapiDbRecord)
     const typeOrmRecordSender = new TypeOrmRecordSender(xapiRepository)
-    const server = createApolloServer(
+    const { app, server } = await createXapiServer(
       new XapiEventDispatcher([typeOrmRecordSender], geolocationProvider),
-      routePrefix,
     )
-    testClient = createTestClient(server)
+    testClient = createTestClient(server, app)
   })
 
   after(async () => {

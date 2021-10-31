@@ -1,6 +1,5 @@
 import 'newrelic'
-import express from 'express'
-import { register, collectDefaultMetrics } from 'prom-client'
+import { collectDefaultMetrics } from 'prom-client'
 import { ElasticsearchRecordSender } from './recordSenders/elasticsearchRecordSender'
 import { createServer } from 'http'
 import { createApolloServer } from './helpers/createApolloServer'
@@ -11,8 +10,7 @@ import { DynamoDbRecordSender } from './recordSenders/dynamoDbRecordSender'
 import { connectToTypeOrmDatabase } from './recordSenders/typeorm/connectToTypeOrmDatabase'
 import { TypeOrmRecordSender } from './recordSenders/typeorm/typeOrmRecordSender'
 import { GeoIPLite } from './helpers/geoipLite'
-
-const routePrefix = process.env.ROUTE_PREFIX || ''
+import createXapiServer from './helpers/createXapiServer'
 
 collectDefaultMetrics({})
 
@@ -66,24 +64,7 @@ async function main() {
     recordSenders,
     geolocationProvider,
   )
-  const server = createApolloServer(xapiEventDispatcher, routePrefix)
-
-  const app = express()
-  app.get('/metrics', async (_req, res) => {
-    try {
-      res.set('Content-Type', register.contentType)
-      const metrics = await register.metrics()
-      res.end(metrics)
-    } catch (ex: any) {
-      console.error(ex)
-      res.status(500).end(ex.toString())
-    }
-  })
-
-  server.applyMiddleware({
-    app,
-    path: routePrefix,
-  })
+  const { app, server } = await createXapiServer(xapiEventDispatcher)
 
   const httpServer = createServer(app)
   server.installSubscriptionHandlers(httpServer)
