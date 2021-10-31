@@ -7,8 +7,8 @@
     {
       "type": "pwa-node",
       "request": "launch",
-      "name": "entry.ts",
-      "program": "${workspaceFolder}/src/entry.ts",
+      "name": "index.ts",
+      "program": "${workspaceFolder}/src/index.ts",
       "sourceMaps": true,
       "smartStep": true,
       "runtimeArgs": ["--nolazy", "-r", "ts-node/register"],

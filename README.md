@@ -24,7 +24,7 @@ Branching model: `feature/fix/etc` -> `master` -> `alpha` -> `production`
 
 ### Basic logic flow
 
-`entry.ts` creates a list of _record senders_, injects them into the `XapiEventDispatcher`, and then injects `XapiEventDispatcher` into the GraphQL Apollo Server. `XapiEventDispatcher` receives events from the GraphQL `sendEvents` mutation, maps those events to _records_, and then "dispatches" them by looping through all the senders.
+`index.ts` creates a list of _record senders_, injects them into the `XapiEventDispatcher`, and then injects `XapiEventDispatcher` into the GraphQL Apollo Server. `XapiEventDispatcher` receives events from the GraphQL `sendEvents` mutation, maps those events to _records_, and then "dispatches" them by looping through all the senders.
 
 ### Current list of record senders
 
@@ -104,7 +104,7 @@ npm run dev
 ### Debugging
 
 1. Navigate to the VS Code sidebar debug panel
-2. Select `entry.ts` from the dropdown
+2. Select `index.ts` from the dropdown
 3. Click the green arrow debug button
 
 ### Testing
