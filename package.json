@@ -76,7 +76,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-firehose": "^3.39.0",
-    "@elastic/elasticsearch": "^7.15.0",
+    "@elastic/elasticsearch": "7.13.0",
     "@graphql-tools/graphql-file-loader": "^6.2.7",
     "@graphql-tools/load": "^6.2.8",
     "@newrelic/apollo-server-plugin": "^1.1.0",
