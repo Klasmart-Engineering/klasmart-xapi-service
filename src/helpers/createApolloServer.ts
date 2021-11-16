@@ -5,6 +5,7 @@ import { ApolloServer } from 'apollo-server-express'
 import cookie from 'cookie'
 import { XapiEventDispatcher } from '../xapiEventDispatcher'
 import { checkAuthenticationToken } from 'kidsloop-token-validation'
+import { withTransaction } from './withTransaction'
 
 export function createApolloServer(
   xapiEventDispatcher: XapiEventDispatcher,
@@ -36,11 +37,13 @@ export function createApolloServer(
     },
     resolvers: {
       Query: {
-        ready: () => true,
+        ready: () => withTransaction('ready', () => true),
       },
       Mutation: {
         sendEvents: (_parent, args, context) =>
-          xapiEventDispatcher.dispatchEvents(args, context),
+          withTransaction('sendEvents', () =>
+            xapiEventDispatcher.dispatchEvents(args, context),
+          ),
       },
     },
     context: async ({ req, connection }) => {

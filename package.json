@@ -50,6 +50,7 @@
     "@types/geoip-lite": "^1.4.1",
     "@types/jsonwebtoken": "^8.5.5",
     "@types/mocha": "^8.2.3",
+    "@types/newrelic": "^7.0.2",
     "@types/node": "^14.17.32",
     "@types/uuid": "^8.3.1",
     "@typescript-eslint/eslint-plugin": "^4.33.0",
