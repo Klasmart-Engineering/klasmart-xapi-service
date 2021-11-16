@@ -1,6 +1,6 @@
 import { v4 } from 'uuid'
 import EndUser from '../helpers/endUser'
-import generateAuthenticationToken from '../helpers/generateAuthenticationToken'
+import { generateAuthenticationToken } from '../helpers/tokenGenerators'
 
 export default class EndUserBuilder {
   private userId = v4()

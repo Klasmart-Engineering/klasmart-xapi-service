@@ -38,7 +38,7 @@ export class ElasticsearchRecordSender implements IXapiRecordSender {
     })
 
     if (bulkResponse.errors) {
-      const erroredDocuments: any = []
+      const erroredDocuments: unknown[] = []
       bulkResponse.items.forEach((action: any, i: number) => {
         const operation = Object.keys(action)[0]
         if (action[operation].error) {
