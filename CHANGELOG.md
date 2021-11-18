@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.1.0](https://bitbucket.org/calmisland/h5p-xapi-server/compare/v1.0.0...v1.1.0) (2021-11-18)
+
+
+### Features
+
+* **new-relic:** wrap resolver functions in transactions ([1385194](https://bitbucket.org/calmisland/h5p-xapi-server/commit/13851940458999d95573480721def36070668c12))
+
+
+### Bug Fixes
+
+* elasticsearch not supported runtime error ([f536fa4](https://bitbucket.org/calmisland/h5p-xapi-server/commit/f536fa4ba58fc30a5a62a981a7fbc2cfde83e955))
+* unable to find any GraphQL type definitions ([ca5052b](https://bitbucket.org/calmisland/h5p-xapi-server/commit/ca5052b44c1e8d4295dcf500b256c1522292f51f))
+
+
+### Refactor
+
+* extract express server creation out of index.ts ([b5fc147](https://bitbucket.org/calmisland/h5p-xapi-server/commit/b5fc147872230e9cf3883b2742d7d260c8c598e2))
+* extract record sender initialization out of index.ts ([46ce1ee](https://bitbucket.org/calmisland/h5p-xapi-server/commit/46ce1ee17f80493889e3906d662f64eca2601a1f))
+* replace auth.ts with kidsloop-token-validation library ([f1cb8e9](https://bitbucket.org/calmisland/h5p-xapi-server/commit/f1cb8e9af06794c84eafbf94ed88be4bff73aa0e))
+
+
+### Build Changes
+
+* copy dist into Docker and rename entry to index ([c5f1596](https://bitbucket.org/calmisland/h5p-xapi-server/commit/c5f15969bc497e158ee68bd1ee7186b8a2a3e6ef))
+* update package.json to version 2 (node16) ([72c8b80](https://bitbucket.org/calmisland/h5p-xapi-server/commit/72c8b80f0b14936301e98e3a1d9fdc5e5973f44a))
+
 ## 1.0.0 (2021-10-18)
 
 
