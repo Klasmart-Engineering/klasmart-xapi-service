@@ -3,27 +3,33 @@ import { XapiRecord } from './interfaces/xapiRecord'
 import { createHash } from 'crypto'
 import { IXapiRecordSender } from './interfaces/xapiRecordSender'
 import { IGeolocationProvider } from './interfaces/geolocationProvider'
+import { withLogger } from 'kidsloop-nodejs-logger'
+
+const log = withLogger('xapiEventDispatcher')
 
 export class XapiEventDispatcher {
   public constructor(
     private readonly recordSenders: IXapiRecordSender[],
     private readonly geolocationProvider: IGeolocationProvider,
-  ) {}
+  ) { }
 
   public async dispatchEvents(
     { xAPIEvents: xapiEvents }: { xAPIEvents: unknown },
     context: Context,
   ): Promise<boolean> {
     if (!XapiEventDispatcher.isArrayOfStrings(xapiEvents)) {
-      console.error(
-        `Expected xapiEvents to be of type string[], but got ${xapiEvents}.`,
+      const dataString =
+        typeof xapiEvents === 'object' ? JSON.stringify(xapiEvents) : xapiEvents
+
+      log.error(
+        `Expected xapiEvents to be of type string[], but got ${dataString}.`,
       )
       return false
     }
 
     const userId = context?.authenticationToken?.id
     if (!userId) {
-      console.warn('User not authenticated, will not dispatch the xapi record.')
+      log.warn('User not authenticated, will not dispatch the xapi record.')
       return false
     }
 

@@ -2,6 +2,9 @@
 import { HttpQueryError, GraphQLResponse } from 'apollo-server-core'
 import { ApolloServerTestClient } from './createTestClient'
 import { Headers } from 'node-mocks-http'
+import { withLogger } from 'kidsloop-nodejs-logger'
+
+const log = withLogger('gqlTry')
 
 export async function gqlTryQuery(
   testClient: ApolloServerTestClient,
@@ -49,16 +52,14 @@ export async function gqlTry(
     const res = await gqlOperation()
     if (res.errors) {
       if (logErrors) {
-        console.error(
-          res.errors?.map((x) => JSON.stringify(x, null, 2)).join('\n'),
-        )
+        log.error(res.errors?.map((x) => JSON.stringify(x, null, 2)).join('\n'))
       }
       throw new Error(res.errors?.map((x) => x.message).join('\n'))
     }
     return res
   } catch (e) {
     if (e instanceof HttpQueryError) {
-      console.log(e.stack)
+      log.info(e.stack)
       throw new Error(
         JSON.parse(e.message)
           .errors.map((x: { message: string }) => x.message)

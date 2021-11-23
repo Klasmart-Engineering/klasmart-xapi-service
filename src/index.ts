@@ -1,10 +1,13 @@
 import 'newrelic'
+import { withLogger } from 'kidsloop-nodejs-logger'
 import { collectDefaultMetrics } from 'prom-client'
 import { createServer } from 'http'
 import { XapiEventDispatcher } from './xapiEventDispatcher'
 import { GeoIPLite } from './helpers/geoipLite'
 import createXapiServer from './helpers/createXapiServer'
 import getRecordSenders from './helpers/getRecordSenders'
+
+const log = withLogger('index')
 
 collectDefaultMetrics({})
 
@@ -22,16 +25,18 @@ async function main() {
 
   const port = process.env.PORT || 8080
   httpServer.listen(port, () => {
-    console.log(
-      `🌎 Server ready at http://localhost:${port}${server.graphqlPath}`,
-    )
-    console.log(
+    log.info(`🌎 Server ready at http://localhost:${port}${server.graphqlPath}`)
+    log.info(
       `🌎 Subscriptions ready at ws://localhost:${port}${server.subscriptionsPath}`,
     )
   })
 }
 
 main().catch((e) => {
-  console.error(e)
+  if (e instanceof Error) {
+    log.error(e.stack)
+  } else {
+    log.error(`Error initializing application: ${e}`)
+  }
   process.exit(-1)
 })

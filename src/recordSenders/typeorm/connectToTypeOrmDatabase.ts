@@ -1,5 +1,8 @@
 import path from 'path'
 import { Connection, ConnectionOptions, createConnection } from 'typeorm'
+import { withLogger } from 'kidsloop-nodejs-logger'
+
+const log = withLogger('connectToTypeOrmDatabase')
 
 export function getTypeOrmDatabaseConnectionOptions(
   url: string,
@@ -28,11 +31,11 @@ export async function connectToTypeOrmDatabase(
     const connection = await createConnection(
       getTypeOrmDatabaseConnectionOptions(url),
     )
-    console.log('🐘 Connected to postgres: xAPI database')
+    log.info('🐘 Connected to postgres: xAPI database')
     return connection
   } catch (e: any) {
     if (createIfDoesntExist && e.code === INVALID_CATALOG_NAME) {
-      console.log("xAPI database doesn't exist. Attempting to create now...")
+      log.info("xAPI database doesn't exist. Attempting to create now...")
       const success = await tryCreateTypeOrmDatabase(url)
       if (!success) {
         // Another instance already created (or is in the process of creating)
@@ -41,7 +44,7 @@ export async function connectToTypeOrmDatabase(
       }
       return connectToTypeOrmDatabase(url, false)
     }
-    console.error(
+    log.error(
       `❌ Failed to connect or initialize postgres: xAPI database: ${e.message}`,
     )
     throw e
@@ -59,7 +62,7 @@ export async function tryCreateTypeOrmDatabase(url: string): Promise<boolean> {
     const databaseName = urlObject.pathname.substring(1)
     const connection = await createBootstrapPostgresConnection(urlObject)
     await connection.query(`CREATE DATABASE ${databaseName};`)
-    console.log(`database '${databaseName}' created successfully`)
+    log.info(`database '${databaseName}' created successfully`)
     await connection.close()
     return true
   } catch (e: any) {
@@ -67,11 +70,11 @@ export async function tryCreateTypeOrmDatabase(url: string): Promise<boolean> {
     // this service is deployed in a new environment because all instances will try
     // to create the missing database at the same time, but only one will succeed.
     if (e.code === UNIQUE_VIOLATION || e.code === DUPLICATE_DATABASE) {
-      console.log(`Failed to create database (expected error): ${e.message}`)
+      log.info(`Failed to create database (expected error): ${e.message}`)
     } else if (e.code === INVALID_CATALOG_NAME) {
       throw new Error(
         'Failed to create database: Tried to connect to the default ' +
-          "'postgres' database to bootstrap the creation, but it doesn't exist.",
+        "'postgres' database to bootstrap the creation, but it doesn't exist.",
       )
     } else {
       throw new Error(

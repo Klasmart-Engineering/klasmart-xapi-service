@@ -6,6 +6,9 @@ import cookie from 'cookie'
 import { XapiEventDispatcher } from '../xapiEventDispatcher'
 import { checkAuthenticationToken } from 'kidsloop-token-validation'
 import { withTransaction } from './withTransaction'
+import { withLogger } from 'kidsloop-nodejs-logger'
+
+const log = withLogger('createApolloServer')
 
 export function createApolloServer(
   xapiEventDispatcher: XapiEventDispatcher,
@@ -63,7 +66,11 @@ export function createApolloServer(
         }
         return { ip }
       } catch (e) {
-        console.error(e)
+        if (e instanceof Error) {
+          log.error(e.stack)
+        } else {
+          log.error(`Error creating Apollo Server: ${e}`)
+        }
       }
     },
     plugins: [

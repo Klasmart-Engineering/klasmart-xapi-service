@@ -1,6 +1,10 @@
 import { FirehoseClient, PutRecordBatchCommand } from '@aws-sdk/client-firehose'
 import { XapiRecord } from '../interfaces/xapiRecord'
 import { IXapiRecordSender } from '../interfaces/xapiRecordSender'
+import { withLogger } from 'kidsloop-nodejs-logger'
+import e from 'express'
+
+const log = withLogger('firehoseRecordSender')
 
 export class FirehoseRecordSender implements IXapiRecordSender {
   public static create(
@@ -18,7 +22,7 @@ export class FirehoseRecordSender implements IXapiRecordSender {
   private constructor(
     private readonly client: FirehoseClient,
     private readonly deliveryStreamName: string,
-  ) {}
+  ) { }
 
   public async sendRecords(xapiRecords: XapiRecord[]): Promise<boolean> {
     try {
@@ -31,7 +35,8 @@ export class FirehoseRecordSender implements IXapiRecordSender {
       })
       const output = await this.client.send(command)
     } catch (error) {
-      console.log(error)
+      const message = e instanceof Error ? e.stack : e
+      log.error(message)
       return false
     }
 

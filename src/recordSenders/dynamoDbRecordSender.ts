@@ -1,6 +1,9 @@
 import { DocumentClient } from 'aws-sdk/clients/dynamodb'
 import { XapiRecord } from '../interfaces/xapiRecord'
 import { IXapiRecordSender } from '../interfaces/xapiRecordSender'
+import { withLogger } from 'kidsloop-nodejs-logger'
+
+const log = withLogger('dynamoDbRecordSender')
 
 export class DynamoDbRecordSender implements IXapiRecordSender {
   public static create(
@@ -18,7 +21,7 @@ export class DynamoDbRecordSender implements IXapiRecordSender {
   private constructor(
     private readonly documentClient: DocumentClient,
     private readonly tableName: string,
-  ) {}
+  ) { }
 
   public async sendRecords(xapiRecords: XapiRecord[]): Promise<boolean> {
     try {
@@ -36,9 +39,15 @@ export class DynamoDbRecordSender implements IXapiRecordSender {
         })
         .promise()
     } catch (e) {
-      console.error(
-        `Could not write batch to dynamodb: ${e}\nNow attempting to send one at a time...`,
-      )
+      if (e instanceof Error) {
+        log.error(
+          `Could not write batch to dynamodb: ${e.message}\nNow attempting to send one at a time...`,
+        )
+      } else {
+        log.error(
+          `Could not write batch to dynamodb: ${e}\nNow attempting to send one at a time...`,
+        )
+      }
       this.sendLoop(xapiRecords)
     }
     return true
@@ -53,8 +62,9 @@ export class DynamoDbRecordSender implements IXapiRecordSender {
           })
           .promise()
       } catch (e) {
-        console.error(
-          `Could not write event for user(${xapiRecord.userId}) with server timestamp (${xapiRecord.serverTimestamp}) to dynamodb: ${e}`,
+        const message = e instanceof Error ? e.stack : e
+        log.error(
+          `Could not write event for user(${xapiRecord.userId}) with server timestamp (${xapiRecord.serverTimestamp}) to dynamodb: ${message}`,
         )
       }
     }

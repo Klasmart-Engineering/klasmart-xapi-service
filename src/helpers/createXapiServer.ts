@@ -4,6 +4,9 @@ import { createApolloServer } from './createApolloServer'
 import { Express } from 'express'
 import { ApolloServer } from 'apollo-server-express'
 import { XapiEventDispatcher } from '../xapiEventDispatcher'
+import { withLogger } from 'kidsloop-nodejs-logger'
+
+const log = withLogger('kidsloop-nodejs-logger')
 
 const routePrefix = process.env.ROUTE_PREFIX || ''
 
@@ -22,9 +25,13 @@ export default async function createXapiServer(
       res.set('Content-Type', register.contentType)
       const metrics = await register.metrics()
       res.end(metrics)
-    } catch (ex: any) {
-      console.error(ex)
-      res.status(500).end(ex.toString())
+    } catch (ex) {
+      if (ex instanceof Error) {
+        log.error(ex.stack)
+      } else {
+        log.error(`Error retrieving metrics data: ${ex}`)
+      }
+      res.status(500).end(`Error retrieving metrics data`)
     }
   })
   server.applyMiddleware({

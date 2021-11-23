@@ -3,6 +3,9 @@ import { ApiKeyAuth, BasicAuth } from '@elastic/elasticsearch/lib/pool'
 import { getEnvironmentVariableOrDefault } from '../helpers/envUtil'
 import { XapiRecord } from '../interfaces/xapiRecord'
 import { IXapiRecordSender } from '../interfaces/xapiRecordSender'
+import { withLogger } from 'kidsloop-nodejs-logger'
+
+const log = withLogger('elasticsearchRecordSender')
 
 export class ElasticsearchRecordSender implements IXapiRecordSender {
   public static async create(
@@ -48,7 +51,7 @@ export class ElasticsearchRecordSender implements IXapiRecordSender {
         }
       })
 
-      console.log(erroredDocuments)
+      log.info(JSON.stringify(erroredDocuments))
       return false
     }
 
@@ -69,9 +72,9 @@ function getDefaultClient(): Client {
   const auth: BasicAuth | ApiKeyAuth | undefined =
     username && password
       ? {
-          username,
-          password,
-        }
+        username,
+        password,
+      }
       : undefined
 
   return new Client({ node, auth })
