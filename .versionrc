@@ -2,31 +2,38 @@
   "types": [
     {
       "type": "feat",
-      "section": "Features"
+      "section": "Features",
+      "hidden": false
     },
     {
       "type": "fix",
-      "section": "Bug Fixes"
+      "section": "Bug Fixes",
+      "hidden": false
     },
     {
       "type": "chore",
+      "section": "Chores",
       "hidden": true
     },
     {
       "type": "docs",
+      "section": "Docs",
       "hidden": true
     },
     {
       "type": "style",
+      "section": "Style",
       "hidden": true
     },
     {
       "type": "refactor",
-      "section": "Refactor"
+      "section": "Refactor",
+      "hidden": false
     },
     {
       "type": "perf",
-      "section": "Performance"
+      "section": "Performance",
+      "hidden": false
     },
     {
       "type": "test",
@@ -35,13 +42,16 @@
     },
     {
       "type": "ci",
-      "section": "CI Changes",
+      "section": "CI",
       "hidden": true
     },
     {
       "type": "build",
-      "section": "Build Changes"
+      "section": "Build",
+      "hidden": true
     }
   ],
+  "commitUrlFormat": "{{host}}/{{owner}}/{{repository}}/commits/{{hash}}",
+  "compareUrlFormat": "{{host}}/{{owner}}/{{repository}}/compare/{{currentTag}}..{{previousTag}}",
   "releaseCommitMessageFormat": "chore(release): {{currentTag}}"
 }
