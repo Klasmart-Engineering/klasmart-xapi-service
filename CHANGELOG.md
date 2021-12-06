@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.2.0](https://bitbucket.org/calmisland/h5p-xapi-server/compare/v1.2.0..v1.1.0) (2021-12-06)
+
+
+### Features
+
+* **XAPI-7:** integrate kidsloop-nodejs-logger ([681c5f9](https://bitbucket.org/calmisland/h5p-xapi-server/commits/681c5f9be0a98c166e21a39ce776610953ef40dd))
+
 ## [1.1.0](https://bitbucket.org/calmisland/h5p-xapi-server/compare/v1.1.0..v1.0.0) (2021-11-18)
 
 
