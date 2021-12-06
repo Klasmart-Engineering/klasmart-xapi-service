@@ -6,8 +6,65 @@ definitions:
         POSTGRES_DB: test_xapi_db
         POSTGRES_USER: postgres
         POSTGRES_PASSWORD: xapiserver
+
   caches:
     nodemodules: ./node_modules
+
+  scripts:
+    - script: &build-and-push-to-aws
+      - pip3 install -U awscli
+
+      - export BRANCH_TAG=$(echo "$BITBUCKET_BRANCH" | sed -E 's/([^0-9a-zA-Z]+)/-/g')
+      - export REPO=$DOCKER_REPO_URL/$DOCKER_REPO_NAME # DOCKER_REPO_URL is workspace wide variable
+      - export COMMIT_TAG=$(echo $BITBUCKET_COMMIT | cut -c1-7)
+      - printf '"Git tag":"%s", "Git commit":"%s" "ECR repo":"%s"' $BRANCH_TAG $COMMIT_TAG $REPO
+
+      - aws ecr get-login-password --region eu-west-2 | docker login --username AWS --password-stdin $DOCKER_REPO_URL
+
+      - docker build -t xapi-server .
+      - docker tag xapi-server:latest $REPO:$BRANCH_TAG
+      - docker tag xapi-server:latest $REPO:$BRANCH_TAG-latest
+      - docker tag xapi-server:latest $REPO:$BRANCH_TAG-$BITBUCKET_BUILD_NUMBER
+      - docker tag xapi-server:latest $REPO:$BRANCH_TAG-$COMMIT_TAG
+
+      - docker push $REPO:$BRANCH_TAG
+      - docker push $REPO:$BRANCH_TAG-latest
+      - docker push $REPO:$BRANCH_TAG-$BITBUCKET_BUILD_NUMBER
+      - docker push $REPO:$BRANCH_TAG-$COMMIT_TAG
+    
+    ##
+    ## Release scripts
+    ##
+    - script: &docker-build-release-and-push-to-aws
+      - pip3 install -U awscli
+
+      - export REPO=$DOCKER_REPO_URL/xapi-server # DOCKER_REPO_URL is workspace wide variable
+      - export COMMIT_TAG=$(echo $BITBUCKET_COMMIT | cut -c1-7)
+      - printf '"Git tag":"%s", "Git branch":"%s", "Git commit":"%s" "ECR repo":"%s"' $BITBUCKET_TAG $BRANCH_TAG $COMMIT_TAG $REPO
+
+      - aws ecr get-login-password --region eu-west-2 | docker login --username AWS --password-stdin $DOCKER_REPO_URL
+
+      - export MAJOR_VERSION=$(echo $BITBUCKET_TAG | grep -o "[v][0-9]")
+      - export MINOR_VERSION=$(echo $BITBUCKET_TAG | grep -o "[v][0-9].[0-9]")
+      - export PATCH_VERSION=$(echo $BITBUCKET_TAG | grep -o "[v][0-9].[0-9].[0-9]")
+      - echo "$MAJOR_VERSION, $MINOR_VERSION, $PATCH_VERSION"
+
+      - docker build -t xapi-server .
+      - docker tag xapi-server:latest $REPO:$MAJOR_VERSION
+      - docker tag xapi-server:latest $REPO:$MINOR_VERSION
+      - docker tag xapi-server:latest $REPO:$BITBUCKET_TAG
+      - docker tag xapi-server:latest $REPO:$BRANCH_TAG
+      - docker tag xapi-server:latest $REPO:latest
+      - docker tag xapi-server:latest $REPO:$BITBUCKET_BUILD_NUMBER
+      - docker tag xapi-server:latest $REPO:$COMMIT_TAG
+
+      - docker push $REPO:$MAJOR_VERSION
+      - docker push $REPO:$MINOR_VERSION
+      - docker push $REPO:$BITBUCKET_TAG
+      - docker push $REPO:latest
+      - docker push $REPO:$BITBUCKET_BUILD_NUMBER
+      - docker push $REPO:$COMMIT_TAG
+
   steps:
     - step: &npm-install-and-test
         name: 'Build and test'
@@ -30,26 +87,16 @@ definitions:
               WEBHOOK_URL: $SLACK_WEBHOOK
               MESSAGE: 'A new build of h5p-xapi-server ($BITBUCKET_COMMIT) has been push with the "$BITBUCKET_BRANCH" tag'
 
-  script: &build-and-push-to-aws
-    - pip3 install -U awscli
-
-    - export BRANCH_TAG=$(echo "$BITBUCKET_BRANCH" | sed -E 's/([^0-9a-zA-Z]+)/-/g')
-    - export REPO=$DOCKER_REPO_URL/$DOCKER_REPO_NAME # DOCKER_REPO_URL is workspace wide variable
-    - export COMMIT_TAG=$(echo $BITBUCKET_COMMIT | cut -c1-7)
-    - printf '"Git tag":"%s", "Git commit":"%s" "ECR repo":"%s"' $BRANCH_TAG $COMMIT_TAG $REPO
-
-    - aws ecr get-login-password --region eu-west-2 | docker login --username AWS --password-stdin $DOCKER_REPO_URL
-
-    - docker build -t xapi-server .
-    - docker tag xapi-server:latest $REPO:$BRANCH_TAG
-    - docker tag xapi-server:latest $REPO:$BRANCH_TAG-latest
-    - docker tag xapi-server:latest $REPO:$BRANCH_TAG-$BITBUCKET_BUILD_NUMBER
-    - docker tag xapi-server:latest $REPO:$BRANCH_TAG-$COMMIT_TAG
-
-    - docker push $REPO:$BRANCH_TAG
-    - docker push $REPO:$BRANCH_TAG-latest
-    - docker push $REPO:$BRANCH_TAG-$BITBUCKET_BUILD_NUMBER
-    - docker push $REPO:$BRANCH_TAG-$COMMIT_TAG
+    ##
+    ## Release steps
+    ##
+    - step: &slack-notification-release
+        name: '🔔 Slack: Release'
+        script:
+          - pipe: atlassian/slack-notify:2.0.0
+            variables:
+              WEBHOOK_URL: $SLACK_WEBHOOK
+              MESSAGE: '"🚀 A new build of Xapi Service ($BITBUCKET_TAG) has been pushed to ECR"'
 
 pipelines:
   pull-requests:
@@ -106,3 +153,14 @@ pipelines:
           caches:
             - docker
       - step: *slack-notification
+
+  tags:
+    '*':
+      - step:
+          name: '🚀 Docker build + push to ECR'
+          deployment: release
+          image: python:3.9-alpine
+          services:
+            - docker
+          script: *docker-build-release-and-push-to-aws
+      - step: *slack-notification-release
