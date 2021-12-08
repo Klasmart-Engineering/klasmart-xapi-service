@@ -100,6 +100,7 @@ describe('xapiEventDispatcher', () => {
           // at least enforce a good estimate.
           //serverTimestamp: serverTimestamp,
           userId: endUser.userId,
+          roomId: null,
           geo: geo,
           xapi: xapiEventObj,
         }

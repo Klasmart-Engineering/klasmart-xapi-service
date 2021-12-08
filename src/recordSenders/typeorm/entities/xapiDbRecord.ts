@@ -16,6 +16,9 @@ export class XapiDbRecord {
   })
   serverTimestamp!: number
 
+  @Column({ name: 'room_id', type: 'varchar', nullable: true })
+  roomId?: string | null
+
   @Column({ type: 'jsonb' })
   xapi?: unknown
 

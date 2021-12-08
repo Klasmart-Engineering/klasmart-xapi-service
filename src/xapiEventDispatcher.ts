@@ -11,7 +11,7 @@ export class XapiEventDispatcher {
   public constructor(
     private readonly recordSenders: IXapiRecordSender[],
     private readonly geolocationProvider: IGeolocationProvider,
-  ) { }
+  ) {}
 
   public async dispatchEvents(
     { xAPIEvents: xapiEvents }: { xAPIEvents: unknown },
@@ -32,7 +32,7 @@ export class XapiEventDispatcher {
       log.warn('User not authenticated, will not dispatch the xapi record.')
       return false
     }
-
+    const roomId = context?.roomId
     const ip = context.ip
     const serverTimestamp = Date.now()
     const geo = this.geolocationProvider.getInfo(ip)
@@ -43,6 +43,7 @@ export class XapiEventDispatcher {
         return {
           xapi: JSON.parse(xapi),
           userId,
+          roomId,
           ipHash,
           geo,
           serverTimestamp: serverTimestamp + index,

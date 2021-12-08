@@ -4,7 +4,10 @@ import { loadTypedefsSync } from '@graphql-tools/load'
 import { ApolloServer } from 'apollo-server-express'
 import cookie from 'cookie'
 import { XapiEventDispatcher } from '../xapiEventDispatcher'
-import { checkAuthenticationToken } from 'kidsloop-token-validation'
+import {
+  checkAuthenticationToken,
+  checkLiveAuthorizationToken,
+} from 'kidsloop-token-validation'
 import { withTransaction } from './withTransaction'
 import { withLogger } from 'kidsloop-nodejs-logger'
 import { IncomingHttpHeaders } from 'http'
@@ -33,7 +36,8 @@ export function createApolloServer(
           ? headers['x-forwarded-for']
           : connectionContext.request.socket.remoteAddress
         const authenticationToken = await extractAuthenticationToken(headers)
-        return { authenticationToken, ip }
+        const roomId = await extractRoomId(headers)
+        return { roomId, authenticationToken, ip }
       },
     },
     resolvers: {
@@ -56,7 +60,8 @@ export function createApolloServer(
         const authenticationToken = await extractAuthenticationToken(
           req.headers,
         )
-        return { authenticationToken, ip }
+        const roomId = await extractRoomId(req.headers)
+        return { roomId, authenticationToken, ip }
       } catch (e) {
         if (e instanceof Error) {
           log.error(e.stack)
@@ -82,4 +87,26 @@ async function extractAuthenticationToken(headers: IncomingHttpHeaders) {
     )
     return authenticationToken
   }
+}
+
+async function extractRoomId(headers: IncomingHttpHeaders) {
+  const encodedLiveAuthorizationToken = extractHeader(
+    headers['live-authorization'],
+  )
+  if (encodedLiveAuthorizationToken) {
+    const authorizationToken = await checkLiveAuthorizationToken(
+      encodedLiveAuthorizationToken,
+    )
+    return authorizationToken.roomid
+  }
+}
+
+function extractHeader(headers?: string | string[]): string | undefined {
+  if (typeof headers === 'string') {
+    return headers
+  }
+  if (headers instanceof Array && headers.length > 0) {
+    return headers[0]
+  }
+  return undefined
 }

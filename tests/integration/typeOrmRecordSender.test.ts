@@ -41,6 +41,7 @@ describe('typeOrmRecordSender', () => {
         ipHash: xapiRecord.ipHash,
         serverTimestamp: xapiRecord.serverTimestamp,
         userId: xapiRecord.userId,
+        roomId: null,
         geo: xapiRecord.geo,
         xapi: xapiRecord.xapi,
       }

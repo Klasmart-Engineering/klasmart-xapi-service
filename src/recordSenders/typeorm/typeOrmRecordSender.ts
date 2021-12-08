@@ -6,13 +6,14 @@ import { withLogger } from 'kidsloop-nodejs-logger'
 
 const log = withLogger('typeoOrmRecordSender')
 export class TypeOrmRecordSender implements IXapiRecordSender {
-  public constructor(private repository = getRepository(XapiDbRecord)) { }
+  public constructor(private repository = getRepository(XapiDbRecord)) {}
 
   public async sendRecords(xapiRecords: XapiRecord[]): Promise<boolean> {
     const promises = xapiRecords.map(async (x) => {
       try {
         const record = this.repository.create()
         record.userId = x.userId || 'undefined'
+        record.roomId = x.roomId
         record.serverTimestamp = x.serverTimestamp
         record.xapi = x.xapi
         record.ipHash = x.ipHash
