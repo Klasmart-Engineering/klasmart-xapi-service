@@ -14,9 +14,8 @@ export class DynamoDbResponseBuilder {
   }
 
   public build(): Request<DocumentClient.BatchWriteItemOutput, AWSError> {
-    const request = Substitute.for<
-      Request<DocumentClient.BatchWriteItemOutput, AWSError>
-    >()
+    const request =
+      Substitute.for<Request<DocumentClient.BatchWriteItemOutput, AWSError>>()
     const promiseResult: PromiseResult<
       DocumentClient.BatchWriteItemOutput,
       AWSError

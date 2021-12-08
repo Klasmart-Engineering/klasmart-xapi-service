@@ -72,9 +72,9 @@ function getDefaultClient(): Client {
   const auth: BasicAuth | ApiKeyAuth | undefined =
     username && password
       ? {
-        username,
-        password,
-      }
+          username,
+          password,
+        }
       : undefined
 
   return new Client({ node, auth })

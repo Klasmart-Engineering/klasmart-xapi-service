@@ -21,18 +21,17 @@ export class DynamoDbRecordSender implements IXapiRecordSender {
   private constructor(
     private readonly documentClient: DocumentClient,
     private readonly tableName: string,
-  ) { }
+  ) {}
 
   public async sendRecords(xapiRecords: XapiRecord[]): Promise<boolean> {
     try {
       const requestItems: DocumentClient.BatchWriteItemRequestMap = {}
-      requestItems[
-        this.tableName
-      ] = xapiRecords.map<DocumentClient.WriteRequest>((xapiRecord) => ({
-        PutRequest: {
-          Item: xapiRecord,
-        },
-      }))
+      requestItems[this.tableName] =
+        xapiRecords.map<DocumentClient.WriteRequest>((xapiRecord) => ({
+          PutRequest: {
+            Item: xapiRecord,
+          },
+        }))
       await this.documentClient
         .batchWrite({
           RequestItems: requestItems,

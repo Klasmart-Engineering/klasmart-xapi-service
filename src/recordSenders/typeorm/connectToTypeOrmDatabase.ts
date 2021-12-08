@@ -74,7 +74,7 @@ export async function tryCreateTypeOrmDatabase(url: string): Promise<boolean> {
     } else if (e.code === INVALID_CATALOG_NAME) {
       throw new Error(
         'Failed to create database: Tried to connect to the default ' +
-        "'postgres' database to bootstrap the creation, but it doesn't exist.",
+          "'postgres' database to bootstrap the creation, but it doesn't exist.",
       )
     } else {
       throw new Error(

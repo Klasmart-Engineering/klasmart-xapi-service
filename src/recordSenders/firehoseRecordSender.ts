@@ -22,7 +22,7 @@ export class FirehoseRecordSender implements IXapiRecordSender {
   private constructor(
     private readonly client: FirehoseClient,
     private readonly deliveryStreamName: string,
-  ) { }
+  ) {}
 
   public async sendRecords(xapiRecords: XapiRecord[]): Promise<boolean> {
     try {
