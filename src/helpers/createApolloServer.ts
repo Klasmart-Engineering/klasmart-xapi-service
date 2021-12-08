@@ -18,6 +18,11 @@ export function createApolloServer(
     typeDefs: loadTypedefsSync('./src/schema.graphql', {
       loaders: [new GraphQLFileLoader()],
     })[0].document,
+    playground: {
+      settings: {
+        'request.credentials': 'include',
+      },
+    },
     subscriptions: {
       path: `${routePrefix}/graphql`,
       keepAlive: 1000,
