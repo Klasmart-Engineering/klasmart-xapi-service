@@ -8,30 +8,32 @@ const log = withLogger('typeoOrmRecordSender')
 export class TypeOrmRecordSender implements IXapiRecordSender {
   public constructor(private repository = getRepository(XapiDbRecord)) {}
 
-  public async sendRecords(xapiRecords: XapiRecord[]): Promise<boolean> {
-    const promises = xapiRecords.map(async (x) => {
-      try {
-        const record = this.repository.create()
-        record.userId = x.userId || 'undefined'
-        record.roomId = x.roomId
-        record.serverTimestamp = x.serverTimestamp
-        record.xapi = x.xapi
-        record.ipHash = x.ipHash
-        record.geo = x.geo
-        await this.repository.save(x)
-      } catch (e) {
-        if (e instanceof Error) {
-          log.error(e.stack)
-        } else {
-          log.error(`Error adding DynamoDB record sender: ${e}`)
-        }
-        throw e
-      }
+  public async sendRecords(
+    xapiRecords: ReadonlyArray<XapiRecord>,
+  ): Promise<boolean> {
+    try {
+      const dbRecords = this.mapToDbRecords(xapiRecords)
+      await this.repository.save(dbRecords)
+      return true
+    } catch (e) {
+      const error = e instanceof Error ? e.stack : e
+      log.error(`Failed to save records to SQL database: ${error}`)
+    }
+    return false
+  }
+
+  private mapToDbRecords(
+    xapiRecords: ReadonlyArray<XapiRecord>,
+  ): XapiDbRecord[] {
+    return xapiRecords.map((x) => {
+      const record = this.repository.create()
+      record.userId = x.userId
+      record.roomId = x.roomId
+      record.serverTimestamp = x.serverTimestamp
+      record.xapi = x.xapi
+      record.ipHash = x.ipHash
+      record.geo = x.geo
+      return record
     })
-    const results = await Promise.allSettled(promises)
-    const everyPromiseSuceeded = results.every(
-      (result) => result.status === 'fulfilled',
-    )
-    return everyPromiseSuceeded
   }
 }

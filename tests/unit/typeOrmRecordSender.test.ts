@@ -19,13 +19,15 @@ describe('typeOrmRecordSender', () => {
       // Assert
       expect(success).to.be.true
 
-      const expected: XapiDbRecord = {
-        ipHash: xapiRecord.ipHash,
-        serverTimestamp: xapiRecord.serverTimestamp,
-        userId: xapiRecord.userId,
-        geo: xapiRecord.geo,
-        xapi: xapiRecord.xapi,
-      }
+      const expected: XapiDbRecord[] = [
+        {
+          ipHash: xapiRecord.ipHash,
+          serverTimestamp: xapiRecord.serverTimestamp,
+          userId: xapiRecord.userId,
+          geo: xapiRecord.geo,
+          xapi: xapiRecord.xapi,
+        },
+      ]
       xapiRepository.received(1).save(expected)
     })
   })
