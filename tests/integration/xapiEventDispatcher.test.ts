@@ -67,50 +67,6 @@ describe('xapiEventDispatcher', () => {
   })
 
   context(
-    'authenticated via header, 1 record sender (TypeORM), 1 xapi record',
-    () => {
-      it('returns true and adds 1 entry to the database', async () => {
-        // Arrange
-        const xapiEventObj = { a: '1', b: '2' }
-        const xapiEvent = JSON.stringify(xapiEventObj)
-        const xapiEvents = [xapiEvent]
-        const ip = '220.80.15.135'
-        const ipHash = createHash('sha256').update(ip).digest('hex')
-        const geo = geoip.lookup(ip)
-        const endUser = new EndUserBuilder().authenticate().build()
-        const headers = {
-          authorization: endUser.token,
-          'x-forwarded-for': ip,
-        }
-
-        // Act
-        const success = await sendEventsMutation(
-          testClient,
-          xapiEvents,
-          headers,
-        )
-
-        // Assert
-        expect(success).to.be.true
-
-        const expected = {
-          ipHash: ipHash,
-          // TODO: Not really a way to specify the expected serverTimestamp.
-          // Might be useful to create a 'withinRange' helper function to
-          // at least enforce a good estimate.
-          //serverTimestamp: serverTimestamp,
-          userId: endUser.userId,
-          geo: geo,
-          xapi: xapiEventObj,
-        }
-
-        const actual = await xapiRepository.findOne()
-        expect(actual).to.deep.include(expected)
-      })
-    },
-  )
-
-  context(
     'authenticated via cookie, 1 record sender (TypeORM), 1 xapi record',
     () => {
       it('returns true and adds 1 entry to the database', async () => {
@@ -122,15 +78,16 @@ describe('xapiEventDispatcher', () => {
         const ipHash = createHash('sha256').update(ip).digest('hex')
         const geo = geoip.lookup(ip)
         const endUser = new EndUserBuilder().authenticate().build()
-        const cookies = { access: endUser.token }
-        const headers = { 'x-forwarded-for': ip }
+        const headers = {
+          'x-forwarded-for': ip,
+          cookie: `access=${endUser.token}`,
+        }
 
         // Act
         const success = await sendEventsMutation(
           testClient,
           xapiEvents,
           headers,
-          cookies,
         )
 
         // Assert

@@ -7,6 +7,7 @@ import { XapiEventDispatcher } from '../xapiEventDispatcher'
 import { checkAuthenticationToken } from 'kidsloop-token-validation'
 import { withTransaction } from './withTransaction'
 import { withLogger } from 'kidsloop-nodejs-logger'
+import { IncomingHttpHeaders } from 'http'
 
 const log = withLogger('createApolloServer')
 
@@ -31,16 +32,8 @@ export function createApolloServer(
         const ip = headers
           ? headers['x-forwarded-for']
           : connectionContext.request.socket.remoteAddress
-        const rawCookie = headers?.cookie
-        const cookies = rawCookie ? cookie.parse(rawCookie) : undefined
-        const accessCookie = cookies?.access
-        if (accessCookie) {
-          const authenticationToken = await checkAuthenticationToken(
-            accessCookie,
-          )
-          return { authenticationToken, ip }
-        }
-        return { ip }
+        const authenticationToken = await extractAuthenticationToken(headers)
+        return { authenticationToken, ip }
       },
     },
     resolvers: {
@@ -59,17 +52,11 @@ export function createApolloServer(
         if (connection) {
           return connection.context
         }
-
         const ip = req.headers['x-forwarded-for'] || req.ip
-
-        const encodedToken = req?.headers?.authorization || req?.cookies?.access
-        if (encodedToken) {
-          const authenticationToken = await checkAuthenticationToken(
-            encodedToken,
-          )
-          return { authenticationToken, ip }
-        }
-        return { ip }
+        const authenticationToken = await extractAuthenticationToken(
+          req.headers,
+        )
+        return { authenticationToken, ip }
       } catch (e) {
         if (e instanceof Error) {
           log.error(e.stack)
@@ -83,4 +70,16 @@ export function createApolloServer(
       newRelicApolloServerPlugin,
     ],
   })
+}
+
+async function extractAuthenticationToken(headers: IncomingHttpHeaders) {
+  const rawCookie = headers?.cookie
+  const cookies = rawCookie ? cookie.parse(rawCookie) : undefined
+  const encodedAuthenticationToken = cookies?.access
+  if (encodedAuthenticationToken) {
+    const authenticationToken = await checkAuthenticationToken(
+      encodedAuthenticationToken,
+    )
+    return authenticationToken
+  }
 }
