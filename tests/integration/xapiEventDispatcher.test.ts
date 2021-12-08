@@ -17,6 +17,8 @@ import { connectToTypeOrmDatabase } from '../../src/recordSenders/typeorm/connec
 import dotenv from 'dotenv'
 import createXapiServer from '../../src/helpers/createXapiServer'
 dotenv.config({ path: process.env.CI ? '.env.test.ci' : '.env.test' })
+const liveAuthorizationToken =
+  'eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJ1c2VyaWQiOiIyMmIxZDcyZS1lYjA2LTViYjQtYjkwYS0wYWZmM2RkODU1YzYiLCJyb29taWQiOiJ0ZXN0cm9vbSIsImlzcyI6ImNhbG1pZC1kZWJ1ZyIsImV4cCI6MjU1MDEzNTcwNX0.bG_04gSXZYTQZbP4de6wAyGsGlia49NuDYRMc8ecoh1XSj7Vw5jJu7AQuuPSueqIvNyjyKayfiD2jBZem7RNiw'
 
 describe('xapiEventDispatcher', () => {
   let connection: Connection
@@ -66,10 +68,48 @@ describe('xapiEventDispatcher', () => {
     })
   })
 
+  context('1 record sender (TypeORM), 1 xapi record', () => {
+    it('returns true and adds 1 entry to the database', async () => {
+      // Arrange
+      const xapiEventObj = { a: '1', b: '2' }
+      const xapiEvent = JSON.stringify(xapiEventObj)
+      const xapiEvents = [xapiEvent]
+      const ip = '220.80.15.135'
+      const ipHash = createHash('sha256').update(ip).digest('hex')
+      const geo = geoip.lookup(ip)
+      const endUser = new EndUserBuilder().authenticate().build()
+      const headers = {
+        'x-forwarded-for': ip,
+        cookie: `access=${endUser.token}`,
+      }
+
+      // Act
+      const success = await sendEventsMutation(testClient, xapiEvents, headers)
+
+      // Assert
+      expect(success).to.be.true
+
+      const expected = {
+        ipHash: ipHash,
+        // TODO: Not really a way to specify the expected serverTimestamp.
+        // Might be useful to create a 'withinRange' helper function to
+        // at least enforce a good estimate.
+        //serverTimestamp: serverTimestamp,
+        userId: endUser.userId,
+        roomId: null,
+        geo: geo,
+        xapi: xapiEventObj,
+      }
+
+      const actual = await xapiRepository.findOne()
+      expect(actual).to.deep.include(expected)
+    })
+  })
+
   context(
-    'authenticated via cookie, 1 record sender (TypeORM), 1 xapi record',
+    '1 record sender (TypeORM), 1 xapi record, live authorization header included',
     () => {
-      it('returns true and adds 1 entry to the database', async () => {
+      it('returns true and adds 1 entry to the database, including a room id', async () => {
         // Arrange
         const xapiEventObj = { a: '1', b: '2' }
         const xapiEvent = JSON.stringify(xapiEventObj)
@@ -80,6 +120,7 @@ describe('xapiEventDispatcher', () => {
         const endUser = new EndUserBuilder().authenticate().build()
         const headers = {
           'x-forwarded-for': ip,
+          'live-authorization': liveAuthorizationToken,
           cookie: `access=${endUser.token}`,
         }
 
@@ -100,7 +141,7 @@ describe('xapiEventDispatcher', () => {
           // at least enforce a good estimate.
           //serverTimestamp: serverTimestamp,
           userId: endUser.userId,
-          roomId: null,
+          roomId: 'testroom',
           geo: geo,
           xapi: xapiEventObj,
         }
