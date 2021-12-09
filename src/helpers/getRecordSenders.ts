@@ -5,6 +5,7 @@ import { FirehoseRecordSender } from '../recordSenders/firehoseRecordSender'
 import { connectToTypeOrmDatabase } from '../recordSenders/typeorm/connectToTypeOrmDatabase'
 import { TypeOrmRecordSender } from '../recordSenders/typeorm/typeOrmRecordSender'
 import { withLogger } from 'kidsloop-nodejs-logger'
+import { logError } from './errorLogUtil'
 
 const log = withLogger('getRecordSenders')
 
@@ -19,11 +20,7 @@ export default async function getRecordSenders(): Promise<IXapiRecordSender[]> {
       recordSenders.push(dynamoDbRecordSender)
       log.info('🔵 DynamoDB record sender added')
     } catch (e) {
-      if (e instanceof Error) {
-        log.error(e.stack)
-      } else {
-        log.error(`Error adding DynamoDB record sender: ${e}`)
-      }
+      logError(log, e, 'Error adding DynamoDB record sender')
     }
   } else {
     log.info('To use DynamoDB specify DYNAMODB_TABLE_NAME environment variable')
@@ -39,11 +36,7 @@ export default async function getRecordSenders(): Promise<IXapiRecordSender[]> {
       recordSenders.push(elasticsearch)
       log.info('🔎 Elasticsearch record sender added')
     } catch (e) {
-      if (e instanceof Error) {
-        log.error(e.stack)
-      } else {
-        log.error(`Error adding Elasticsearch record sender: ${e}`)
-      }
+      logError(log, e, 'Error adding Elasticsearch record sender')
     }
   } else {
     log.info(
@@ -58,11 +51,7 @@ export default async function getRecordSenders(): Promise<IXapiRecordSender[]> {
       recordSenders.push(typeOrm)
       log.info('🐘 TypeORM record sender added')
     } catch (e) {
-      if (e instanceof Error) {
-        log.error(e.stack)
-      } else {
-        log.error(`Error adding TypeORM record sender: ${e}`)
-      }
+      logError(log, e, 'Error adding TypeORM record sender')
     }
   } else {
     log.info('To use TypeORM specify XAPI_DATABASE_URL environment variable')
@@ -76,11 +65,7 @@ export default async function getRecordSenders(): Promise<IXapiRecordSender[]> {
       recordSenders.push(firehoseRecordSender)
       log.info('🚒 Firehose record sender added')
     } catch (e) {
-      if (e instanceof Error) {
-        log.error(e.stack)
-      } else {
-        log.error(`Error adding Firehose record sender: ${e}`)
-      }
+      logError(log, e, 'Error adding Firehose record sender')
     }
   } else {
     log.info(
