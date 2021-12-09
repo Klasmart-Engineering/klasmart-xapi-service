@@ -10,53 +10,82 @@ const log = withLogger('getRecordSenders')
 
 export default async function getRecordSenders(): Promise<IXapiRecordSender[]> {
   const recordSenders: IXapiRecordSender[] = []
-  try {
-    const dynamoDbRecordSender = DynamoDbRecordSender.create()
-    recordSenders.push(dynamoDbRecordSender)
-    log.info('🔵 DynamoDB record sender added')
-  } catch (e) {
-    if (e instanceof Error) {
-      log.error(e.stack)
-    } else {
-      log.error(`Error adding DynamoDB record sender: ${e}`)
+
+  if (process.env.DYNAMODB_TABLE_NAME) {
+    try {
+      const dynamoDbRecordSender = DynamoDbRecordSender.create(
+        process.env.DYNAMODB_TABLE_NAME,
+      )
+      recordSenders.push(dynamoDbRecordSender)
+      log.info('🔵 DynamoDB record sender added')
+    } catch (e) {
+      if (e instanceof Error) {
+        log.error(e.stack)
+      } else {
+        log.error(`Error adding DynamoDB record sender: ${e}`)
+      }
     }
+  } else {
+    log.info('To use DynamoDB specify DYNAMODB_TABLE_NAME environment variable')
   }
 
-  try {
-    const elasticsearch = await ElasticsearchRecordSender.create()
-    recordSenders.push(elasticsearch)
-    log.info('🔎 Elasticsearch record sender added')
-  } catch (e) {
-    if (e instanceof Error) {
-      log.error(e.stack)
-    } else {
-      log.error(`Error adding DynamoDB record sender: ${e}`)
+  if (process.env.ELASTICSEARCH_URL) {
+    try {
+      const elasticsearch = await ElasticsearchRecordSender.create(
+        ElasticsearchRecordSender.getDefaultClient(
+          process.env.ELASTICSEARCH_URL,
+        ),
+      )
+      recordSenders.push(elasticsearch)
+      log.info('🔎 Elasticsearch record sender added')
+    } catch (e) {
+      if (e instanceof Error) {
+        log.error(e.stack)
+      } else {
+        log.error(`Error adding Elasticsearch record sender: ${e}`)
+      }
     }
+  } else {
+    log.info(
+      'To use Elasticsearch specify ELASTICSEARCH_URL environment variable',
+    )
   }
 
-  try {
-    await connectToTypeOrmDatabase()
-    const typeOrm = new TypeOrmRecordSender()
-    recordSenders.push(typeOrm)
-    log.info('🐘 TypeORM record sender added')
-  } catch (e) {
-    if (e instanceof Error) {
-      log.error(e.stack)
-    } else {
-      log.error(`Error adding DynamoDB record sender: ${e}`)
+  if (process.env.XAPI_DATABASE_URL) {
+    try {
+      await connectToTypeOrmDatabase(process.env.XAPI_DATABASE_URL)
+      const typeOrm = new TypeOrmRecordSender()
+      recordSenders.push(typeOrm)
+      log.info('🐘 TypeORM record sender added')
+    } catch (e) {
+      if (e instanceof Error) {
+        log.error(e.stack)
+      } else {
+        log.error(`Error adding TypeORM record sender: ${e}`)
+      }
     }
+  } else {
+    log.info('To use TypeORM specify XAPI_DATABASE_URL environment variable')
   }
 
-  try {
-    const firehoseRecordSender = FirehoseRecordSender.create()
-    recordSenders.push(firehoseRecordSender)
-    log.info('🚒 Firehose record sender added')
-  } catch (e) {
-    if (e instanceof Error) {
-      log.error(e.stack)
-    } else {
-      log.error(`Error adding DynamoDB record sender: ${e}`)
+  if (process.env.FIREHOSE_STREAM_NAME) {
+    try {
+      const firehoseRecordSender = FirehoseRecordSender.create(
+        process.env.FIREHOSE_STREAM_NAME,
+      )
+      recordSenders.push(firehoseRecordSender)
+      log.info('🚒 Firehose record sender added')
+    } catch (e) {
+      if (e instanceof Error) {
+        log.error(e.stack)
+      } else {
+        log.error(`Error adding Firehose record sender: ${e}`)
+      }
     }
+  } else {
+    log.info(
+      'To use Firehose specify FIREHOSE_STREAM_NAME environment variable',
+    )
   }
 
   if (recordSenders.length <= 0) {

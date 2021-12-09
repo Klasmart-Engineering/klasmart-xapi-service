@@ -9,7 +9,7 @@ const log = withLogger('elasticsearchRecordSender')
 
 export class ElasticsearchRecordSender implements IXapiRecordSender {
   public static async create(
-    client = getDefaultClient(),
+    client: Client,
   ): Promise<ElasticsearchRecordSender> {
     const result = await client.ping()
     if (!result.statusCode) {
@@ -57,25 +57,19 @@ export class ElasticsearchRecordSender implements IXapiRecordSender {
 
     return true
   }
-}
 
-function getDefaultClient(): Client {
-  const node = getEnvironmentVariableOrDefault('ELASTICSEARCH_URL')
-  if (!node) {
-    throw new Error(
-      'To use Elasticsearch specify ELASTICSEARCH_URL environment variable',
-    )
+  public static getDefaultClient(node: string): Client {
+    const username = getEnvironmentVariableOrDefault('ELASTICSEARCH_USERNAME')
+    const password = getEnvironmentVariableOrDefault('ELASTICSEARCH_PASSWORD')
+
+    const auth: BasicAuth | ApiKeyAuth | undefined =
+      username && password
+        ? {
+            username,
+            password,
+          }
+        : undefined
+
+    return new Client({ node, auth })
   }
-  const username = getEnvironmentVariableOrDefault('ELASTICSEARCH_USERNAME')
-  const password = getEnvironmentVariableOrDefault('ELASTICSEARCH_PASSWORD')
-
-  const auth: BasicAuth | ApiKeyAuth | undefined =
-    username && password
-      ? {
-          username,
-          password,
-        }
-      : undefined
-
-  return new Client({ node, auth })
 }

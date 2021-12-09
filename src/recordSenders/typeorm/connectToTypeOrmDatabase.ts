@@ -19,14 +19,9 @@ export function getTypeOrmDatabaseConnectionOptions(
 }
 
 export async function connectToTypeOrmDatabase(
-  url = process.env.XAPI_DATABASE_URL,
+  url: string,
   createIfDoesntExist = true,
 ): Promise<Connection> {
-  if (!url) {
-    throw new Error(
-      'To use TypeORM specify XAPI_DATABASE_URL environment variable',
-    )
-  }
   try {
     const connection = await createConnection(
       getTypeOrmDatabaseConnectionOptions(url),

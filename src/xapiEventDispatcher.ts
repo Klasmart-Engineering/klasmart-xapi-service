@@ -29,7 +29,7 @@ export class XapiEventDispatcher {
 
     const userId = context?.authenticationToken?.id
     if (!userId) {
-      log.warn('User not authenticated, will not dispatch the xapi record.')
+      log.debug('User not authenticated, will not dispatch the xapi record.')
       return false
     }
     const roomId = context?.roomId

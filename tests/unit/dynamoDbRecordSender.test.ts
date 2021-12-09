@@ -28,7 +28,7 @@ describe('dynamoDbRecordSender', () => {
         .batchWrite({ RequestItems: requestItems })
         .returns(batchWriteResult)
 
-      const sut = DynamoDbRecordSender.create(documentClient, tableName)
+      const sut = DynamoDbRecordSender.create(tableName, documentClient)
 
       // Act
       const success = await sut.sendRecords([xapiRecord])

@@ -6,6 +6,7 @@ import { TypeOrmRecordSender } from '../../src/recordSenders/typeorm/typeOrmReco
 import { XapiRecordBuilder } from '../toolbox/builders/xapiRecordBuilder'
 
 import dotenv from 'dotenv'
+import { throwExpression } from '../../src/helpers/throwExpression'
 dotenv.config({ path: process.env.CI ? '.env.test.ci' : '.env.test' })
 
 describe('typeOrmRecordSender', () => {
@@ -13,7 +14,10 @@ describe('typeOrmRecordSender', () => {
   let xapiRepository: Repository<XapiDbRecord>
 
   before(async () => {
-    connection = await connectToTypeOrmDatabase()
+    const databaseUrl =
+      process.env.XAPI_DATABASE_URL ??
+      throwExpression('XAPI_DATABASE_URL is undefined')
+    connection = await connectToTypeOrmDatabase(databaseUrl)
     xapiRepository = connection.getRepository(XapiDbRecord)
   })
 

@@ -8,14 +8,9 @@ const log = withLogger('firehoseRecordSender')
 
 export class FirehoseRecordSender implements IXapiRecordSender {
   public static create(
+    deliveryStreamName: string,
     client: FirehoseClient = new FirehoseClient({}),
-    deliveryStreamName = process.env.FIREHOSE_STREAM_NAME,
   ): FirehoseRecordSender {
-    if (typeof deliveryStreamName !== 'string') {
-      throw new Error(
-        'To use Firehose specify FIREHOSE_STREAM_NAME environment variable',
-      )
-    }
     return new FirehoseRecordSender(client, deliveryStreamName)
   }
 

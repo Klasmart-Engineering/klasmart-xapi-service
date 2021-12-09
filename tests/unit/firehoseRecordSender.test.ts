@@ -11,8 +11,8 @@ describe('firehoseRecordSender', () => {
       const firehoseClient = Substitute.for<FirehoseClient>()
       const deliveryStreamName = 'stream-a'
       const sut = FirehoseRecordSender.create(
-        firehoseClient,
         deliveryStreamName,
+        firehoseClient,
       )
       const xapiRecord = new XapiRecordBuilder().build()
 

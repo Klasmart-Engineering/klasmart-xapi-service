@@ -7,14 +7,9 @@ const log = withLogger('dynamoDbRecordSender')
 
 export class DynamoDbRecordSender implements IXapiRecordSender {
   public static create(
+    tableName: string,
     documentClient = DynamoDbRecordSender.getDefaultClient(),
-    tableName = process.env.DYNAMODB_TABLE_NAME,
   ): DynamoDbRecordSender {
-    if (typeof tableName !== 'string') {
-      throw new Error(
-        `To use DynamoDB record sender use DYNAMODB_TABLE_NAME environment variable`,
-      )
-    }
     return new DynamoDbRecordSender(documentClient, tableName)
   }
 
