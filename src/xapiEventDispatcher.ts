@@ -33,7 +33,7 @@ export class XapiEventDispatcher {
       return false
     }
     const roomId = context?.roomId
-    const ip = context.ip
+    const ip = context.ip ?? '127.0. 0.1'
     const serverTimestamp = Date.now()
     const geo = this.geolocationProvider.getInfo(ip)
     const ipHash = createHash('sha256').update(ip).digest('hex')
