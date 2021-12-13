@@ -30,13 +30,15 @@ export function createApolloServer(
     subscriptions: {
       path: `${routePrefix}/graphql`,
       keepAlive: 1000,
-      onConnect: async (_, _websocket, connectionContext) => {
+      onConnect: async (connectionParams, _websocket, connectionContext) => {
         const headers = connectionContext?.request?.headers
         const ip = headers
           ? headers['x-forwarded-for']
           : connectionContext.request.socket.remoteAddress
         const authenticationToken = await extractAuthenticationToken(headers)
-        const roomId = await extractRoomId(headers)
+        const roomId = await extractRoomId(
+          connectionParams['live-authorization'],
+        )
         return { roomId, authenticationToken, ip }
       },
     },
@@ -60,7 +62,10 @@ export function createApolloServer(
         const authenticationToken = await extractAuthenticationToken(
           req.headers,
         )
-        const roomId = await extractRoomId(req.headers)
+        const encodedLiveAuthorizationToken = extractHeader(
+          req.headers['live-authorization'],
+        )
+        const roomId = await extractRoomId(encodedLiveAuthorizationToken)
         return { roomId, authenticationToken, ip }
       } catch (e) {
         if (e instanceof Error) {
@@ -89,10 +94,9 @@ async function extractAuthenticationToken(headers: IncomingHttpHeaders) {
   }
 }
 
-async function extractRoomId(headers: IncomingHttpHeaders) {
-  const encodedLiveAuthorizationToken = extractHeader(
-    headers['live-authorization'],
-  )
+async function extractRoomId(
+  encodedLiveAuthorizationToken: string | undefined,
+) {
   if (encodedLiveAuthorizationToken) {
     const authorizationToken = await checkLiveAuthorizationToken(
       encodedLiveAuthorizationToken,
