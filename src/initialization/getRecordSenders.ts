@@ -5,7 +5,7 @@ import { FirehoseRecordSender } from '../recordSenders/firehoseRecordSender'
 import { connectToTypeOrmDatabase } from '../recordSenders/typeorm/connectToTypeOrmDatabase'
 import { TypeOrmRecordSender } from '../recordSenders/typeorm/typeOrmRecordSender'
 import { withLogger } from 'kidsloop-nodejs-logger'
-import { logError } from './errorLogUtil'
+import { logError } from '../helpers/errorLogUtil'
 
 const log = withLogger('getRecordSenders')
 

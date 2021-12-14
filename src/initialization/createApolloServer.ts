@@ -8,7 +8,7 @@ import {
   checkAuthenticationToken,
   checkLiveAuthorizationToken,
 } from 'kidsloop-token-validation'
-import { withTransaction } from './withTransaction'
+import { withTransaction } from '../helpers/withTransaction'
 import { withLogger } from 'kidsloop-nodejs-logger'
 import { IncomingHttpHeaders } from 'http'
 

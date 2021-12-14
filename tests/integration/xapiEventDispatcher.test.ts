@@ -15,7 +15,7 @@ import geoip from 'geoip-lite'
 import { connectToTypeOrmDatabase } from '../../src/recordSenders/typeorm/connectToTypeOrmDatabase'
 
 import dotenv from 'dotenv'
-import createXapiServer from '../../src/helpers/createXapiServer'
+import createXapiServer from '../../src/initialization/createXapiServer'
 import { throwExpression } from '../../src/helpers/throwExpression'
 dotenv.config({ path: process.env.CI ? '.env.test.ci' : '.env.test' })
 const liveAuthorizationToken =

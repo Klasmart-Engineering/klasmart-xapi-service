@@ -4,8 +4,8 @@ import { collectDefaultMetrics } from 'prom-client'
 import { createServer } from 'http'
 import { XapiEventDispatcher } from './xapiEventDispatcher'
 import { GeoIPLite } from './helpers/geoipLite'
-import createXapiServer from './helpers/createXapiServer'
-import getRecordSenders from './helpers/getRecordSenders'
+import createXapiServer from './initialization/createXapiServer'
+import getRecordSenders from './initialization/getRecordSenders'
 
 const log = withLogger('index')
 
