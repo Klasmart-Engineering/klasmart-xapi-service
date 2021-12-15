@@ -7,13 +7,13 @@ import { createServer, Server } from 'http'
 import { createHttpTerminator, HttpTerminator } from 'http-terminator'
 import { SubscriptionClient } from 'subscriptions-transport-ws'
 import EndUserBuilder from '../toolbox/builders/endUserBuilder'
-import { IXapiRecordSender } from '../../src/interfaces/xapiRecordSender'
-import { XapiRecord } from '../../src/interfaces/xapiRecord'
 import { XapiEventDispatcher } from '../../src/xapiEventDispatcher'
 import { GeoIPLite } from '../../src/helpers/geoipLite'
 import { generateLiveAuthorizationToken } from '../toolbox/helpers/tokenGenerators'
 import { gqlTry } from '../toolbox/helpers/gqlTry'
 import { expect } from 'chai'
+import { getConnection } from 'typeorm'
+import getRecordSenders from '../../src/initialization/getRecordSenders'
 dotenv.config({ path: process.env.CI ? '.env.test.ci' : '.env.test' })
 
 describe('websocketConnection', () => {
@@ -29,8 +29,9 @@ describe('websocketConnection', () => {
 
   before(async () => {
     const geolocationProvider = new GeoIPLite()
+    const recordSenders = await getRecordSenders()
     const { app, server } = await createXapiServer(
-      new XapiEventDispatcher([new DummyRecordSender()], geolocationProvider),
+      new XapiEventDispatcher(recordSenders, geolocationProvider),
     )
     httpServer = createServer(app)
     server.installSubscriptionHandlers(httpServer)
@@ -40,6 +41,7 @@ describe('websocketConnection', () => {
 
   after(async () => {
     await httpTerminator?.terminate()
+    getConnection().close()
   })
 
   afterEach(async () => {
@@ -146,10 +148,4 @@ describe('websocketConnection', () => {
 
 function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms))
-}
-
-class DummyRecordSender implements IXapiRecordSender {
-  sendRecords(xapiRecords: XapiRecord[]): Promise<boolean> {
-    return Promise.resolve(true)
-  }
 }
