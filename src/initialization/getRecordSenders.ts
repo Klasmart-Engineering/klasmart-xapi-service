@@ -9,7 +9,9 @@ import { logError } from '../helpers/errorLogUtil'
 
 const log = withLogger('getRecordSenders')
 
-export default async function getRecordSenders(): Promise<IXapiRecordSender[]> {
+export default async function getRecordSenders(): Promise<
+  ReadonlyArray<IXapiRecordSender>
+> {
   const recordSenders: IXapiRecordSender[] = []
 
   if (process.env.DYNAMODB_TABLE_NAME) {

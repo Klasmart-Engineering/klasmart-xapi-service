@@ -9,7 +9,7 @@ const log = withLogger('xapiEventDispatcher')
 
 export class XapiEventDispatcher {
   public constructor(
-    private readonly recordSenders: IXapiRecordSender[],
+    private readonly recordSenders: ReadonlyArray<IXapiRecordSender>,
     private readonly geolocationProvider: IGeolocationProvider,
   ) {}
 

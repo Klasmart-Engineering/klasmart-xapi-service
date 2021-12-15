@@ -27,7 +27,9 @@ export class ElasticsearchRecordSender implements IXapiRecordSender {
     this.client = client
   }
 
-  public async sendRecords(xapiRecords: XapiRecord[]): Promise<boolean> {
+  public async sendRecords(
+    xapiRecords: ReadonlyArray<XapiRecord>,
+  ): Promise<boolean> {
     const body = xapiRecords.flatMap((xapiRecord) => [
       { index: { _index: 'xapi' } },
       xapiRecord,

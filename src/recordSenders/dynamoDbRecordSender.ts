@@ -18,7 +18,9 @@ export class DynamoDbRecordSender implements IXapiRecordSender {
     private readonly tableName: string,
   ) {}
 
-  public async sendRecords(xapiRecords: XapiRecord[]): Promise<boolean> {
+  public async sendRecords(
+    xapiRecords: ReadonlyArray<XapiRecord>,
+  ): Promise<boolean> {
     try {
       const requestItems: DocumentClient.BatchWriteItemRequestMap = {}
       requestItems[this.tableName] =
@@ -46,7 +48,7 @@ export class DynamoDbRecordSender implements IXapiRecordSender {
     }
     return true
   }
-  private async sendLoop(xapiRecords: XapiRecord[]) {
+  private async sendLoop(xapiRecords: ReadonlyArray<XapiRecord>) {
     for (const xapiRecord of xapiRecords) {
       try {
         await this.documentClient

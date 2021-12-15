@@ -19,7 +19,9 @@ export class FirehoseRecordSender implements IXapiRecordSender {
     private readonly deliveryStreamName: string,
   ) {}
 
-  public async sendRecords(xapiRecords: XapiRecord[]): Promise<boolean> {
+  public async sendRecords(
+    xapiRecords: ReadonlyArray<XapiRecord>,
+  ): Promise<boolean> {
     try {
       const command = new PutRecordBatchCommand({
         DeliveryStreamName: this.deliveryStreamName,
