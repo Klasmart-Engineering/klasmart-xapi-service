@@ -68,6 +68,7 @@ export class DynamoDbRecordSender implements IXapiRecordSender {
 
   private static getDefaultClient() {
     return new DocumentClient({
+      endpoint: process.env.LOCALSTACK_ENDPOINT,
       apiVersion: '2012-08-10',
     })
   }

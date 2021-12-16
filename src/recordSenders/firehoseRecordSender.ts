@@ -9,7 +9,9 @@ const log = withLogger('firehoseRecordSender')
 export class FirehoseRecordSender implements IXapiRecordSender {
   public static create(
     deliveryStreamName: string,
-    client: FirehoseClient = new FirehoseClient({}),
+    client: FirehoseClient = new FirehoseClient({
+      endpoint: process.env.LOCALSTACK_ENDPOINT,
+    }),
   ): FirehoseRecordSender {
     return new FirehoseRecordSender(client, deliveryStreamName)
   }
