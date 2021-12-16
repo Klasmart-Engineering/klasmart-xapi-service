@@ -1,5 +1,11 @@
+options:
+  docker: true
+  size: 2x
+
 definitions:
   services:
+    docker:
+      memory: 4096
     postgres:
       image: postgres
       environment:
@@ -71,10 +77,16 @@ definitions:
         image: node:lts
         services:
           - postgres
+          - docker
+        size: 2x
         script:
           - export HUSKY=0
           - npm ci
+          - curl -L https://github.com/docker/compose/releases/download/1.19.0/docker-compose-Linux-x86_64 -o /usr/local/bin/docker-compose
+          - chmod +x /usr/local/bin/docker-compose
+          - docker-compose -f docker-compose.test.yml up -d
           - CI=true npm run test:codecov
+          - docker-compose -f docker-compose.test.yml down
         caches:
           - nodemodules
         artifacts:
