@@ -44,7 +44,7 @@ export class DynamoDbRecordSender implements IXapiRecordSender {
           `Could not write batch to dynamodb: ${e}\nNow attempting to send one at a time...`,
         )
       }
-      this.sendLoop(xapiRecords)
+      await this.sendLoop(xapiRecords)
     }
     return true
   }
