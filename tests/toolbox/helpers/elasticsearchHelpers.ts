@@ -1,6 +1,6 @@
 import { assert } from 'chai'
-import { Client as ElasticsearchClient } from '@elastic/elasticsearch'
-import type { Client as NewTypes } from '@elastic/elasticsearch/api/new'
+import { Client } from '@elastic/elasticsearch'
+import type { Client as TypeSafeClient } from '@elastic/elasticsearch/api/new'
 import { TotalHits } from '@elastic/elasticsearch/api/types'
 
 export async function deleteElasticsearchIndex(): Promise<void> {
@@ -9,7 +9,7 @@ export async function deleteElasticsearchIndex(): Promise<void> {
   }
   // https://www.elastic.co/guide/en/elasticsearch/client/javascript-api/current/typescript.html#_how_to_migrate_to_the_new_type_definitions
   // @ts-expect-error @elastic/elasticsearch
-  const client: NewTypes = new ElasticsearchClient({
+  const client: TypeSafeClient = new Client({
     node: process.env.ELASTICSEARCH_URL,
   })
   const response = await client.indices.exists({ index: 'xapi' })
@@ -24,7 +24,7 @@ export async function getToalItemsInElasticsearch(): Promise<number> {
   }
   // https://www.elastic.co/guide/en/elasticsearch/client/javascript-api/current/typescript.html#_how_to_migrate_to_the_new_type_definitions
   // @ts-expect-error @elastic/elasticsearch
-  const client: NewTypes = new ElasticsearchClient({
+  const client: TypeSafeClient = new Client({
     node: process.env.ELASTICSEARCH_URL,
   })
   const response = await client.indices.exists({ index: 'xapi' })

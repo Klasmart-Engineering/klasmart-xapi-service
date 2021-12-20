@@ -1,4 +1,5 @@
 import { Client } from '@elastic/elasticsearch'
+import type { Client as TypeSafeClient } from '@elastic/elasticsearch/api/new'
 import { ApiKeyAuth, BasicAuth } from '@elastic/elasticsearch/lib/pool'
 import { getEnvironmentVariableOrDefault } from '../helpers/envUtil'
 import { XapiRecord } from '../interfaces/xapiRecord'
@@ -9,7 +10,7 @@ const log = withLogger('elasticsearchRecordSender')
 
 export class ElasticsearchRecordSender implements IXapiRecordSender {
   public static async create(
-    client: Client,
+    client: TypeSafeClient,
   ): Promise<ElasticsearchRecordSender> {
     const result = await client.ping()
     if (!result.statusCode) {
@@ -23,7 +24,7 @@ export class ElasticsearchRecordSender implements IXapiRecordSender {
     return new ElasticsearchRecordSender(client)
   }
 
-  private constructor(private readonly client: Client) {
+  private constructor(private readonly client: TypeSafeClient) {
     this.client = client
   }
 
@@ -41,26 +42,27 @@ export class ElasticsearchRecordSender implements IXapiRecordSender {
 
     if (bulkResponse.errors) {
       const erroredDocuments: unknown[] = []
-      bulkResponse.items.forEach((action: any, i: number) => {
-        const operation = Object.keys(action)[0]
-        if (action[operation].error) {
+      bulkResponse.items.forEach((action, i) => {
+        const operation =
+          action.create ?? action.delete ?? action.index ?? action.update
+        if (operation?.error) {
           erroredDocuments.push({
-            status: action[operation].status,
-            error: action[operation].error,
+            status: operation.status,
+            error: operation.error,
             operation: body[i * 2],
             document: body[i * 2 + 1],
           })
         }
       })
 
-      log.info(JSON.stringify(erroredDocuments))
+      log.error(JSON.stringify(erroredDocuments))
       return false
     }
 
     return true
   }
 
-  public static getDefaultClient(node: string): Client {
+  public static getDefaultClient(node: string): TypeSafeClient {
     const username = getEnvironmentVariableOrDefault('ELASTICSEARCH_USERNAME')
     const password = getEnvironmentVariableOrDefault('ELASTICSEARCH_PASSWORD')
 
@@ -72,6 +74,12 @@ export class ElasticsearchRecordSender implements IXapiRecordSender {
           }
         : undefined
 
-    return new Client({ node, auth })
+    // https://www.elastic.co/guide/en/elasticsearch/client/javascript-api/current/typescript.html#_how_to_migrate_to_the_new_type_definitions
+    // @ts-expect-error @elastic/elasticsearch
+    const client: TypeSafeClient = new Client({
+      node: node,
+      auth,
+    })
+    return client
   }
 }
