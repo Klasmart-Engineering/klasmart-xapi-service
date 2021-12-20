@@ -76,13 +76,14 @@ export default async function getRecordSenders(): Promise<
   }
 
   if (recordSenders.length <= 0) {
-    throw new Error(
-      '❌ No record senders configured, specify at least one of the following environment variables\n' +
-        '- DYNAMODB_TABLE_NAME\n' +
-        '- FIREHOSE_STREAM_NAME\n' +
-        '- ELASTICSEARCH_URL\n' +
-        '- XAPI_DATABASE_URL',
-    )
+    throw new Error(NoRecordSendersErrorMessage)
   }
   return recordSenders
 }
+
+export const NoRecordSendersErrorMessage =
+  '❌ No record senders configured. Specify at least one of the following environment variables\n' +
+  '- DYNAMODB_TABLE_NAME\n' +
+  '- FIREHOSE_STREAM_NAME\n' +
+  '- ELASTICSEARCH_URL\n' +
+  '- XAPI_DATABASE_URL'

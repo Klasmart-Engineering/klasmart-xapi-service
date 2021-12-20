@@ -112,4 +112,26 @@ describe('xapiEventDispatcher.dispatchEvents', () => {
       expect(success).to.be.false
     })
   })
+
+  context('string is provided rather than a string array', () => {
+    const authContext: Context = { ip, authenticationToken: undefined }
+    const geolocationProvider = Substitute.for<IGeolocationProvider>()
+    const recordSender = Substitute.for<IXapiRecordSender>()
+
+    before(() => {
+      geolocationProvider.getInfo(ip).returns(geo)
+    })
+
+    it('executes dispatch and returns false', async () => {
+      const sut = new XapiEventDispatcher([recordSender], geolocationProvider)
+      const response = await sut.dispatchEvents(
+        { xAPIEvents: xapiEvent },
+        authContext,
+      )
+      geolocationProvider.received(0).getInfo(ip)
+      recordSender.received(0).sendRecords(Arg.any())
+
+      expect(response).to.be.false
+    })
+  })
 })
