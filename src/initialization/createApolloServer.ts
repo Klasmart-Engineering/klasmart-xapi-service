@@ -54,26 +54,16 @@ export function createApolloServer(
       },
     },
     context: async ({ req, connection }) => {
-      try {
-        if (connection) {
-          return connection.context
-        }
-        const ip = req.headers['x-forwarded-for'] || req.ip
-        const authenticationToken = await extractAuthenticationToken(
-          req.headers,
-        )
-        const encodedLiveAuthorizationToken = extractHeader(
-          req.headers['live-authorization'],
-        )
-        const roomId = await extractRoomId(encodedLiveAuthorizationToken)
-        return { roomId, authenticationToken, ip }
-      } catch (e) {
-        if (e instanceof Error) {
-          log.error(e.stack)
-        } else {
-          log.error(`Error creating Apollo Server: ${e}`)
-        }
+      if (connection) {
+        return connection.context
       }
+      const ip = req.headers['x-forwarded-for'] || req.ip
+      const authenticationToken = await extractAuthenticationToken(req.headers)
+      const encodedLiveAuthorizationToken = extractHeader(
+        req.headers['live-authorization'],
+      )
+      const roomId = await extractRoomId(encodedLiveAuthorizationToken)
+      return { roomId, authenticationToken, ip }
     },
     plugins: [
       // Note: New Relic plugin should always be listed last
