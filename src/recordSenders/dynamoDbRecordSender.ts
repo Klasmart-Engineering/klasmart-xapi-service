@@ -29,36 +29,45 @@ export class DynamoDbRecordSender implements IXapiRecordSender {
             Item: xapiRecord,
           },
         }))
-      await this.documentClient
+      // https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Programming.Errors.html#Programming.Errors.BatchOperations
+      // "A batch operation can tolerate the failure of individual requests in the batch."
+      const response = await this.documentClient
         .batchWrite({
           RequestItems: requestItems,
         })
         .promise()
-    } catch (e) {
-      if (e instanceof Error) {
-        log.error(
-          `Could not write batch to dynamodb: ${e.message}\nNow attempting to send one at a time...`,
-        )
-      } else {
-        log.error(
-          `Could not write batch to dynamodb: ${e}\nNow attempting to send one at a time...`,
-        )
+      log.debug(`BatchWriteItemOutput: ${JSON.stringify(response)}`)
+      if (
+        response.UnprocessedItems &&
+        Object.keys(response.UnprocessedItems).length > 0
+      ) {
+        const unprocessedXapiRecords = response.UnprocessedItems[
+          this.tableName
+        ].map((x) => x.PutRequest?.Item as XapiRecord)
+        await this.sendOneAtATime(unprocessedXapiRecords)
       }
-      await this.sendLoop(xapiRecords)
+    } catch (e) {
+      const message = e instanceof Error ? e.message : e
+      log.error(
+        `Could not write batch to dynamodb: ${message}\nNow attempting to send one at a time...`,
+      )
+      await this.sendOneAtATime(xapiRecords)
     }
     return true
   }
-  private async sendLoop(xapiRecords: ReadonlyArray<XapiRecord>) {
+
+  private async sendOneAtATime(xapiRecords: ReadonlyArray<XapiRecord>) {
     for (const xapiRecord of xapiRecords) {
       try {
-        await this.documentClient
+        const response = await this.documentClient
           .put({
             TableName: this.tableName,
             Item: xapiRecord,
           })
           .promise()
+        log.debug(`PutItemOutput: ${JSON.stringify(response)}`)
       } catch (e) {
-        const message = e instanceof Error ? e.stack : e
+        const message = e instanceof Error ? e.message : e
         log.error(
           `Could not write event for user(${xapiRecord.userId}) with server timestamp (${xapiRecord.serverTimestamp}) to dynamodb: ${message}`,
         )

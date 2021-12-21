@@ -59,6 +59,7 @@ export class ElasticsearchRecordSender implements IXapiRecordSender {
       return false
     }
 
+    log.debug(`BulkResponse: ${JSON.stringify(bulkResponse)}`)
     return true
   }
 

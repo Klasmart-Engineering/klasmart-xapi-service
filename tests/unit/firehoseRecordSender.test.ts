@@ -29,6 +29,7 @@ describe('firehoseRecordSender', () => {
         .send(
           Arg.is(
             (x) =>
+              x &&
               (x.input as any).DeliveryStreamName === deliveryStreamName &&
               (x.input as any).Records.length === 1 &&
               Buffer.compare(

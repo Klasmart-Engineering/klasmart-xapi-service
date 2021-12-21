@@ -5,6 +5,7 @@ import { XapiDbRecord } from './entities/xapiDbRecord'
 import { withLogger } from 'kidsloop-nodejs-logger'
 
 const log = withLogger('typeoOrmRecordSender')
+
 export class TypeOrmRecordSender implements IXapiRecordSender {
   public constructor(private repository = getRepository(XapiDbRecord)) {}
 
