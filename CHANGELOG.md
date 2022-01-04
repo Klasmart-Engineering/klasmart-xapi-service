@@ -2,6 +2,39 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.3.0](https://bitbucket.org/calmisland/h5p-xapi-server/compare/v1.3.0..v1.2.0) (2022-01-04)
+
+
+### Features
+
+* **H5P-423:** include roomId in xapi records if present ([c123e8e](https://bitbucket.org/calmisland/h5p-xapi-server/commits/c123e8e9db0a9e48746a4baca86b2c6156a8d23b))
+
+
+### Bug Fixes
+
+* dynamodb sendLoop function not awaited ([05f9509](https://bitbucket.org/calmisland/h5p-xapi-server/commits/05f95092433601cb532e44c4abe96f82a265d968))
+* firehose logs code instead of error ([9ec9f60](https://bitbucket.org/calmisland/h5p-xapi-server/commits/9ec9f60eaff19dbc499d6850be3b24e60bcab896))
+* **H5P-423:** not receiving live authorization token header ([133e472](https://bitbucket.org/calmisland/h5p-xapi-server/commits/133e47288c9ce830d872d7ae81e2cafa1a8e806d))
+* ip hash creation throws error because ip is undefined (local dev only) ([66dee32](https://bitbucket.org/calmisland/h5p-xapi-server/commits/66dee329996cb193b83fb315c362196805c8a5a0))
+
+
+### Performance
+
+* **H5P-427:** [typeorm] replace loop with a single api call ([390d00d](https://bitbucket.org/calmisland/h5p-xapi-server/commits/390d00de80149bdb3ba254135013038e47e1d9bf))
+
+
+### Refactor
+
+* **DAS-152:** add some debug logs ([d08c6e2](https://bitbucket.org/calmisland/h5p-xapi-server/commits/d08c6e2d6f0ab734de40f672926ae3aa97864227))
+* **DAS-152:** experiment with a convenience error logging function ([71a0f99](https://bitbucket.org/calmisland/h5p-xapi-server/commits/71a0f99002dc5e7d807610b21fcf9a72f07a1619))
+* **DAS-152:** improve logging ([270e8cd](https://bitbucket.org/calmisland/h5p-xapi-server/commits/270e8cd8f6bc9c6cbeee3b659e6d864c06b130d7))
+* include credentials by default in playground ([2c72e39](https://bitbucket.org/calmisland/h5p-xapi-server/commits/2c72e391ca38aa39d56d79394e18696f045c2d76))
+* organize server creation scripts into new initialization folder ([4c7e32b](https://bitbucket.org/calmisland/h5p-xapi-server/commits/4c7e32bf125fd9a572a8e9b891c84ee8b69a343d))
+* remove try/catch from context function ([d4836e2](https://bitbucket.org/calmisland/h5p-xapi-server/commits/d4836e28e8f5104d096c599e5b40b6db8533b6a6))
+* share authentication cookie code ([4488239](https://bitbucket.org/calmisland/h5p-xapi-server/commits/448823929a16e172e9cd0cb54fc2e5634e6052d2))
+* use new elasticsearch type definitions ([76cf2bf](https://bitbucket.org/calmisland/h5p-xapi-server/commits/76cf2bf0c0467d345b836e9f58b44f2a1a8e87cf))
+* use read-only collections where applicable ([c00cc8d](https://bitbucket.org/calmisland/h5p-xapi-server/commits/c00cc8db673164928d0c3cb935ff96dc9e647228))
+
 ## [1.2.0](https://bitbucket.org/calmisland/h5p-xapi-server/compare/v1.2.0..v1.1.0) (2021-12-06)
 
 
