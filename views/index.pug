@@ -1,0 +1,27 @@
+extends layout.pug
+
+block content
+  div.container
+    div
+      details
+        summary Metadata
+        div Name: #{name}
+        div Version: #{version}
+
+      details
+        summary Environment
+        div NODE_ENV: #{config.NODE_ENV}
+        div ROUTE_PREFIX: #{config.ROUTE_PREFIX}
+        div API_ENDPOINT: #{config.API_ENDPOINT}
+        div ENABLE_PAGE_DOCS: #{config.ENABLE_PAGE_DOCS}
+
+      details
+        summary Backends
+        div is set DYNAMODB_TABLE_NAME: #{config.DYNAMODB_IS_SET}
+        div is set FIREHOSE_STREAM_NAME: #{config.FIREHOSE_IS_SET}
+        div is set ELASTICSEARCH_URL: #{config.ELASTICSEARCH_IS_SET}
+        div is set XAPI_DATABASE_URL: #{config.DATABASE_IS_SET}
+    
+    hr
+    
+    include:markdown-it ../README.md
