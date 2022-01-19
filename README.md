@@ -101,6 +101,36 @@ Run with nodemon
 npm run dev
 ```
 
+### Running in docker
+
+Make sure to compile the Typescript into JS
+
+```sh
+npm run build
+```
+
+Next build the container
+
+```sh
+docker build -t kl-xapi .
+```
+
+Now run the container and make sure to pass it the right environment variables. For simplicity you can pass it your `.env` file that you use locally and then overwrite with `--env`
+
+```sh
+docker run --rm -it \
+  --env-file .env \
+  --env PORT=8080 \
+  --env AWS_ACCESS_KEY_ID \
+  --env AWS_SECRET_ACCESS_KEY \
+  --env AWS_SESSION_TOKEN \
+  --env XAPI_DATABASE_URL=postgres://postgres:kidsloop@kl_postgres:5432/xapi_db \
+  -p 8080:8080 \
+  kl-xapi
+```
+
+PRO tip: replace `localhost` with `host.docker.internal` if you want to connect to a database outside the docker network. 
+
 ### Debugging
 
 1. Navigate to the VS Code sidebar debug panel
