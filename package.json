@@ -20,7 +20,7 @@
     "lint-and-fix": "eslint \"{src,tests}/**/*.ts\" --ext .ts --fix",
     "format:check": "prettier --check \"{src,tests}/**/*.ts\"",
     "format": "prettier --write \"{src,tests}/**/*.ts\" \"*.json\"",
-    "prepare": "husky install",
+    "prepare": "husky install || exit 0",
     "pre-commit": "lint-staged"
   },
   "lint-staged": {

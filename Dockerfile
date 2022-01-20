@@ -1,4 +1,4 @@
-FROM node:lts-alpine
+FROM node:16-alpine
 WORKDIR /usr/app
 COPY ./dist .
 COPY ./node_modules ./node_modules
