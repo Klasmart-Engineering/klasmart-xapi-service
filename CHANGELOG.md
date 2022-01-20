@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.4.0](https://bitbucket.org/calmisland/h5p-xapi-server/compare/v1.4.0..v1.3.0) (2022-01-20)
+
+
+### Features
+
+* **XAPI-9:** add docs pages with express and jade templates ([6346062](https://bitbucket.org/calmisland/h5p-xapi-server/commits/634606260762ab5d6a66bea0df66af638552b496))
+
+
+### Bug Fixes
+
+* **build:** copy views files into docker container + fix directory structure ([afdf4ac](https://bitbucket.org/calmisland/h5p-xapi-server/commits/afdf4ace6575a7e9a01294c36e047846636131c1))
+
 ## [1.3.0](https://bitbucket.org/calmisland/h5p-xapi-server/compare/v1.3.0..v1.2.0) (2022-01-04)
 
 
