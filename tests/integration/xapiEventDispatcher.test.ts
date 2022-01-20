@@ -14,10 +14,8 @@ import { GeoIPLite } from '../../src/helpers/geoipLite'
 import geoip from 'geoip-lite'
 import { connectToTypeOrmDatabase } from '../../src/recordSenders/typeorm/connectToTypeOrmDatabase'
 
-import dotenv from 'dotenv'
 import createXapiServer from '../../src/initialization/createXapiServer'
 import { throwExpression } from '../../src/helpers/throwExpression'
-dotenv.config({ path: process.env.CI ? '.env.test.ci' : '.env.test' })
 const liveAuthorizationToken =
   'eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJ1c2VyaWQiOiIyMmIxZDcyZS1lYjA2LTViYjQtYjkwYS0wYWZmM2RkODU1YzYiLCJyb29taWQiOiJ0ZXN0cm9vbSIsImlzcyI6ImNhbG1pZC1kZWJ1ZyIsImV4cCI6MjU1MDEzNTcwNX0.bG_04gSXZYTQZbP4de6wAyGsGlia49NuDYRMc8ecoh1XSj7Vw5jJu7AQuuPSueqIvNyjyKayfiD2jBZem7RNiw'
 

@@ -1,4 +1,3 @@
-import dotenv from 'dotenv'
 import createXapiServer from '../../src/initialization/createXapiServer'
 import { gql, ApolloClient, InMemoryCache } from '@apollo/client'
 import { WebSocketLink } from '@apollo/client/link/ws'
@@ -30,7 +29,6 @@ import {
   deleteElasticsearchIndex,
   getToalItemsInElasticsearch,
 } from '../toolbox/helpers/elasticsearchHelpers'
-dotenv.config({ path: process.env.CI ? '.env.test.ci' : '.env.test' })
 
 describe('websocketConnection', () => {
   const xapiEventObj = { a: '1', b: '2' }

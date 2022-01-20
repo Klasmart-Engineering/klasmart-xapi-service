@@ -4,10 +4,7 @@ import { connectToTypeOrmDatabase } from '../../src/recordSenders/typeorm/connec
 import { XapiDbRecord } from '../../src/recordSenders/typeorm/entities/xapiDbRecord'
 import { TypeOrmRecordSender } from '../../src/recordSenders/typeorm/typeOrmRecordSender'
 import { XapiRecordBuilder } from '../toolbox/builders/xapiRecordBuilder'
-
-import dotenv from 'dotenv'
 import { throwExpression } from '../../src/helpers/throwExpression'
-dotenv.config({ path: process.env.CI ? '.env.test.ci' : '.env.test' })
 
 describe('typeOrmRecordSender', () => {
   let connection: Connection
