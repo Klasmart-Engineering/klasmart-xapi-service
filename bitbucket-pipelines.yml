@@ -49,12 +49,17 @@ definitions:
         artifacts:
           - dist/**
 
-    - step: &docker-build
-        name: '🐳 docker build'
+    - step: &docker-build-and-run
+        name: '🐳 docker build and run'
         services:
           - docker
+          - postgres
         script:
           - docker build -t xapi-server .
+          # Only one record sender is required for the service to start successfully.
+          # The following enables the postgres record sender.
+          # We can get fancier later if we want, but this is a good start.
+          - docker run --add-host host.docker.internal:$BITBUCKET_DOCKER_HOST_INTERNAL -d --name=check-startup -e XAPI_DATABASE_URL=postgres://postgres:xapiserver@host.docker.internal:5432/test_xapi_db xapi-server && sleep 10 && docker top check-startup
 
     - step: &version-bump
         name: '🏷️ version bump'
@@ -76,7 +81,8 @@ definitions:
               IMAGE_NAME: $DOCKER_REPO_NAME
               TAGS: '$VERSION_TAG alpha'
           # This step will fail if 'master' branch write permissions isn't set to 'everyone'.
-          - git push --follow-tags origin master
+          - git push origin master
+          - git push origin $VERSION_TAG
 
     - step: &deploy-to-alpha
         name: '🔔 deploy to alpha'
@@ -105,7 +111,7 @@ pipelines:
       - step: *npm-install-and-test
       - step: *commitlint
       - step: *npm-build
-      - step: *docker-build
+      - step: *docker-build-and-run
 
   branches:
     master:
