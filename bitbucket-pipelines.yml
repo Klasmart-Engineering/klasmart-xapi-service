@@ -33,59 +33,13 @@ definitions:
           - node_modules/**/*
         caches:
           - node
+          - docker
 
     - step: &commitlint
         name: '📝 conventional commits check'
         image: node:16
         script:
           - /bin/bash commitlint-pipeline-check.sh
-
-    - step: &version-bump
-        name: '🏷️ version bump'
-        trigger: 'manual'
-        image: node:16
-        services:
-          - docker
-        script:
-          - npm run release
-          - npm run build
-          - docker build -t $DOCKER_REPO_NAME .
-          - pipe: atlassian/aws-ecr-push-image:1.5.0
-            variables:
-              AWS_DEFAULT_REGION: eu-west-2
-              IMAGE_NAME: $DOCKER_REPO_NAME
-              TAGS: '$BITBUCKET_TAG alpha'
-          # This step will fail if 'master' branch write permissions isn't set to 'everyone'.
-          - git push --follow-tags origin master
-
-    - step: &docker-build-and-push-to-ecr
-        name: '🚀 docker build + push to ECR'
-        deployment: release
-        image: python:3.9-alpine
-        services:
-          - docker
-        script:
-          - pip3 install -U awscli
-          # DOCKER_REPO_URL is a workspace wide variable.
-          - aws ecr get-login-password --region eu-west-2 | docker login --username AWS --password-stdin $DOCKER_REPO_URL
-          - docker build -t xapi-server .
-          - export REPO=$DOCKER_REPO_URL/$DOCKER_REPO_NAME
-          - docker tag xapi-server:latest $REPO:$BITBUCKET_TAG
-          - docker tag xapi-server:latest $REPO:alpha
-          - docker push $REPO:$BITBUCKET_TAG
-          - docker push $REPO:alpha
-
-    - step: &npm-install-prod-and-build
-        name: '⚡ npm install and build'
-        image: node:16
-        script:
-          - git reset --hard origin/master
-          - git log --oneline -1
-          - npm ci --only-production
-          - npm run build
-        artifacts:
-          - node_modules/**/*
-          - dist/**
 
     - step: &npm-build
         name: '⚡ npm build'
@@ -102,10 +56,30 @@ definitions:
         script:
           - docker build -t xapi-server .
 
+    - step: &version-bump
+        name: '🏷️ version bump'
+        trigger: 'manual'
+        image: node:16
+        artifacts:
+          - version.txt
+        services:
+          - docker
+        script:
+          - npm run release
+          - npm run build
+          - docker build -t $DOCKER_REPO_NAME .
+          - export VERSION_TAG=$(git describe --tags --abbrev=0)
+          - echo $VERSION_TAG > ./version.txt
+          - pipe: atlassian/aws-ecr-push-image:1.5.0
+            variables:
+              AWS_DEFAULT_REGION: eu-west-2
+              IMAGE_NAME: $DOCKER_REPO_NAME
+              TAGS: '$VERSION_TAG alpha'
+          # This step will fail if 'master' branch write permissions isn't set to 'everyone'.
+          - git push --follow-tags origin master
+
     - step: &deploy-to-alpha
         name: '🔔 deploy to alpha'
-        artifacts:
-          download: false
         script:
           - pipe: atlassian/aws-ecs-deploy:1.6.1
             variables:
@@ -117,10 +91,11 @@ definitions:
               SERVICE_NAME: 'kidsloop-alpha-xapi'
               FORCE_NEW_DEPLOYMENT: 'true'
               WAIT: 'true'
+          - VERSION_TAG=$(cat ./version.txt)
           - pipe: docker://cabauman/slack-notify-commits:0.6.0
             variables:
               WEBHOOK_URL: $SLACK_WEBHOOK
-              MESSAGE: '🚀 A new build of xAPI service has been deployed to *alpha*.'
+              MESSAGE: '🚀 A new build of xAPI service ($VERSION_TAG) has been deployed to *alpha*.'
               BITBUCKET_USER: $BITBUCKET_PIPELINE_READER_USER
               BITBUCKET_APP_PASSWORD: $BITBUCKET_PIPELINE_READER_APP_PASSWORD
 
