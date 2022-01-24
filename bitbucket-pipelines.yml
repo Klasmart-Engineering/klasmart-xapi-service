@@ -64,6 +64,7 @@ definitions:
     - step: &version-bump
         name: '🏷️ version bump'
         trigger: 'manual'
+        deployment: release
         image: node:16
         artifacts:
           - version.txt
@@ -72,6 +73,7 @@ definitions:
         script:
           - npm run release
           - npm run build
+          - npm prune --production
           - docker build -t $DOCKER_REPO_NAME .
           - export VERSION_TAG=$(git describe --tags --abbrev=0)
           - echo $VERSION_TAG > ./version.txt
