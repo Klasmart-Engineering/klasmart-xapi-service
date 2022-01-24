@@ -97,7 +97,7 @@ definitions:
               SERVICE_NAME: 'kidsloop-alpha-xapi'
               FORCE_NEW_DEPLOYMENT: 'true'
               WAIT: 'true'
-          - VERSION_TAG=$(cat ./version.txt)
+          - export VERSION_TAG=$(cat ./version.txt)
           - pipe: docker://cabauman/slack-notify-commits:0.6.0
             variables:
               WEBHOOK_URL: $SLACK_WEBHOOK
