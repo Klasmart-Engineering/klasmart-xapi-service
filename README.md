@@ -1,6 +1,8 @@
-# H5P xAPI Server
+# KidsLoop xAPI Service
 
-[![codecov](https://codecov.io/bb/calmisland/h5p-xapi-server/branch/master/graph/badge.svg?token=53QIJCNIEF)](https://codecov.io/bb/calmisland/h5p-xapi-server) [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org) [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
+[![codecov](https://codecov.io/bb/calmisland/h5p-xapi-server/branch/master/graph/badge.svg?token=53QIJCNIEF)](https://codecov.io/bb/calmisland/h5p-xapi-server)
+[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
+[![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
 
 [TOC]
 
@@ -10,7 +12,12 @@
 
 Used by [kidsloop-h5p-library](https://bitbucket.org/calmisland/kidsloop-h5p-library/src/3d34fbc7f25c13b4b42f40bc3fb7c6726019aee1/src/xapi-uploader.ts?at=dev) which sends us xAPI events, via the [h5p-xapi-uploader](https://bitbucket.org/calmisland/h5p-xapi-uploader).
 
-Branching model: `feature/fix/etc` -> `master` -> `alpha` -> `production`
+**Branching model**
+
+- `feature/fix/etc` -> `master`
+- The master branch pipeline has a manual _version bump_ step.
+- That step will build/push the docker image to ECR, and deploy to alpha.
+- We no longer use the alpha or production branches.
 
 📢 Follow the specification covered in [CONTRIBUTING.md](CONTRIBUTING.md) 📢
 
@@ -173,20 +180,6 @@ We use the [Bitbucket Deployments](https://bitbucket.org/blog/introducing-bitbuc
 
 - The [Bitbucket view](https://bitbucket.org/calmisland/h5p-xapi-server/addon/pipelines/deployments) can be accessed from the sidebar via the Deployments tab.
 - The [Jira view](https://calmisland.atlassian.net/jira/software/c/projects/DAS/deployments?startDate=-3m&endDate=now) can be accessed from the sidebar of Jira via the Deployments tab.
-
-The Bitbucket pipeline builds and pushes a new docker image to the _Kidsloop Infra_ account every time code is merged into the `alpha` or `production` branch. Making the actual deployment requires another step, which differs between alpha and production.
-
-### Alpha
-
-1. Head over to the [ECS service](https://ap-northeast-2.console.aws.amazon.com/ecs/home?region=ap-northeast-2#/clusters/kidsloop-alpha/services/kidsloop-alpha-xapi/details) in the _Kidsloop Dev_ account.
-2. Click "Update" in the top right corner.
-3. Check the "Force new deployment" checkbox.
-4. Click "Skip to review"
-5. Click "Update service.
-
-### Production
-
-Make a PR in the [kidsloop-infra](https://bitbucket.org/calmisland/kidsloop-infra/src/main/) repository, using [this merged PR](https://bitbucket.org/calmisland/kidsloop-infra/pull-requests/148) as a template.
 
 ### Alpha info
 
