@@ -14,7 +14,12 @@ export class TypeOrmRecordSender implements IXapiRecordSender {
   ): Promise<boolean> {
     try {
       const dbRecords = this.mapToDbRecords(xapiRecords)
-      await this.repository.save(dbRecords)
+      await this.repository
+        .createQueryBuilder()
+        .insert()
+        .into(XapiDbRecord)
+        .values(dbRecords)
+        .execute()
       return true
     } catch (e) {
       const error = e instanceof Error ? e.stack : e

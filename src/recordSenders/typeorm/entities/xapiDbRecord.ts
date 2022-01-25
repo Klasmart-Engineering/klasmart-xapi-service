@@ -20,7 +20,7 @@ export class XapiDbRecord {
   roomId?: string | null
 
   @Column({ type: 'jsonb' })
-  xapi?: unknown
+  xapi?: any
 
   @Column({ name: 'ip_hash' })
   ipHash!: string
