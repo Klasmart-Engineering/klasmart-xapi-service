@@ -99,8 +99,9 @@ definitions:
               SERVICE_NAME: 'kidsloop-alpha-xapi'
               FORCE_NEW_DEPLOYMENT: 'true'
               WAIT: 'true'
+        after-script:
           - export VERSION_TAG=$(cat ./version.txt)
-          - pipe: docker://cabauman/slack-notify-commits:0.6.0
+          - pipe: docker://cabauman/slack-notify-commits:0.6.1
             variables:
               WEBHOOK_URL: $SLACK_WEBHOOK
               MESSAGE: '🚀 A new build of xAPI service ($VERSION_TAG) has been deployed to *alpha*.'
