@@ -2,6 +2,8 @@
   "extends": ["@commitlint/config-conventional"],
   "helpUrl": "📢 Use the 'npx cz' command for an easy-to-follow commit wizard. 📢",
   "rules": {
+    "scope-case": [0, "always", "lower-case"],
+    "body-max-line-length": [0, "always", 100],
     "type-enum": [
       2,
       "always",
