@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.5.0](https://bitbucket.org/calmisland/h5p-xapi-server/compare/v1.5.0..v1.4.2) (2022-02-04)
+
+
+### Features
+
+* disable graphql playground in production ([6ac8eda](https://bitbucket.org/calmisland/h5p-xapi-server/commits/6ac8eda585ad47b49bc3d8b5e3005701f6c31a76))
+
 ### [1.4.2](https://bitbucket.org/calmisland/h5p-xapi-server/compare/v1.4.2..v1.4.1) (2022-01-25)
 
 
