@@ -10,11 +10,18 @@ export function getTypeOrmDatabaseConnectionOptions(
   return {
     type: 'postgres',
     url,
-    synchronize: true,
+    synchronize: false,
     entities: [
       path.join(__dirname, './entities/*.ts'),
       path.join(__dirname, './entities/*.js'),
     ],
+    logging: Boolean(process.env.XAPI_DATABASE_LOGGING),
+    migrations: ['src/migrations/*.ts'],
+    migrationsTableName: 'xapi_migrations',
+    migrationsRun: true,
+    cli: {
+      migrationsDir: 'src/migrations',
+    },
   }
 }
 

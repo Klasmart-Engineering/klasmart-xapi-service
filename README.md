@@ -200,3 +200,29 @@ Once you're granted access to the above account, head to the [service task list]
 
 - [Jira and Bitbucket](https://marketplace.visualstudio.com/items?itemName=Atlassian.atlascode)
 - [Mocha Test Explorer](https://marketplace.visualstudio.com/items?itemName=hbenl.vscode-mocha-test-adapter)
+
+## Migrations
+
+Use `typeorm` to generate and run migrations.
+
+Docs:
+- [typeorm - Migrations](https://github.com/typeorm/typeorm/blob/master/docs/migrations.md)
+- [typeorm - Using CLI](https://github.com/typeorm/typeorm/blob/master/docs/using-cli.md)
+
+To generate a migration, make sure there's an `ormConfig.json` file present. You can generate it with the `./scripts/generateOrmConfig.ts` script. Then run the following:
+
+```sh
+npm run typeorm migration:generate -- --config ormConfig.json -n MigrationName
+```
+
+Manually run a migration:
+
+```sh
+npm run typeorm migration:run -- --config ormConfig.json
+```
+
+Revert a migration:
+
+```sh
+npm run typeorm migration:revert -- --config ormConfig.json
+```

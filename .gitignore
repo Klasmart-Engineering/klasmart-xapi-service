@@ -118,3 +118,6 @@ dist
 
 # snippets
 *snippet*
+
+# typeorm cli config
+ormConfig.json
