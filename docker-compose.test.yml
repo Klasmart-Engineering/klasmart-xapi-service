@@ -8,7 +8,7 @@ services:
     ports:
       - "9200:9200"
   localstack:
-    image: localstack/localstack:latest
+    image: localstack/localstack:0.13
     environment: 
       - AWS_DEFAULT_REGION=ap-northeast-2
       - EDGE_PORT=4566
