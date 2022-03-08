@@ -75,38 +75,62 @@ describe('xapiEventDispatcher.dispatchEvents', () => {
     })
   })
 
-  context('recordSender1 throws an exception', () => {
+  context.only(
+    'recordSender1 throws an exception; recordSender2 returns true',
+    () => {
+      const authContext: Context = { ip, authenticationToken }
+      const geolocationProvider = Substitute.for<IGeolocationProvider>()
+      const recordSender1 = Substitute.for<IXapiRecordSender>()
+      const recordSender2 = Substitute.for<IXapiRecordSender>()
+
+      before(() => {
+        geolocationProvider.getInfo(ip).returns(geo)
+        recordSender1.sendRecords(Arg.any()).rejects('oops')
+        recordSender2.sendRecords(Arg.any()).resolves(true)
+      })
+
+      it('recordSender2 executes successfully and returns true', async () => {
+        const sut = new XapiEventDispatcher(
+          [recordSender1, recordSender2],
+          geolocationProvider,
+        )
+        const success = await sut.dispatchEvents(
+          { xAPIEvents: xapiEvents },
+          authContext,
+        )
+        geolocationProvider.received(1).getInfo(ip)
+
+        recordSender2.received(1).sendRecords(
+          Arg.is((records) => {
+            return (
+              records.length === 1 &&
+              records[0].userId === authContext.authenticationToken?.id &&
+              records[0].ipHash === ipHash &&
+              records[0].geo === geo
+            )
+          }),
+        )
+
+        expect(success).to.be.false
+      })
+    },
+  )
+
+  context.only('recordSender returns false', () => {
     const authContext: Context = { ip, authenticationToken }
     const geolocationProvider = Substitute.for<IGeolocationProvider>()
-    const recordSender1 = Substitute.for<IXapiRecordSender>()
-    const recordSender2 = Substitute.for<IXapiRecordSender>()
+    const recordSender = Substitute.for<IXapiRecordSender>()
 
     before(() => {
       geolocationProvider.getInfo(ip).returns(geo)
-      recordSender1.sendRecords(Arg.any()).rejects('oops')
-      recordSender2.sendRecords(Arg.any()).resolves(true)
+      recordSender.sendRecords(Arg.any()).resolves(false)
     })
 
-    it('recordSender2 executes successfully and returns true', async () => {
-      const sut = new XapiEventDispatcher(
-        [recordSender1, recordSender2],
-        geolocationProvider,
-      )
+    it('returns false', async () => {
+      const sut = new XapiEventDispatcher([recordSender], geolocationProvider)
       const success = await sut.dispatchEvents(
         { xAPIEvents: xapiEvents },
         authContext,
-      )
-      geolocationProvider.received(1).getInfo(ip)
-
-      recordSender2.received(1).sendRecords(
-        Arg.is((records) => {
-          return (
-            records.length === 1 &&
-            records[0].userId === authContext.authenticationToken?.id &&
-            records[0].ipHash === ipHash &&
-            records[0].geo === geo
-          )
-        }),
       )
 
       expect(success).to.be.false

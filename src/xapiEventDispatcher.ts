@@ -54,7 +54,10 @@ export class XapiEventDispatcher {
       this.recordSenders.map((x) => x.sendRecords(xapiRecords)),
     )
     const allSucceeded = results.every(
-      (result) => result.status === 'fulfilled',
+      (result) => result.status === 'fulfilled' && result.value === true,
+    )
+    log.debug(
+      `allSucceeded: ${allSucceeded}; userId: ${userId}; roomId: ${roomId}`,
     )
     return allSucceeded
   }
