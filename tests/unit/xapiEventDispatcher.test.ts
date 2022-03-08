@@ -28,6 +28,7 @@ describe('xapiEventDispatcher.dispatchEvents', () => {
 
     before(() => {
       geolocationProvider.getInfo(ip).returns(geo)
+      recordSender.sendRecords(Arg.all()).resolves(true)
     })
 
     it('executes successfully and returns true', async () => {
@@ -75,7 +76,7 @@ describe('xapiEventDispatcher.dispatchEvents', () => {
     })
   })
 
-  context.only(
+  context(
     'recordSender1 throws an exception; recordSender2 returns true',
     () => {
       const authContext: Context = { ip, authenticationToken }
@@ -116,7 +117,7 @@ describe('xapiEventDispatcher.dispatchEvents', () => {
     },
   )
 
-  context.only('recordSender returns false', () => {
+  context('recordSender returns false', () => {
     const authContext: Context = { ip, authenticationToken }
     const geolocationProvider = Substitute.for<IGeolocationProvider>()
     const recordSender = Substitute.for<IXapiRecordSender>()

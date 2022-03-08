@@ -72,6 +72,7 @@
     "dotenv": "^10.0.0",
     "eslint": "^7.32.0",
     "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-mocha": "^10.0.3",
     "eslint-plugin-prettier": "^3.4.1",
     "http-terminator": "^3.0.3",
     "husky": "^7.0.4",
