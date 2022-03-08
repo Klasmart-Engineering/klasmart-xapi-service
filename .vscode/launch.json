@@ -30,6 +30,7 @@
       "sourceMaps": true,
       "smartStep": true,
       "internalConsoleOptions": "openOnSessionStart",
+      "envFile": "${workspaceFolder}/.env.test",
       "outFiles": ["${workspaceFolder}/**/*.js", "!**/node_modules/**"]
     }
   ]
