@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.6.0](https://bitbucket.org/calmisland/h5p-xapi-server/compare/v1.6.0..v1.5.0) (2022-03-23)
+
+
+### Features
+
+* enable Postgres database migrations + CreateDatabase migration ([504b2d3](https://bitbucket.org/calmisland/h5p-xapi-server/commits/504b2d3325b95da3df5b13d326bfbdf55cceee84))
+* **kinesisDataStreams:** add KinesisDataStreams RecordSender ([49da8fa](https://bitbucket.org/calmisland/h5p-xapi-server/commits/49da8fa7a4469b0557cdafd2fee7bb6477501476))
+
+
+### Bug Fixes
+
+* dispatchEvents returns true if a record sender returns false ([ebe0d40](https://bitbucket.org/calmisland/h5p-xapi-server/commits/ebe0d4078f5b6dc1969b1dcc99be85b90e9d4db2))
+
 ## [1.5.0](https://bitbucket.org/calmisland/h5p-xapi-server/compare/v1.5.0..v1.4.2) (2022-02-04)
 
 
