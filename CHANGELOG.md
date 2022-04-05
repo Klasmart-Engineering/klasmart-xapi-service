@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.7.0](https://bitbucket.org/calmisland/h5p-xapi-server/compare/v1.7.0..v1.6.0) (2022-04-05)
+
+
+### Features
+
+* **H5P-555:** use classActiveUserId for xAPI events ([b535e55](https://bitbucket.org/calmisland/h5p-xapi-server/commits/b535e555441314daeaad175d0a905ea07832d11c))
+
+
+### Refactor
+
+* utilize type guard helper ([3094268](https://bitbucket.org/calmisland/h5p-xapi-server/commits/309426897477d8fb29278b0db53c2f8224330e7b))
+
 ## [1.6.0](https://bitbucket.org/calmisland/h5p-xapi-server/compare/v1.6.0..v1.5.0) (2022-03-23)
 
 
