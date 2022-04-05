@@ -1,6 +1,6 @@
 {
   "name": "h5p-xapi-server",
-  "version": "1.7.0",
+  "version": "1.7.1",
   "description": "",
   "main": "index.js",
   "scripts": {

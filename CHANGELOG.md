@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.7.1](https://bitbucket.org/calmisland/h5p-xapi-server/compare/v1.7.1..v1.7.0) (2022-04-05)
+
+
+### Refactor
+
+* decrease verboseness of debug logs ([ae539a5](https://bitbucket.org/calmisland/h5p-xapi-server/commits/ae539a5052155b7f4e857f2c8ae04ac5a18e87e6))
+
 ## [1.7.0](https://bitbucket.org/calmisland/h5p-xapi-server/compare/v1.7.0..v1.6.0) (2022-04-05)
 
 
