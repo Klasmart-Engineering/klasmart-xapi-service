@@ -94,7 +94,7 @@ async function extractRoomId(
     const authorizationToken = await checkLiveAuthorizationToken(
       encodedLiveAuthorizationToken,
     )
-    log.verbose(`authorizationToken.roomid: ${authorizationToken.roomid}`)
+    log.silly(`authorizationToken.roomid: ${authorizationToken.roomid}`)
     return authorizationToken.roomid
   }
 }
