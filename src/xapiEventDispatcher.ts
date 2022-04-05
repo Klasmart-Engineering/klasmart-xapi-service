@@ -38,7 +38,7 @@ export class XapiEventDispatcher {
     const geo = this.geolocationProvider.getInfo(ip)
     const ipHash = createHash('sha256').update(ip).digest('hex')
 
-    const xapiRecords: XapiRecord[] = (xapiEvents as string[]).map(
+    const xapiRecords: XapiRecord[] = xapiEvents.map(
       (xapi: string, index: number) => {
         return {
           xapi: JSON.parse(xapi),
@@ -62,7 +62,7 @@ export class XapiEventDispatcher {
     return allSucceeded
   }
 
-  private static isArrayOfStrings(value: unknown): boolean {
+  private static isArrayOfStrings(value: unknown): value is string[] {
     return (
       Array.isArray(value) && value.every((item) => typeof item === 'string')
     )
