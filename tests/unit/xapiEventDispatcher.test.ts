@@ -159,4 +159,50 @@ describe('xapiEventDispatcher.dispatchEvents', () => {
       expect(response).to.be.false
     })
   })
+
+  context('xapiEvent.userId is defined', () => {
+    const authContext: Context = { ip, authenticationToken }
+    const geolocationProvider = Substitute.for<IGeolocationProvider>()
+    const recordSender = Substitute.for<IXapiRecordSender>()
+    let success = false
+
+    before(async () => {
+      // Arrange
+      const xapiEventObj = { a: '1', b: '2', userId: 'user1' }
+      const xapiEvent = JSON.stringify(xapiEventObj)
+      const xapiEvents = [xapiEvent]
+      geolocationProvider.getInfo(ip).returns(geo)
+      recordSender.sendRecords(Arg.all()).resolves(true)
+      const sut = new XapiEventDispatcher([recordSender], geolocationProvider)
+
+      // Act
+      success = await sut.dispatchEvents(
+        { xAPIEvents: xapiEvents },
+        authContext,
+      )
+    })
+
+    it('returns true', async () => {
+      expect(success).to.be.true
+    })
+
+    it('recordSender.sendRecords is called once with expected record', async () => {
+      recordSender.received(1).sendRecords(
+        Arg.is((records) => {
+          return (
+            records.length === 1 &&
+            // ================ KEY DIFFERENCE ================
+            records[0].userId === 'user1' &&
+            // ================ KEY DIFFERENCE ================
+            records[0].ipHash === ipHash &&
+            records[0].geo === geo
+          )
+        }),
+      )
+    })
+
+    it('geolocationProvider.getInfo is called once with expected ip', async () => {
+      geolocationProvider.received(1).getInfo(ip)
+    })
+  })
 })

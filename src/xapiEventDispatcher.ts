@@ -40,9 +40,16 @@ export class XapiEventDispatcher {
 
     const xapiRecords: XapiRecord[] = xapiEvents.map(
       (xapi: string, index: number) => {
+        const xapiObject = JSON.parse(xapi)
+        const studentId = xapiObject.userId
+        log.verbose(`studentId: ${studentId}`)
+        // xapiObject.userId isn't part of the default xAPI event.
+        // It's injected by the xAPI uploader, which it gets from Live (optional).
+        // So we delete it from the event and add it below (if not undefined).
+        delete xapiObject.userId
         return {
-          xapi: JSON.parse(xapi),
-          userId,
+          xapi: xapiObject,
+          userId: studentId ?? userId,
           roomId,
           ipHash,
           geo,
