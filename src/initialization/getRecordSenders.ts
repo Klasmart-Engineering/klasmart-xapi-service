@@ -3,6 +3,10 @@ import { DynamoDbRecordSender } from '../recordSenders/dynamoDbRecordSender'
 import { ElasticsearchRecordSender } from '../recordSenders/elasticsearchRecordSender'
 import { FirehoseRecordSender } from '../recordSenders/firehoseRecordSender'
 import { KinesisDataStreamRecordSender } from '../recordSenders/kinesisDataStreamRecordSender'
+import {
+  RedisMode,
+  RedisStreamRecordSender,
+} from '../recordSenders/redisStreamRecordSender'
 import { connectToTypeOrmDatabase } from '../recordSenders/typeorm/connectToTypeOrmDatabase'
 import { TypeOrmRecordSender } from '../recordSenders/typeorm/typeOrmRecordSender'
 import { withLogger } from 'kidsloop-nodejs-logger'
@@ -93,6 +97,30 @@ export default async function getRecordSenders(): Promise<
     )
   }
 
+  const redisMode = (process.env.REDIS_MODE || '').toUpperCase()
+  if (
+    process.env.REDIS_HOST &&
+    process.env.REDIS_PORT &&
+    ['NODE', 'CLUSTER'].includes(redisMode) &&
+    process.env.REDIS_STREAM_NAME
+  ) {
+    try {
+      const redisStreamRecordSender = await RedisStreamRecordSender.create(
+        redisMode as RedisMode,
+        `${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`,
+        process.env.REDIS_STREAM_NAME,
+      )
+      recordSenders.push(redisStreamRecordSender)
+      log.info('🏎  Redis Stream record sender added')
+    } catch (e) {
+      logError(log, e, 'Error adding Redis Stream record sender')
+    }
+  } else {
+    log.info(
+      'To use a Redis Stream specify REDIS_URL and REDIS_STREAM_NAME environment variables',
+    )
+  }
+
   if (recordSenders.length <= 0) {
     throw new Error(NoRecordSendersErrorMessage)
   }
@@ -105,4 +133,5 @@ export const NoRecordSendersErrorMessage =
   '- FIREHOSE_STREAM_NAME\n' +
   '- KINESIS_DATA_STREAM_NAME\n' +
   '- ELASTICSEARCH_URL\n' +
-  '- XAPI_DATABASE_URL'
+  '- XAPI_DATABASE_URL\n' +
+  '- REDIS_HOST and REDIS_PORT and REDIS_MODE and REDIS_STREAM_NAME'

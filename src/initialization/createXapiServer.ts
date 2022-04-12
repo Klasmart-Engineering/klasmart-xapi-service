@@ -98,6 +98,7 @@ export default async function createXapiServer(
           FIREHOSE_IS_SET: Boolean(process.env.FIREHOSE_STREAM_NAME),
           ELASTICSEARCH_IS_SET: Boolean(process.env.ELASTICSEARCH_URL),
           DATABASE_IS_SET: Boolean(process.env.XAPI_DATABASE_URL),
+          REDIS_IS_SET: Boolean(process.env.REDIS_URL),
         },
       })
     },
