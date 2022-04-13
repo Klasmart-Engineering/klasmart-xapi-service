@@ -1,4 +1,4 @@
-version: '3.0'
+version: '3.6'
 
 services:
   elasticsearch:
@@ -11,6 +11,8 @@ services:
     image: localstack/localstack:0.13
     environment: 
       - AWS_DEFAULT_REGION=ap-northeast-2
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
       - EDGE_PORT=4566
       - SERVICES=firehose,s3,iam,dynamodb
       - KINESIS_PROVIDER=kinesalite

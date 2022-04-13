@@ -1,0 +1,54 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_as:
+        required: true
+        type: choice
+        default: auto
+        description: If you want an automated or a manual version bump
+        options:
+          - auto
+          - major
+          - minor
+          - patch
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  npm-ci:
+    uses: KL-Engineering/github-action-workflows/.github/workflows/npm-ci.yml@v2.1.0
+    secrets:
+      NODE_AUTH_TOKEN: ${{ secrets.PACKAGES_TOKEN }}
+  
+  create-release:
+    needs: [npm-ci]
+    uses: ./.github/workflows/job-create-release.yml
+    with:
+      release_as: ${{ github.event.inputs.release_as }}
+    secrets:
+      ECR_AWS_ACCESS_KEY_ID: ${{ secrets.ECR_AWS_ACCESS_KEY_ID }}
+      ECR_AWS_SECRET_ACCESS_KEY: ${{ secrets.ECR_AWS_SECRET_ACCESS_KEY }}
+  
+  deploy-alpha:
+    needs: [create-release]
+    uses: ./.github/workflows/job-deploy-alpha.yml
+    with:
+      ecs_aws_service: kidsloop-alpha-xapi
+    secrets:
+      AWS_ACCESS_KEY_ID_ALPHA_DEV: ${{ secrets.AWS_ACCESS_KEY_ID_ALPHA_DEV }}
+      AWS_SECRET_ACCESS_KEY_ALPHA_DEV: ${{ secrets.AWS_SECRET_ACCESS_KEY_ALPHA_DEV }}
+
+  deploy-landing-zone:
+    needs: [create-release]
+    uses: KL-Engineering/github-action-workflows/.github/workflows/deploy-kidskube-env.yml@v3.0.1
+    with:
+      ARGOCD_APP: uk-landingzone-xapi
+      ARGOCD_APP_CHART_TAG_PATH: xapi.tag
+    secrets:
+      ARGOCD_AUTH_USERNAME: ${{ secrets.ARGOCD_AUTH_USERNAME }}
+      ARGOCD_AUTH_PASSWORD: ${{ secrets.ARGOCD_AUTH_PASSWORD }}
+      TOOLS_KUBECONFIG_CONTENT_B64: ${{ secrets.TOOLS_KUBECONFIG_CONTENT_B64 }}

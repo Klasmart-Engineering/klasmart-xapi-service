@@ -2,7 +2,7 @@
 import { HttpQueryError, GraphQLResponse } from 'apollo-server-core'
 import { ApolloServerTestClient } from './createTestClient'
 import { Headers } from 'node-mocks-http'
-import { withLogger } from 'kidsloop-nodejs-logger'
+import { withLogger } from '@kl-engineering/kidsloop-nodejs-logger'
 
 const log = withLogger('gqlTry')
 

@@ -1,7 +1,7 @@
 import { DocumentClient } from 'aws-sdk/clients/dynamodb'
 import { XapiRecord } from '../interfaces/xapiRecord'
 import { IXapiRecordSender } from '../interfaces/xapiRecordSender'
-import { withLogger } from 'kidsloop-nodejs-logger'
+import { withLogger } from '@kl-engineering/kidsloop-nodejs-logger'
 
 const log = withLogger('dynamoDbRecordSender')
 

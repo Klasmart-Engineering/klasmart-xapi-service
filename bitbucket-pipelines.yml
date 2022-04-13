@@ -59,7 +59,13 @@ definitions:
           # Only one record sender is required for the service to start successfully.
           # The following enables the postgres record sender.
           # We can get fancier later if we want, but this is a good start.
-          - docker run --add-host host.docker.internal:$BITBUCKET_DOCKER_HOST_INTERNAL -d --name=check-startup -e XAPI_DATABASE_URL=postgres://postgres:xapiserver@host.docker.internal:5432/test_xapi_db xapi-server && sleep 10 && docker top check-startup
+          - >
+            docker run \
+              --add-host host.docker.internal:$BITBUCKET_DOCKER_HOST_INTERNAL \
+              -d \
+              --name=check-startup \
+              -e XAPI_DATABASE_URL=postgres://postgres:xapiserver@host.docker.internal:5432/test_xapi_db \
+              xapi-server && sleep 10 && docker top check-startup
 
     - step: &version-bump
         name: '🏷️ version bump'

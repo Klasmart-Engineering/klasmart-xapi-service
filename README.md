@@ -4,13 +4,11 @@
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
 [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
 
-[TOC]
-
 ---
 
 ## Remarks
 
-Used by [kidsloop-h5p-library](https://bitbucket.org/calmisland/kidsloop-h5p-library/src/3d34fbc7f25c13b4b42f40bc3fb7c6726019aee1/src/xapi-uploader.ts?at=dev) which sends us xAPI events, via the [h5p-xapi-uploader](https://bitbucket.org/calmisland/h5p-xapi-uploader).
+Used by [kidsloop-h5p-library](https://github.com/KL-Engineering/kidsloop-h5p-library/blob/master/src/custom/xapiUploader.js) which sends us xAPI events, via the [h5p-xapi-uploader](https://github.com/KL-Engineering/h5p-xapi-uploader).
 
 **Branching model**
 
@@ -196,11 +194,6 @@ _Tip: when debugging or focusing on a particular test or group of tests, append 
 
 ## Deployment
 
-We use the [Bitbucket Deployments](https://bitbucket.org/blog/introducing-bitbucket-deployments) feature for a nice overview of deployment history. The quality of the Jira integration depends on ticket IDs being included in commit messages, so it's important to make an effort to do so.
-
-- The [Bitbucket view](https://bitbucket.org/calmisland/h5p-xapi-server/addon/pipelines/deployments) can be accessed from the sidebar via the Deployments tab.
-- The [Jira view](https://calmisland.atlassian.net/jira/software/c/projects/DAS/deployments?startDate=-3m&endDate=now) can be accessed from the sidebar of Jira via the Deployments tab.
-
 ### Alpha info
 
 - Account name: Kidsloop Dev
@@ -218,7 +211,7 @@ Once you're granted access to the above account, head to the [service task list]
 
 ## Recommended VS Code extensions
 
-- [Jira and Bitbucket](https://marketplace.visualstudio.com/items?itemName=Atlassian.atlascode)
+- [Jira](https://marketplace.visualstudio.com/items?itemName=Atlassian.atlascode)
 - [Mocha Test Explorer](https://marketplace.visualstudio.com/items?itemName=hbenl.vscode-mocha-test-adapter)
 
 ## Migrations

@@ -3,7 +3,7 @@ import { XapiRecord } from './interfaces/xapiRecord'
 import { createHash } from 'crypto'
 import { IXapiRecordSender } from './interfaces/xapiRecordSender'
 import { IGeolocationProvider } from './interfaces/geolocationProvider'
-import { withLogger } from 'kidsloop-nodejs-logger'
+import { withLogger } from '@kl-engineering/kidsloop-nodejs-logger'
 
 const log = withLogger('xapiEventDispatcher')
 

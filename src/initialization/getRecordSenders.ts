@@ -9,7 +9,7 @@ import {
 } from '../recordSenders/redisStreamRecordSender'
 import { connectToTypeOrmDatabase } from '../recordSenders/typeorm/connectToTypeOrmDatabase'
 import { TypeOrmRecordSender } from '../recordSenders/typeorm/typeOrmRecordSender'
-import { withLogger } from 'kidsloop-nodejs-logger'
+import { withLogger } from '@kl-engineering/kidsloop-nodejs-logger'
 import { logError } from '../helpers/errorLogUtil'
 
 const log = withLogger('getRecordSenders')

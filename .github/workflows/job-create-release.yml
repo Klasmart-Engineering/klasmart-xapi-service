@@ -1,0 +1,121 @@
+name: Create Release (job)
+
+on:
+  workflow_call:
+    inputs:
+      release_as:
+        # https://github.com/conventional-changelog/standard-version#release-as-a-target-type-imperatively-npm-version-like
+        required: true
+        type: string
+        description: auto, major, minor, or patch
+    secrets:
+      ECR_AWS_ACCESS_KEY_ID:
+        required: true
+      ECR_AWS_SECRET_ACCESS_KEY:
+        required: true
+
+env:
+  ECR_REPOSITORY: kidsloop-h5p-xapi-service
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: 5432
+          POSTGRES_DB: test_xapi_db
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: xapiserver
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    outputs:
+      VERSION_TAG: ${{ steps.version-bump.outputs.VERSION_TAG }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 16.x
+          registry-url: https://npm.pkg.github.com/
+
+      - name: Find node_modules cache
+        id: cache-node_modules
+        uses: actions/cache@v3
+        with:
+          path: ./node_modules
+          key: ${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
+      - name: Set up git config
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "<>"
+
+      - name: Version bump
+        id: version-bump
+        env:
+          RELEASE_AS: ${{ inputs.release_as }}
+        run: |
+          npm run build
+          if [[ "$RELEASE_AS" == "auto" ]]
+          then
+            npm run release
+          else
+            npm run release -- --release-as $RELEASE_AS
+          fi
+          npm prune --production
+          docker build -t $ECR_REPOSITORY .
+          export VERSION_TAG=$(git describe --tags --abbrev=0)
+          echo "::set-output name=VERSION_TAG::$VERSION_TAG"
+
+      - name: Container startup check
+        run: |
+          # Only one record sender is required for the service to start successfully.
+          # The following enables the postgres record sender.
+          # We can get fancier later if we want, but this is a good start.
+          docker run \
+            --add-host host.docker.internal:host-gateway \
+            -d \
+            --name=check-startup \
+            -e XAPI_DATABASE_URL=postgres://postgres:xapiserver@host.docker.internal:5432/test_xapi_db \
+            $ECR_REPOSITORY && sleep 8 && docker logs check-startup && docker top check-startup
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.ECR_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.ECR_AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-2
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build, tag, and push image to Amazon ECR
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          VERSION_TAG: ${{ steps.version-bump.outputs.VERSION_TAG }}
+        run: |
+          export BRANCH_TAG=$(echo "${GITHUB_REF_NAME}" | sed -E 's/([^0-9a-zA-Z]+)/-/g' | awk '{print tolower($0)}')
+          export COMMIT_TAG=${GITHUB_SHA::7}
+          docker tag $ECR_REPOSITORY:latest $ECR_REGISTRY/$ECR_REPOSITORY:$VERSION_TAG
+          docker tag $ECR_REPOSITORY:latest $ECR_REGISTRY/$ECR_REPOSITORY:alpha
+          docker tag $ECR_REPOSITORY:latest $ECR_REGISTRY/$ECR_REPOSITORY:$BRANCH_TAG-$COMMIT_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$VERSION_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:alpha
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$BRANCH_TAG-$COMMIT_TAG
+
+      - name: Commit changes
+        env:
+          VERSION_TAG: ${{ steps.version-bump.outputs.VERSION_TAG }}
+        run: |
+          git push origin main
+          git push origin $VERSION_TAG

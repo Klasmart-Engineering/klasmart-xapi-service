@@ -1,5 +1,5 @@
 import 'newrelic'
-import { withLogger } from 'kidsloop-nodejs-logger'
+import { withLogger } from '@kl-engineering/kidsloop-nodejs-logger'
 import { collectDefaultMetrics } from 'prom-client'
 import { createServer } from 'http'
 import { XapiEventDispatcher } from './xapiEventDispatcher'

@@ -4,7 +4,7 @@ import { ApiKeyAuth, BasicAuth } from '@elastic/elasticsearch/lib/pool'
 import { getEnvironmentVariableOrDefault } from '../helpers/envUtil'
 import { XapiRecord } from '../interfaces/xapiRecord'
 import { IXapiRecordSender } from '../interfaces/xapiRecordSender'
-import { withLogger } from 'kidsloop-nodejs-logger'
+import { withLogger } from '@kl-engineering/kidsloop-nodejs-logger'
 
 const log = withLogger('elasticsearchRecordSender')
 

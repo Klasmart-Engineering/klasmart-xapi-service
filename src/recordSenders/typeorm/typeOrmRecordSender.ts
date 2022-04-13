@@ -2,7 +2,7 @@ import { getRepository } from 'typeorm'
 import { XapiRecord } from '../../interfaces/xapiRecord'
 import { IXapiRecordSender } from '../../interfaces/xapiRecordSender'
 import { XapiDbRecord } from './entities/xapiDbRecord'
-import { withLogger } from 'kidsloop-nodejs-logger'
+import { withLogger } from '@kl-engineering/kidsloop-nodejs-logger'
 
 const log = withLogger('typeoOrmRecordSender')
 

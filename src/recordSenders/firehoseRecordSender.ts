@@ -1,7 +1,7 @@
 import { FirehoseClient, PutRecordBatchCommand } from '@aws-sdk/client-firehose'
 import { XapiRecord } from '../interfaces/xapiRecord'
 import { IXapiRecordSender } from '../interfaces/xapiRecordSender'
-import { withLogger } from 'kidsloop-nodejs-logger'
+import { withLogger } from '@kl-engineering/kidsloop-nodejs-logger'
 
 const log = withLogger('firehoseRecordSender')
 

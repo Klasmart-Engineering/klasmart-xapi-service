@@ -4,12 +4,12 @@ import { createApolloServer } from './createApolloServer'
 import express, { Express } from 'express'
 import cookieParser from 'cookie-parser'
 import { ApolloServer } from 'apollo-server-express'
-import { checkAuthenticationToken } from 'kidsloop-token-validation'
-import { withLogger } from 'kidsloop-nodejs-logger'
+import { checkAuthenticationToken } from '@kl-engineering/kidsloop-token-validation'
+import { withLogger } from '@kl-engineering/kidsloop-nodejs-logger'
 import { XapiEventDispatcher } from '../xapiEventDispatcher'
 import appPackage from '../../package.json'
 
-const logger = withLogger('kidsloop-nodejs-logger')
+const logger = withLogger('createXapiServer')
 
 const routePrefix = process.env.ROUTE_PREFIX || ''
 const apiRoute = path.posix.join(

@@ -7,9 +7,9 @@ import { XapiEventDispatcher } from '../xapiEventDispatcher'
 import {
   checkAuthenticationToken,
   checkLiveAuthorizationToken,
-} from 'kidsloop-token-validation'
+} from '@kl-engineering/kidsloop-token-validation'
 import { withTransaction } from '../helpers/withTransaction'
-import { withLogger } from 'kidsloop-nodejs-logger'
+import { withLogger } from '@kl-engineering/kidsloop-nodejs-logger'
 import { IncomingHttpHeaders } from 'http'
 
 const log = withLogger('createApolloServer')

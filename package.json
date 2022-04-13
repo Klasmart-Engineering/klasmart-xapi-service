@@ -1,5 +1,5 @@
 {
-  "name": "h5p-xapi-server",
+  "name": "kidsloop-xapi-service",
   "version": "1.8.3",
   "description": "",
   "main": "index.js",
@@ -39,11 +39,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://bitbucket.org/calmisland/h5p-xapi-server.git"
+    "url": "git+https://github.com/KL-Engineering/kidsloop-xapi-service.git"
   },
   "author": "",
   "license": "ISC",
-  "homepage": "https://bitbucket.org/calmisland/h5p-xapi-server#readme",
+  "homepage": "https://github.com/KL-Engineering/kidsloop-xapi-service#readme",
   "devDependencies": {
     "@apollo/client": "^3.4.16",
     "@commitlint/cli": "^13.2.1",
@@ -92,6 +92,8 @@
   "dependencies": {
     "@aws-sdk/client-firehose": "^3.39.0",
     "@aws-sdk/client-kinesis": "^3.50.0",
+    "@kl-engineering/kidsloop-nodejs-logger": "^0.3.2",
+    "@kl-engineering/kidsloop-token-validation": "1.5.2",
     "@elastic/elasticsearch": "7.13.0",
     "@graphql-tools/graphql-file-loader": "^6.2.7",
     "@graphql-tools/load": "^6.2.8",
@@ -106,8 +108,6 @@
     "jsonwebtoken": "^8.5.1",
     "jstransformer-highlight": "^2.0.0",
     "jstransformer-markdown-it": "^2.1.0",
-    "kidsloop-nodejs-logger": "bitbucket:calmisland/kidsloop-nodejs-logger#v0.2.14",
-    "kidsloop-token-validation": "bitbucket:calmisland/kidsloop-token-validation#v1.4.1",
     "newrelic": "^8.5.0",
     "pg": "^8.7.1",
     "prom-client": "^13.2.0",

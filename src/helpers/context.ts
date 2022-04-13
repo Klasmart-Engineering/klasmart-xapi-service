@@ -1,4 +1,4 @@
-import { KidsloopAuthenticationToken } from 'kidsloop-token-validation'
+import { KidsloopAuthenticationToken } from '@kl-engineering/kidsloop-token-validation'
 
 export interface Context {
   roomId?: string

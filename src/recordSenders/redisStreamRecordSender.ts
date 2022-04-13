@@ -1,6 +1,5 @@
 import Redis, { Cluster } from 'ioredis'
-import { createClient, createCluster } from 'redis'
-import { withLogger } from 'kidsloop-nodejs-logger'
+import { withLogger } from '@kl-engineering/kidsloop-nodejs-logger'
 import { XapiRecord } from '../interfaces/xapiRecord'
 import { IXapiRecordSender } from '../interfaces/xapiRecordSender'
 
@@ -71,7 +70,7 @@ export const connectToRedisCache = async (
 const RedisErrorRecovery =
   (): MethodDecorator =>
   (
-    target: Object,
+    target: unknown,
     propertyKey: string | symbol,
     descriptor: TypedPropertyDescriptor<any>,
   ): TypedPropertyDescriptor<any> => {
