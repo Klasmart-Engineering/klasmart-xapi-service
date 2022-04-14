@@ -98,17 +98,21 @@ export default async function getRecordSenders(): Promise<
   }
 
   const redisMode = (process.env.REDIS_MODE || '').toUpperCase()
+  const redisPort = Number(process.env.REDIS_PORT) || undefined
+  const redisHost = process.env.REDIS_HOST
+  const redisStreamName = process.env.REDIS_STREAM_NAME
   if (
-    process.env.REDIS_HOST &&
-    process.env.REDIS_PORT &&
+    redisHost &&
+    redisPort &&
     ['NODE', 'CLUSTER'].includes(redisMode) &&
-    process.env.REDIS_STREAM_NAME
+    redisStreamName
   ) {
     try {
       const redisStreamRecordSender = await RedisStreamRecordSender.create(
         redisMode as RedisMode,
-        `${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`,
-        process.env.REDIS_STREAM_NAME,
+        redisHost,
+        redisPort,
+        redisStreamName,
       )
       recordSenders.push(redisStreamRecordSender)
       log.info('🏎  Redis Stream record sender added')

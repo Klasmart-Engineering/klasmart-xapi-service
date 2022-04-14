@@ -6,7 +6,7 @@ import {
 import { XapiRecordBuilder } from '../toolbox/builders/xapiRecordBuilder'
 import Substitute, { Arg } from '@fluffy-spoon/substitute'
 
-describe.only('redisStreamRecordSender', () => {
+describe('redisStreamRecordSender', () => {
   context('2 xapi records', () => {
     it('executes successfully and returns true', async () => {
       const redisClient = Substitute.for<RedisClientType>()
@@ -18,20 +18,22 @@ describe.only('redisStreamRecordSender', () => {
       const xapiRecord = new XapiRecordBuilder().build()
 
       const outputEntryId = '12345679786708-0'
-      redisClient.xAdd(Arg.any(), Arg.any(), Arg.any()).resolves(outputEntryId)
+      redisClient
+        .xadd(Arg.any(), Arg.any(), Arg.any(), Arg.any())
+        .resolves(outputEntryId)
 
       const success = await recordSender.sendRecords([xapiRecord, xapiRecord])
 
       // Assert
       expect(success).to.be.true
-      redisClient.received(2).xAdd(
-        // @ts-ignore
+      // @ts-ignore
+      redisClient.received(2).xadd(
         Arg.is((stream) => stream === deliveryStream),
         Arg.is((id) => id === '*'),
+        Arg.is((field) => field === 'data'),
         // @ts-ignore
         Arg.is((data) => {
-          // @ts-ignore
-          return data && data.data && data.data === JSON.stringify(xapiRecord)
+          return data && data === JSON.stringify(xapiRecord)
         }),
       )
     })

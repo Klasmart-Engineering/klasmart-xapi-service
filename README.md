@@ -74,6 +74,26 @@ Create ElasticSearch container
 docker run -d --name elasticsearch -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" elasticsearch:7.5.2
 ```
 
+Create single node Redis container instance
+
+```sh
+docker run -it -d --net kidsloop --name kl_redis -p 6379:6379 redis:6-alpine
+```
+
+Create Redis Cluster container and connect to the 7000 port
+
+```sh
+export REDIS_CLUSTER_IP=0.0.0.0 # for Mac Users
+docker run -it -d \
+  --name redis_cluster \
+  -e "IP=0.0.0.0" \
+  -e "MASTERS=3" \
+  -e "SLAVES_PER_MASTER=1" \
+  -e "INITIAL_PORT=7000" \
+  -p 7000-7005:7000-7005 \
+  grokzen/redis-cluster:latest
+```
+
 ### Running
 
 Ensure [AWS credentials are configured](https://aws.amazon.com/blogs/security/aws-single-sign-on-now-enables-command-line-interface-access-for-aws-accounts-using-corporate-credentials/) (for access to DynamoDB and Firehose)

@@ -1,12 +1,10 @@
+import Redis, { Cluster } from 'ioredis'
 import { createClient, createCluster } from 'redis'
 import { withLogger } from 'kidsloop-nodejs-logger'
 import { XapiRecord } from '../interfaces/xapiRecord'
 import { IXapiRecordSender } from '../interfaces/xapiRecordSender'
 
-export type RedisClientType =
-  | ReturnType<typeof createClient>
-  | ReturnType<typeof createCluster>
-
+export type RedisClientType = Redis | Cluster
 export type RedisMode = 'NODE' | 'CLUSTER'
 
 const logger = withLogger('Redis')
@@ -20,18 +18,31 @@ export class RedisError extends Error {
 
 export const connectToRedisCache = async (
   mode: RedisMode,
-  url: string,
+  host: string,
+  port: number,
 ): Promise<RedisClientType> => {
   let client: RedisClientType
   if (mode === 'CLUSTER') {
     logger.info('🏎 🏎 🏎 🏎  Creating CLUSTER mode Redis connection')
-    client = createCluster({
-      rootNodes: [{ url }],
-    })
+    client = new Redis.Cluster(
+      [
+        {
+          host,
+          port,
+        },
+      ],
+      {
+        lazyConnect: true,
+        redisOptions: {
+          password: process.env.REDIS_PASS,
+        },
+      },
+    )
   } else {
     logger.info('🏎  Creating NODE mode Redis connection')
-    client = createClient({
-      url,
+    client = new Redis(port, host, {
+      lazyConnect: true,
+      password: process.env.REDIS_PASS,
     })
   }
 
@@ -76,10 +87,11 @@ const RedisErrorRecovery =
 export class RedisStreamRecordSender implements IXapiRecordSender {
   public static async create(
     mode: RedisMode,
-    url: string,
+    host: string,
+    port: number,
     dataStreamName: string,
   ): Promise<RedisStreamRecordSender> {
-    const client = await connectToRedisCache(mode, url)
+    const client = await connectToRedisCache(mode, host, port)
     return new RedisStreamRecordSender(client, dataStreamName)
   }
 
@@ -95,10 +107,12 @@ export class RedisStreamRecordSender implements IXapiRecordSender {
     try {
       const entryIds = await Promise.all(
         xapiRecords.map(async (x) => {
-          const data = {
-            data: JSON.stringify(x),
-          }
-          const entryId = await this.client.xAdd(this.dataStreamName, '*', data)
+          const entryId = await this.client.xadd(
+            this.dataStreamName,
+            '*',
+            'data',
+            JSON.stringify(x),
+          )
           return entryId
         }),
       )
