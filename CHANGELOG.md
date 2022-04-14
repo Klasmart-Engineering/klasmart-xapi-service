@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.8.0](https://bitbucket.org/calmisland/h5p-xapi-server/compare/v1.8.0..v1.7.1) (2022-04-14)
+
+
+### Features
+
+* add Redis record stream record sender ([605ff64](https://bitbucket.org/calmisland/h5p-xapi-server/commits/605ff648f8a8965447f50a410cc5441946a34fc4))
+
 ### [1.7.1](https://bitbucket.org/calmisland/h5p-xapi-server/compare/v1.7.1..v1.7.0) (2022-04-05)
 
 
