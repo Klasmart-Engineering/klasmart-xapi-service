@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.8.1](https://bitbucket.org/calmisland/h5p-xapi-server/compare/v1.8.1..v1.8.0) (2022-04-15)
+
+
+### Refactor
+
+* use ioredis instead of redis to support NAT mapping for Redis in Cluster mode ([759495a](https://bitbucket.org/calmisland/h5p-xapi-server/commits/759495ab454cc7177a94fb15d9f97472ccafa7af))
+
 ## [1.8.0](https://bitbucket.org/calmisland/h5p-xapi-server/compare/v1.8.0..v1.7.1) (2022-04-14)
 
 
