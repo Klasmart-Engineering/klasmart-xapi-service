@@ -35,6 +35,14 @@ export const connectToRedisCache = async (
         lazyConnect: true,
         redisOptions: {
           password: process.env.REDIS_PASS,
+          reconnectOnError: (err) => {
+            const targetError = 'READONLY'
+            if (err.message.includes(targetError)) {
+              // Only reconnect when the error contains "READONLY"
+              return true
+            }
+            return false
+          },
         },
       },
     )
