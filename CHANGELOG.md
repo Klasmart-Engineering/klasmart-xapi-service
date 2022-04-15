@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.8.2](https://bitbucket.org/calmisland/h5p-xapi-server/compare/v1.8.2..v1.8.1) (2022-04-15)
+
+
+### Refactor
+
+* add redis cluster reconnect mechanism in case a slave is promoted to master ([5a65f10](https://bitbucket.org/calmisland/h5p-xapi-server/commits/5a65f10a607186a58e624f4d7d7a62392e564bd8))
+
 ### [1.8.1](https://bitbucket.org/calmisland/h5p-xapi-server/compare/v1.8.1..v1.8.0) (2022-04-15)
 
 
