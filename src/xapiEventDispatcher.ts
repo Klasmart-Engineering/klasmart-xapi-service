@@ -33,6 +33,7 @@ export class XapiEventDispatcher {
       return false
     }
     const roomId = context?.roomId
+    const isReview = context?.isReview ?? false
     const ip = context.ip ?? '127.0. 0.1'
     const serverTimestamp = Date.now()
     const geo = this.geolocationProvider.getInfo(ip)
@@ -51,6 +52,7 @@ export class XapiEventDispatcher {
           xapi: xapiObject,
           userId: studentId ?? userId,
           roomId,
+          isReview,
           ipHash,
           geo,
           serverTimestamp: serverTimestamp + index,

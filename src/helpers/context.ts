@@ -4,4 +4,5 @@ export interface Context {
   roomId?: string
   authenticationToken?: KidsloopAuthenticationToken
   ip: string
+  isReview?: boolean
 }

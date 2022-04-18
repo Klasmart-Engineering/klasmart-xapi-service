@@ -16,8 +16,7 @@ import { connectToTypeOrmDatabase } from '../../src/recordSenders/typeorm/connec
 
 import createXapiServer from '../../src/initialization/createXapiServer'
 import { throwExpression } from '../../src/helpers/throwExpression'
-const liveAuthorizationToken =
-  'eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJ1c2VyaWQiOiIyMmIxZDcyZS1lYjA2LTViYjQtYjkwYS0wYWZmM2RkODU1YzYiLCJyb29taWQiOiJ0ZXN0cm9vbSIsImlzcyI6ImNhbG1pZC1kZWJ1ZyIsImV4cCI6MjU1MDEzNTcwNX0.bG_04gSXZYTQZbP4de6wAyGsGlia49NuDYRMc8ecoh1XSj7Vw5jJu7AQuuPSueqIvNyjyKayfiD2jBZem7RNiw'
+import { generateLiveAuthorizationToken } from '../toolbox/helpers/tokenGenerators'
 
 describe('xapiEventDispatcher', () => {
   let connection: Connection
@@ -120,6 +119,13 @@ describe('xapiEventDispatcher', () => {
         const ipHash = createHash('sha256').update(ip).digest('hex')
         const geo = geoip.lookup(ip)
         const endUser = new EndUserBuilder().authenticate().build()
+        const roomId = 'room1'
+        const isReview = true
+        const liveAuthorizationToken = generateLiveAuthorizationToken(
+          endUser.userId,
+          roomId,
+          isReview,
+        )
         const headers = {
           'x-forwarded-for': ip,
           'live-authorization': liveAuthorizationToken,
@@ -143,7 +149,8 @@ describe('xapiEventDispatcher', () => {
           // at least enforce a good estimate.
           //serverTimestamp: serverTimestamp,
           userId: endUser.userId,
-          roomId: 'testroom',
+          roomId,
+          isReview,
           geo: geo,
           xapi: xapiEventObj,
         }

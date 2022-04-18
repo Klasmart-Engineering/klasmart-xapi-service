@@ -35,6 +35,7 @@ export class TypeOrmRecordSender implements IXapiRecordSender {
       const record = this.repository.create()
       record.userId = x.userId
       record.roomId = x.roomId
+      record.isReview = x.isReview
       record.serverTimestamp = x.serverTimestamp
       record.xapi = x.xapi
       record.ipHash = x.ipHash

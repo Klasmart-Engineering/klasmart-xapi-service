@@ -26,11 +26,11 @@ describe('typeOrmRecordSender', () => {
     await connection?.synchronize(true)
   })
 
-  context('1 xapi record', () => {
+  context('1 xapi record; isReview is false', () => {
     it('returns true and adds 1 entry to the database', async () => {
       // Arrange
       const sut = new TypeOrmRecordSender(xapiRepository)
-      const xapiRecord = new XapiRecordBuilder().build()
+      const xapiRecord = new XapiRecordBuilder().withIsReview(false).build()
 
       // Act
       const success = await sut.sendRecords([xapiRecord])
@@ -43,6 +43,34 @@ describe('typeOrmRecordSender', () => {
         serverTimestamp: xapiRecord.serverTimestamp,
         userId: xapiRecord.userId,
         roomId: null,
+        isReview: false,
+        geo: xapiRecord.geo,
+        xapi: xapiRecord.xapi,
+      }
+
+      const actual = await xapiRepository.findOne()
+      expect(actual).to.deep.equal(expected)
+    })
+  })
+
+  context('1 xapi record; isReview is true', () => {
+    it('returns true and adds 1 entry to the database', async () => {
+      // Arrange
+      const sut = new TypeOrmRecordSender(xapiRepository)
+      const xapiRecord = new XapiRecordBuilder().withIsReview(true).build()
+
+      // Act
+      const success = await sut.sendRecords([xapiRecord])
+
+      // Assert
+      expect(success).to.be.true
+
+      const expected: XapiDbRecord = {
+        ipHash: xapiRecord.ipHash,
+        serverTimestamp: xapiRecord.serverTimestamp,
+        userId: xapiRecord.userId,
+        roomId: null,
+        isReview: true,
         geo: xapiRecord.geo,
         xapi: xapiRecord.xapi,
       }

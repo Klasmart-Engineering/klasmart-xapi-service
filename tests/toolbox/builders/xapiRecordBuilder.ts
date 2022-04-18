@@ -5,6 +5,7 @@ import { XapiRecord } from '../../../src/interfaces/xapiRecord'
 export class XapiRecordBuilder {
   private userId = v4()
   private roomId?: string
+  private isReview = false
   private serverTimestamp = Date.now()
   private ipHash = '123'
   private geo: IGeolocationInfo | null = {}
@@ -17,6 +18,11 @@ export class XapiRecordBuilder {
 
   public withRoomId(value?: string): this {
     this.roomId = value
+    return this
+  }
+
+  public withIsReview(value: boolean): this {
+    this.isReview = value
     return this
   }
 
@@ -44,6 +50,7 @@ export class XapiRecordBuilder {
     return {
       userId: this.userId,
       roomId: this.roomId,
+      isReview: this.isReview,
       serverTimestamp: this.serverTimestamp,
       ipHash: this.ipHash,
       geo: this.geo,

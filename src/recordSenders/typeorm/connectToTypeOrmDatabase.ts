@@ -10,6 +10,7 @@ export function getTypeOrmDatabaseConnectionOptions(
   return {
     type: 'postgres',
     url,
+    dropSchema: process.env.NODE_ENV === 'test',
     synchronize: false,
     entities: [
       path.join(__dirname, './entities/*.ts'),

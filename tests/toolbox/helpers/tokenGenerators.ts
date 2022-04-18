@@ -1,4 +1,6 @@
 import { sign, SignOptions } from 'jsonwebtoken'
+import { FindConditions } from 'typeorm'
+import { KidsloopLiveAuthorizationToken } from '@kl-engineering/kidsloop-token-validation'
 
 export function generateAuthenticationToken(
   userId: string,
@@ -20,10 +22,12 @@ export function generateAuthenticationToken(
 export function generateLiveAuthorizationToken(
   userId: string,
   roomId: string,
+  isReview = false,
 ): string {
-  const payload = {
+  const payload: FindConditions<KidsloopLiveAuthorizationToken> = {
     userid: userId,
     roomid: roomId,
+    is_review: isReview,
     iss: 'calmid-debug',
   }
   const signOptions: SignOptions = {

@@ -39,10 +39,10 @@ export function createApolloServer(
           ? headers['x-forwarded-for']
           : connectionContext.request.socket.remoteAddress
         const authenticationToken = await extractAuthenticationToken(headers)
-        const roomId = await extractRoomId(
+        const { roomId, isReview } = await extractClassInfo(
           connectionParams['live-authorization'],
         )
-        return { roomId, authenticationToken, ip }
+        return { roomId, authenticationToken, ip, isReview }
       },
     },
     resolvers: {
@@ -65,8 +65,10 @@ export function createApolloServer(
       const encodedLiveAuthorizationToken = extractHeader(
         req.headers['live-authorization'],
       )
-      const roomId = await extractRoomId(encodedLiveAuthorizationToken)
-      return { roomId, authenticationToken, ip }
+      const { roomId, isReview } = await extractClassInfo(
+        encodedLiveAuthorizationToken,
+      )
+      return { roomId, authenticationToken, ip, isReview }
     },
     plugins: [
       // Note: New Relic plugin should always be listed last
@@ -87,7 +89,7 @@ async function extractAuthenticationToken(headers: IncomingHttpHeaders) {
   }
 }
 
-async function extractRoomId(
+async function extractClassInfo(
   encodedLiveAuthorizationToken: string | undefined,
 ) {
   if (encodedLiveAuthorizationToken) {
@@ -96,8 +98,12 @@ async function extractRoomId(
       encodedLiveAuthorizationToken,
     )
     log.silly(`authorizationToken.roomid: ${authorizationToken.roomid}`)
-    return authorizationToken.roomid
+    return {
+      roomId: authorizationToken.roomid,
+      isReview: authorizationToken.is_review,
+    }
   }
+  return {}
 }
 
 function extractHeader(headers?: string | string[]): string | undefined {
