@@ -91,7 +91,7 @@ async function extractRoomId(
   encodedLiveAuthorizationToken: string | undefined,
 ) {
   if (encodedLiveAuthorizationToken) {
-    log.verbose(`liveAuthorizationToken: ${encodedLiveAuthorizationToken}`)
+    log.silly(`liveAuthorizationToken: ${encodedLiveAuthorizationToken}`)
     const authorizationToken = await checkLiveAuthorizationToken(
       encodedLiveAuthorizationToken,
     )
