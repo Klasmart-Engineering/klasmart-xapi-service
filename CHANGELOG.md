@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.8.3](https://bitbucket.org/calmisland/h5p-xapi-server/compare/v1.8.3..v1.8.2) (2022-04-19)
+
+
+### Refactor
+
+* log live token for debugging ([5f7460b](https://bitbucket.org/calmisland/h5p-xapi-server/commits/5f7460b36bcaab20a494c940fc009b1fb4124eac))
+
 ### [1.8.2](https://bitbucket.org/calmisland/h5p-xapi-server/compare/v1.8.2..v1.8.1) (2022-04-15)
 
 
