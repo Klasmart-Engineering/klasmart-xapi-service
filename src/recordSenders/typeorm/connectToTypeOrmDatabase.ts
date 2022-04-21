@@ -17,7 +17,7 @@ export function getTypeOrmDatabaseConnectionOptions(
       path.join(__dirname, './entities/*.js'),
     ],
     logging: Boolean(process.env.XAPI_DATABASE_LOGGING),
-    migrations: ['src/migrations/*.ts'],
+    migrations: [path.join(__dirname, '../../migrations/*.{ts,js}')],
     migrationsTableName: 'xapi_migrations',
     migrationsRun: true,
     cli: {
