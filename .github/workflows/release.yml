@@ -44,10 +44,12 @@ jobs:
 
   deploy-landing-zone:
     needs: [create-release]
-    uses: KL-Engineering/github-action-workflows/.github/workflows/deploy-kidskube-env.yml@v3.0.1
+    uses: KL-Engineering/github-action-workflows/.github/workflows/deploy-kidskube-env.yml@v3.1.0
     with:
-      ARGOCD_APP: uk-landingzone-xapi
-      ARGOCD_APP_CHART_TAG_PATH: xapi.tag
+      region: all
+      environment: ci
+      argocd_app: uk-landingzone-xapi
+      argocd_app_chart_tag_path: xapi.tag
     secrets:
       ARGOCD_AUTH_USERNAME: ${{ secrets.ARGOCD_AUTH_USERNAME }}
       ARGOCD_AUTH_PASSWORD: ${{ secrets.ARGOCD_AUTH_PASSWORD }}
