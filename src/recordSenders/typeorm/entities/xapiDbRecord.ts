@@ -19,8 +19,8 @@ export class XapiDbRecord {
   @Column({ name: 'room_id', type: 'varchar', nullable: true })
   roomId?: string | null
 
-  @Column({ name: 'is_review', type: 'boolean', default: false })
-  isReview!: boolean
+  @Column({ name: 'is_review', type: 'boolean', nullable: true })
+  isReview?: boolean | null
 
   @Column({ type: 'jsonb' })
   xapi?: any
