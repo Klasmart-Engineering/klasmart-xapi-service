@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## 1.9.0 (2022-04-21)
+
+
+### Features
+
+* make is_review column nullable ([94cf5e6](https://github.com/KL-Engineering/kidsloop-xapi-service/commit/94cf5e6180e3f1fa954727d986351d355f2c18dc))
+
 ### 1.8.4 (2022-04-21)
 
 ### [1.8.3](https://bitbucket.org/calmisland/h5p-xapi-server/compare/v1.8.3..v1.8.2) (2022-04-19)
