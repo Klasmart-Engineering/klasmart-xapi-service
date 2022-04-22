@@ -93,11 +93,11 @@
   "dependencies": {
     "@aws-sdk/client-firehose": "^3.39.0",
     "@aws-sdk/client-kinesis": "^3.50.0",
-    "@kl-engineering/kidsloop-nodejs-logger": "^0.3.2",
-    "@kl-engineering/kidsloop-token-validation": "1.6.0",
     "@elastic/elasticsearch": "7.13.0",
     "@graphql-tools/graphql-file-loader": "^6.2.7",
     "@graphql-tools/load": "^6.2.8",
+    "@kl-engineering/kidsloop-nodejs-logger": "^0.3.2",
+    "@kl-engineering/kidsloop-token-validation": "^1.6.1",
     "@newrelic/apollo-server-plugin": "^1.1.0",
     "apollo-server-express": "^2.25.2",
     "aws-sdk": "^2.1018.0",
