@@ -1,5 +1,5 @@
 import { expect } from 'chai'
-import { Connection, Repository } from 'typeorm'
+import { Connection, FindConditions, Repository } from 'typeorm'
 import { XapiDbRecord } from '../../src/recordSenders/typeorm/entities/xapiDbRecord'
 import { TypeOrmRecordSender } from '../../src/recordSenders/typeorm/typeOrmRecordSender'
 import {
@@ -17,6 +17,7 @@ import { connectToTypeOrmDatabase } from '../../src/recordSenders/typeorm/connec
 import createXapiServer from '../../src/initialization/createXapiServer'
 import { throwExpression } from '../../src/helpers/throwExpression'
 import { generateLiveAuthorizationToken } from '../toolbox/helpers/tokenGenerators'
+import { XapiRecord } from '../../src/interfaces/xapiRecord'
 
 describe('xapiEventDispatcher', () => {
   let connection: Connection
@@ -54,7 +55,7 @@ describe('xapiEventDispatcher', () => {
       const ip = '220.80.15.135'
       const endUser = new EndUserBuilder().dontAuthenticate().build()
       const headers = {
-        authorization: endUser.token,
+        cookie: `access=${endUser.token}`,
         'x-forwarded-for': ip,
       }
 
@@ -90,7 +91,7 @@ describe('xapiEventDispatcher', () => {
       // Assert
       expect(success).to.be.true
 
-      const expected = {
+      const expected: FindConditions<XapiRecord> = {
         ipHash: ipHash,
         // TODO: Not really a way to specify the expected serverTimestamp.
         // Might be useful to create a 'withinRange' helper function to
@@ -98,6 +99,7 @@ describe('xapiEventDispatcher', () => {
         //serverTimestamp: serverTimestamp,
         userId: endUser.userId,
         roomId: null,
+        isReview: false,
         geo: geo,
         xapi: xapiEventObj,
       }
@@ -142,8 +144,8 @@ describe('xapiEventDispatcher', () => {
         // Assert
         expect(success).to.be.true
 
-        const expected = {
-          ipHash: ipHash,
+        const expected: FindConditions<XapiRecord> = {
+          ipHash,
           // TODO: Not really a way to specify the expected serverTimestamp.
           // Might be useful to create a 'withinRange' helper function to
           // at least enforce a good estimate.
@@ -151,7 +153,84 @@ describe('xapiEventDispatcher', () => {
           userId: endUser.userId,
           roomId,
           isReview,
-          geo: geo,
+          geo,
+          xapi: xapiEventObj,
+        }
+
+        const actual = await xapiRepository.findOne()
+        expect(actual).to.deep.include(expected)
+      })
+    },
+  )
+
+  context(
+    'invalid access cookie, 1 record sender (TypeORM), 1 xapi record',
+    () => {
+      it('returns false and adds NO entries to the database', async () => {
+        // Arrange
+        const xapiEventObj = { a: '1', b: '2' }
+        const xapiEvent = JSON.stringify(xapiEventObj)
+        const xapiEvents = [xapiEvent]
+        const ip = '220.80.15.135'
+        const headers = {
+          cookie: `access=${'{}'}`,
+          'x-forwarded-for': ip,
+        }
+
+        // Act
+        const success = await sendEventsMutation(
+          testClient,
+          xapiEvents,
+          headers,
+        )
+
+        // Assert
+        expect(success).to.be.false
+
+        const numRecords = await xapiRepository.count()
+        expect(numRecords).to.equal(0)
+      })
+    },
+  )
+
+  context(
+    'invalid live authorizion token, 1 record sender (TypeORM), 1 xapi record',
+    () => {
+      it('returns false and adds NO entries to the database', async () => {
+        // Arrange
+        const xapiEventObj = { a: '1', b: '2' }
+        const xapiEvent = JSON.stringify(xapiEventObj)
+        const xapiEvents = [xapiEvent]
+        const ip = '220.80.15.135'
+        const ipHash = createHash('sha256').update(ip).digest('hex')
+        const geo = geoip.lookup(ip)
+        const endUser = new EndUserBuilder().authenticate().build()
+        const headers = {
+          'live-authorization': '{}',
+          cookie: `access=${endUser.token}`,
+          'x-forwarded-for': ip,
+        }
+
+        // Act
+        const success = await sendEventsMutation(
+          testClient,
+          xapiEvents,
+          headers,
+        )
+
+        // Assert
+        expect(success).to.be.true
+
+        const expected: FindConditions<XapiRecord> = {
+          ipHash,
+          // TODO: Not really a way to specify the expected serverTimestamp.
+          // Might be useful to create a 'withinRange' helper function to
+          // at least enforce a good estimate.
+          //serverTimestamp: serverTimestamp,
+          userId: endUser.userId,
+          isReview: false,
+          roomId: null,
+          geo,
           xapi: xapiEventObj,
         }
 

@@ -11,6 +11,8 @@ import {
 import { withTransaction } from '../helpers/withTransaction'
 import { withLogger } from '@kl-engineering/kidsloop-nodejs-logger'
 import { IncomingHttpHeaders } from 'http'
+import { ApplicationError } from '../errorHandling/applicationError'
+import error2Json from '../errorHandling/error2Json'
 
 const log = withLogger('createApolloServer')
 
@@ -74,6 +76,11 @@ export function createApolloServer(
       // Note: New Relic plugin should always be listed last
       newRelicApolloServerPlugin,
     ],
+    formatError: (error) => {
+      const stringifiedError = error2Json(error.originalError)
+      log.error(stringifiedError)
+      return error
+    },
   })
 }
 
@@ -82,10 +89,22 @@ async function extractAuthenticationToken(headers: IncomingHttpHeaders) {
   const cookies = rawCookie ? cookie.parse(rawCookie) : undefined
   const encodedAuthenticationToken = cookies?.access
   if (encodedAuthenticationToken) {
-    const authenticationToken = await checkAuthenticationToken(
-      encodedAuthenticationToken,
-    )
-    return authenticationToken
+    try {
+      const authenticationToken = await checkAuthenticationToken(
+        encodedAuthenticationToken,
+      )
+      return authenticationToken
+    } catch (error) {
+      log.error(
+        error2Json(
+          new ApplicationError({
+            message: 'checkAuthenticationToken threw an error.',
+            innerError: error,
+            meta: { encodedAuthenticationToken },
+          }),
+        ),
+      )
+    }
   }
 }
 
@@ -93,14 +112,25 @@ async function extractClassInfo(
   encodedLiveAuthorizationToken: string | undefined,
 ) {
   if (encodedLiveAuthorizationToken) {
-    log.silly(`liveAuthorizationToken: ${encodedLiveAuthorizationToken}`)
-    const authorizationToken = await checkLiveAuthorizationToken(
-      encodedLiveAuthorizationToken,
-    )
-    log.silly(`authorizationToken.roomid: ${authorizationToken.roomid}`)
-    return {
-      roomId: authorizationToken.roomid,
-      isReview: authorizationToken.is_review,
+    try {
+      const authorizationToken = await checkLiveAuthorizationToken(
+        encodedLiveAuthorizationToken,
+      )
+      log.silly(`authorizationToken.roomid: ${authorizationToken.roomid}`)
+      return {
+        roomId: authorizationToken.roomid,
+        isReview: authorizationToken.is_review,
+      }
+    } catch (error) {
+      log.error(
+        error2Json(
+          new ApplicationError({
+            message: 'checkLiveAuthorizationToken threw an error.',
+            innerError: error,
+            meta: { encodedLiveAuthorizationToken },
+          }),
+        ),
+      )
     }
   }
   return {}
