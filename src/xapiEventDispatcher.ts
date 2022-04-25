@@ -65,7 +65,7 @@ export class XapiEventDispatcher {
     const allSucceeded = results.every(
       (result) => result.status === 'fulfilled' && result.value === true,
     )
-    log.debug(
+    log.silly(
       `allSucceeded: ${allSucceeded}; userId: ${userId}; roomId: ${roomId}`,
     )
     return allSucceeded

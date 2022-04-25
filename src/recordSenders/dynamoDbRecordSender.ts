@@ -36,7 +36,7 @@ export class DynamoDbRecordSender implements IXapiRecordSender {
           RequestItems: requestItems,
         })
         .promise()
-      log.debug(`BatchWriteItemOutput: ${JSON.stringify(response)}`)
+      log.silly(`BatchWriteItemOutput: ${JSON.stringify(response)}`)
       if (
         response.UnprocessedItems &&
         Object.keys(response.UnprocessedItems).length > 0

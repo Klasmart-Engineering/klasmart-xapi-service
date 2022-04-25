@@ -123,7 +123,7 @@ export class RedisStreamRecordSender implements IXapiRecordSender {
           return entryId
         }),
       )
-      logger.debug('uploaded events to Redis Stream', entryIds)
+      logger.silly('uploaded events to Redis Stream', entryIds)
     } catch (e) {
       const message = e instanceof Error ? e.stack : e
       logger.error(message)

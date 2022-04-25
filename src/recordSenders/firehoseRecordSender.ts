@@ -32,7 +32,7 @@ export class FirehoseRecordSender implements IXapiRecordSender {
         }),
       })
       const output = await this.client.send(command)
-      log.debug(`PutRecordBatchCommandOutput: ${JSON.stringify(output)}`)
+      log.silly(`PutRecordBatchCommandOutput: ${JSON.stringify(output)}`)
     } catch (e) {
       const message = e instanceof Error ? e.stack : e
       log.error(message)
