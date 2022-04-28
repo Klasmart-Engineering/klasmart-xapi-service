@@ -1,2 +1,7 @@
-node_modules
-dist
+/.nyc_output
+/.husky
+/dist
+/node_modules
+/coverage
+/coverage_unit
+/coverage_integration

@@ -11,7 +11,7 @@ definitions:
       environment:
         POSTGRES_DB: test_xapi_db
         POSTGRES_USER: postgres
-        POSTGRES_PASSWORD: xapiserver
+        POSTGRES_PASSWORD: kidsloop
 
   steps:
     - step: &npm-install-and-test
@@ -64,7 +64,7 @@ definitions:
               --add-host host.docker.internal:$BITBUCKET_DOCKER_HOST_INTERNAL \
               -d \
               --name=check-startup \
-              -e XAPI_DATABASE_URL=postgres://postgres:xapiserver@host.docker.internal:5432/test_xapi_db \
+              -e XAPI_DATABASE_URL=postgres://postgres:kidsloop@host.docker.internal:5432/test_xapi_db \
               xapi-server && sleep 10 && docker top check-startup
 
     - step: &version-bump

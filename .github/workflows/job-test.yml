@@ -2,6 +2,9 @@ name: Run Tests (job)
 
 on:
   workflow_call:
+    secrets:
+      CODECOV_TOKEN:
+        required: true
 
 jobs:
   test:
@@ -15,7 +18,7 @@ jobs:
           POSTGRES_PORT: 5432
           POSTGRES_DB: test_xapi_db
           POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: xapiserver
+          POSTGRES_PASSWORD: kidsloop
         # Set health checks to wait until postgres has started
         options: >-
           --health-cmd pg_isready
@@ -41,8 +44,27 @@ jobs:
       - name: Start containers
         run: docker-compose -f docker-compose.test.yml up -d
 
-      - name: Run tests
-        run: npm run test:ci
+      - name: Unit tests
+        run: npm run coverage:unit
+      - name: Upload unit test coverage to Codecov
+        uses: codecov/codecov-action@v2
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          directory: ./coverage_unit/
+          fail_ci_if_error: true
+          files: ./coverage_unit/lcov.info
+          flags: unittests
+
+      - name: Integration tests
+        run: npm run coverage:integration
+      - name: Upload integration test coverage to Codecov
+        uses: codecov/codecov-action@v2
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          directory: ./coverage_integration/
+          fail_ci_if_error: true
+          files: ./coverage_integration/lcov.info
+          flags: integrationtests
 
       - name: Stop containers
         if: always()

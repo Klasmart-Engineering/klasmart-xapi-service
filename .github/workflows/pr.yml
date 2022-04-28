@@ -17,3 +17,5 @@ jobs:
   npm-test:
     needs: [npm-ci]
     uses: ./.github/workflows/job-test.yml
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

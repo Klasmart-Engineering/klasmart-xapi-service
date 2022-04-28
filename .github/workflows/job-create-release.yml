@@ -28,7 +28,7 @@ jobs:
           POSTGRES_PORT: 5432
           POSTGRES_DB: test_xapi_db
           POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: xapiserver
+          POSTGRES_PASSWORD: kidsloop
         # Set health checks to wait until postgres has started
         options: >-
           --health-cmd pg_isready
@@ -84,7 +84,7 @@ jobs:
             --add-host host.docker.internal:host-gateway \
             -d \
             --name=check-startup \
-            -e XAPI_DATABASE_URL=postgres://postgres:xapiserver@host.docker.internal:5432/test_xapi_db \
+            -e XAPI_DATABASE_URL=postgres://postgres:kidsloop@host.docker.internal:5432/test_xapi_db \
             $ECR_REPOSITORY && sleep 8 && docker logs check-startup && docker top check-startup
 
       - name: Configure AWS credentials
