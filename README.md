@@ -1,6 +1,6 @@
 # KidsLoop xAPI Service
 
-[![codecov](https://codecov.io/bb/calmisland/h5p-xapi-server/branch/master/graph/badge.svg?token=53QIJCNIEF)](https://codecov.io/bb/calmisland/h5p-xapi-server)
+[![codecov](https://codecov.io/gh/KL-Engineering/kidsloop-xapi-service/branch/master/graph/badge.svg?token=P3XMBOHL4J)](https://codecov.io/gh/KL-Engineering/kidsloop-xapi-service)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
 [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
 
@@ -12,10 +12,9 @@ Used by [kidsloop-h5p-library](https://github.com/KL-Engineering/kidsloop-h5p-li
 
 **Branching model**
 
-- `feature/fix/etc` -> `master`
-- The master branch pipeline has a manual _version bump_ step.
-- That step will build/push the docker image to ECR, and deploy to alpha.
-- We no longer use the alpha or production branches.
+- `feature/fix/etc` -> `main`
+- The main branch pipeline has a manual _release_ workflow.
+- That workflow will build/push the docker image to ECR, and deploy to alpha.
 
 📢 Follow the specification covered in [CONTRIBUTING.md](CONTRIBUTING.md) 📢
 
@@ -53,8 +52,6 @@ Used by [kidsloop-h5p-library](https://github.com/KL-Engineering/kidsloop-h5p-li
 #### Configuration
 
 Copy/paste `.env.example` in the root directory, rename it to `.env`, and modify as necessary.
-
-Copy/paste `.env.test.example` in the root directory, rename it to `.env.test`, and modify as necessary.
 
 All record sender implementations are optional, but at least one must be included. To exclude an implementation, comment out the corresponding environment variable in your `.env` file.
 
@@ -164,28 +161,22 @@ PRO tip: replace `localhost` with `host.docker.internal` if you want to connect 
 
 ### Testing
 
-Run unit tests
+Run unit tests and generate coverage report (`./coverage_unit/lcov-report/index.html`)
 
 ```
-npm run test:unit
+npm run coverage:unit
 ```
 
-Run integration tests
+Run integration tests and generate coverage report (`./coverage_integration/lcov-report/index.html`)
 
 ```
-npm run test:integration
+npm run coverage:integration
 ```
 
-Run both unit and integration tests
+Run all tests and generate coverage report (`./coverage/lcov-report/index.html`)
 
 ```
 npm test
-```
-
-Run both unit and integration tests, and generate a local coverage report. Results can be viewed at `/test-results/coverage.lcov/lcov-report/index.html`. Useful for finding lines/branches that aren't covered.
-
-```
-npm run test:coverage
 ```
 
 _Tip: when debugging or focusing on a particular test or group of tests, append `.only` to `describe`, `context`, or `it` to only execute that scope of tests. But of course, make sure to undo it before making a commit._
@@ -196,7 +187,7 @@ _Tip: when debugging or focusing on a particular test or group of tests, append 
 
 ### Alpha info
 
-- Account name: Kidsloop Dev
+- Account name: kl-alpha-dev
 - Cluster: kidsloop-alpha
 - Service: kidsloop-alpha-xapi
 - Region: ap-northeast-2
@@ -208,11 +199,6 @@ _Where can I find the environment variable values for the alpha environment?_
 Once you're granted access to the above account, head to the [service task list](https://ap-northeast-2.console.aws.amazon.com/ecs/home?region=ap-northeast-2#/clusters/kidsloop-alpha/services/kidsloop-alpha-xapi/tasks), and you'll find the values specified in the latest task definition.
 
 ---
-
-## Recommended VS Code extensions
-
-- [Jira](https://marketplace.visualstudio.com/items?itemName=Atlassian.atlascode)
-- [Mocha Test Explorer](https://marketplace.visualstudio.com/items?itemName=hbenl.vscode-mocha-test-adapter)
 
 ## Migrations
 

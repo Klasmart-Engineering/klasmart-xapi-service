@@ -1,7 +1,5 @@
 # Contributing
 
-[TOC]
-
 ## Merge Conventions
 
 Fast forward after rebasing, or squash if your branch has a lot of minor commits that would clutter the commit history.
