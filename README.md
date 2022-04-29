@@ -51,7 +51,7 @@ Used by [kidsloop-h5p-library](https://github.com/KL-Engineering/kidsloop-h5p-li
 
 #### Configuration
 
-Copy/paste `.env.example` in the `localDev` directory, rename it to `.env`, and modify as necessary.
+env files are located in the `localDev` directory. View the [dotenv-flow](https://www.npmjs.com/package/dotenv-flow) docs for examples of how to customize environment variables.
 
 All record sender implementations are optional, but at least one must be included. To exclude an implementation, comment out the corresponding environment variable in your `.env` file.
 
@@ -107,12 +107,12 @@ Now run the container and make sure to pass it the right environment variables. 
 
 ```sh
 docker run --rm -it \
-  --env-file .env \
+  --env-file localDev/.env \
   --env PORT=8080 \
   --env AWS_ACCESS_KEY_ID \
   --env AWS_SECRET_ACCESS_KEY \
   --env AWS_SESSION_TOKEN \
-  --env XAPI_DATABASE_URL=postgres://postgres:kidsloop@kl_postgres:5432/xapi_db \
+  --env XAPI_DATABASE_URL=postgres://postgres:kidsloop@host.docker.internal:5432/xapi_db \
   -p 8080:8080 \
   kl-xapi
 ```
