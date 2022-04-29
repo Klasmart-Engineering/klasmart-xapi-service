@@ -1,12 +1,19 @@
 version: '3.6'
 
 services:
+  postgres:
+    image: postgres:latest
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_PASSWORD=kidsloop
+      - POSTGRES_DB=xapi_db
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.10.2
     environment:
       - discovery.type=single-node
     ports:
-      - "9200:9200"
+      - 9200:9200
   localstack:
     image: localstack/localstack:0.13
     environment: 
@@ -17,4 +24,14 @@ services:
       - SERVICES=firehose,s3,iam,dynamodb
       - KINESIS_PROVIDER=kinesalite
     ports:
-      - '4566:4566'
+      - 4566:4566
+  # redis:
+  #   image: grokzen/redis-cluster:latest
+  #   ports:
+  #     - 7000-7005:7000-7005
+  #   environment:
+  #     #- REDIS_CLUSTER_IP=0.0.0.0 # for Mac Users
+  #     - IP=0.0.0.0
+  #     - MASTERS=3
+  #     - SLAVES_PER_MASTER=1
+  #     - INITIAL_PORT=7000

@@ -13,7 +13,7 @@
       "smartStep": true,
       "runtimeArgs": ["--nolazy", "-r", "ts-node/register"],
       "internalConsoleOptions": "openOnSessionStart",
-      "envFile": "${workspaceFolder}/.env"
+      "envFile": "${workspaceFolder}/localDev/.env"
     },
     {
       "type": "pwa-node",
@@ -30,7 +30,7 @@
       "sourceMaps": true,
       "smartStep": true,
       "internalConsoleOptions": "openOnSessionStart",
-      "envFile": "${workspaceFolder}/.env.test",
+      "envFile": "${workspaceFolder}/localDev/.env.test",
       "outFiles": ["${workspaceFolder}/**/*.js", "!**/node_modules/**"]
     }
   ]

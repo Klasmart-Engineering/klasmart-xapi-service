@@ -121,7 +121,8 @@ export default async function getRecordSenders(): Promise<
     }
   } else {
     log.info(
-      'To use a Redis Stream specify REDIS_URL and REDIS_STREAM_NAME environment variables',
+      'To use a Redis Stream specify REDIS_HOST, REDIS_PORT, and REDIS_STREAM_NAME environment variables. ' +
+        'Also, REDIS_MODE should be set to either NODE or CLUSTER.',
     )
   }
 

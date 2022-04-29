@@ -12,11 +12,11 @@ Used by [kidsloop-h5p-library](https://github.com/KL-Engineering/kidsloop-h5p-li
 
 **Branching model**
 
-- `feature/fix/etc` -> `main`
+- `feature/fix/etc` -> squash or rebase into `main`
 - The main branch pipeline has a manual _release_ workflow.
 - That workflow will build/push the docker image to ECR, and deploy to alpha.
 
-📢 Follow the specification covered in [CONTRIBUTING.md](CONTRIBUTING.md) 📢
+📢 Follow the specification covered in [CONTRIBUTING.md](docs/CONTRIBUTING.md) 📢
 
 ## Design
 
@@ -33,9 +33,9 @@ Used by [kidsloop-h5p-library](https://github.com/KL-Engineering/kidsloop-h5p-li
 ### Current list of record senders
 
 - AWS DynamoDB: This one is currently the most important because kidsloop-assessment-service reads from this table to calculate assessments.
-- AWS Firehose: Long-term storage. Not actively queried at the time of writing.
-- AWS ElasticSearch: Events viewable from [Kibana](https://search-kidsloop-default-y5iifvhvcenbxnkknv2q3ovc5i.ap-northeast-2.es.amazonaws.com/_plugin/kibana/app/home#/). Accessible via Google Suite once you've been granted access.
-- TypeORM (Postgres): Motivation was getting rid of the DynamoDB AWS dependency for regions that don't support AWS.
+- AWS Firehose: Long-term storage.
+- AWS Elasticsearch: Events viewable from [Kibana](https://search-kidsloop-default-y5iifvhvcenbxnkknv2q3ovc5i.ap-northeast-2.es.amazonaws.com/_plugin/kibana/app/home#/). Accessible via Google Suite once you've been granted access. Only used in alpha-dev account.
+- TypeORM (Postgres): For regions that don't support AWS.
 
 ---
 
@@ -47,46 +47,18 @@ Used by [kidsloop-h5p-library](https://github.com/KL-Engineering/kidsloop-h5p-li
 
 - Node v16.x.x
 - Npm v6.x.x
-- Docker (if you plan on testing ElasticSearch and/or Postgres)
+- Docker
 
 #### Configuration
 
-Copy/paste `.env.example` in the root directory, rename it to `.env`, and modify as necessary.
+Copy/paste `.env.example` in the `localDev` directory, rename it to `.env`, and modify as necessary.
 
 All record sender implementations are optional, but at least one must be included. To exclude an implementation, comment out the corresponding environment variable in your `.env` file.
 
-Create Postgres container
+Run Docker Compose
 
 ```
-docker run -d --name=postgres -p 5432:5432 -e POSTGRES_PASSWORD=kidsloop -e POSTGRES_DB=xapi_db postgres
-```
-
-If you already have a Postgres container that you'd like to reuse, the database `xapi_db` will be created automatically.
-
-Create ElasticSearch container
-
-```
-docker run -d --name elasticsearch -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" elasticsearch:7.5.2
-```
-
-Create single node Redis container instance
-
-```sh
-docker run -it -d --net kidsloop --name kl_redis -p 6379:6379 redis:6-alpine
-```
-
-Create Redis Cluster container and connect to the 7000 port
-
-```sh
-export REDIS_CLUSTER_IP=0.0.0.0 # for Mac Users
-docker run -it -d \
-  --name redis_cluster \
-  -e "IP=0.0.0.0" \
-  -e "MASTERS=3" \
-  -e "SLAVES_PER_MASTER=1" \
-  -e "INITIAL_PORT=7000" \
-  -p 7000-7005:7000-7005 \
-  grokzen/redis-cluster:latest
+docker compose -f localDev/docker-compose.yml --project-name xapi up
 ```
 
 ### Running
@@ -99,16 +71,10 @@ Ensure all dependencies are installed
 npm install
 ```
 
-Ensure Postgres is running
+Ensure services are running
 
 ```
-docker start xapiserver-postgres
-```
-
-Ensure ElasticSearch is running
-
-```
-docker start elasticsearch
+docker compose -p xapi start
 ```
 
 Run
@@ -117,7 +83,7 @@ Run
 npm start
 ```
 
-Run with nodemon
+Run with hot reload
 
 ```
 npm run dev
@@ -160,6 +126,12 @@ PRO tip: replace `localhost` with `host.docker.internal` if you want to connect 
 3. Click the green arrow debug button
 
 ### Testing
+
+Run Docker Compose (only needed for integration tests)
+
+```
+docker compose up -f localDev/docker-compose.yml
+```
 
 Run unit tests and generate coverage report (`./coverage_unit/lcov-report/index.html`)
 
@@ -208,7 +180,13 @@ Docs:
 - [typeorm - Migrations](https://github.com/typeorm/typeorm/blob/master/docs/migrations.md)
 - [typeorm - Using CLI](https://github.com/typeorm/typeorm/blob/master/docs/using-cli.md)
 
-To generate a migration, make sure there's an `ormConfig.json` file present. You can generate it with the `./scripts/generateOrmConfig.ts` script. Then run the following:
+Generate `ormConfig.json`
+
+```sh
+METADATA_DATABASE_URL=[database_url] npm run generate-orm-config
+```
+
+Generate migration
 
 ```sh
 npm run typeorm migration:generate -- --config ormConfig.json -n MigrationName

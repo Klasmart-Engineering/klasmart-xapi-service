@@ -10,23 +10,6 @@ jobs:
   test:
     name: ⚡ Run tests
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres
-        env:
-          POSTGRES_HOST: localhost
-          POSTGRES_PORT: 5432
-          POSTGRES_DB: test_xapi_db
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: kidsloop
-        # Set health checks to wait until postgres has started
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
@@ -42,7 +25,7 @@ jobs:
           key: ${{ runner.os }}-${{ hashFiles('package-lock.json') }}
 
       - name: Start containers
-        run: docker-compose -f docker-compose.test.yml up -d
+        run: docker-compose -f localDev/docker-compose.yml up -d
 
       - name: Unit tests
         run: npm run coverage:unit
@@ -68,4 +51,4 @@ jobs:
 
       - name: Stop containers
         if: always()
-        run: docker-compose -f docker-compose.test.yml down
+        run: docker-compose -f localDev/docker-compose.yml down
