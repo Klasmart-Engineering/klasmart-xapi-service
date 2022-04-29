@@ -30,22 +30,24 @@ jobs:
       - name: Unit tests
         run: npm run coverage:unit
       - name: Upload unit test coverage to Codecov
+        if: github.ref == 'refs/heads/main'
         uses: codecov/codecov-action@v2
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           directory: ./coverage_unit/
-          fail_ci_if_error: true
+          fail_ci_if_error: false
           files: ./coverage_unit/lcov.info
           flags: unittests
 
       - name: Integration tests
         run: npm run coverage:integration
       - name: Upload integration test coverage to Codecov
+        if: github.ref == 'refs/heads/main'
         uses: codecov/codecov-action@v2
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           directory: ./coverage_integration/
-          fail_ci_if_error: true
+          fail_ci_if_error: false
           files: ./coverage_integration/lcov.info
           flags: integrationtests
 
