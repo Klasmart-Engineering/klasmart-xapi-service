@@ -122,7 +122,7 @@ export default async function getRecordSenders(): Promise<
   } else {
     log.info(
       'To use a Redis Stream specify REDIS_HOST, REDIS_PORT, and REDIS_STREAM_NAME environment variables. ' +
-        'Also, REDIS_MODE should be set to either NODE or CLUSTER.',
+        'In addition, REDIS_MODE should be set to either NODE or CLUSTER.',
     )
   }
 
@@ -139,4 +139,4 @@ export const NoRecordSendersErrorMessage =
   '- KINESIS_DATA_STREAM_NAME\n' +
   '- ELASTICSEARCH_URL\n' +
   '- XAPI_DATABASE_URL\n' +
-  '- REDIS_HOST and REDIS_PORT and REDIS_MODE and REDIS_STREAM_NAME'
+  '- REDIS_HOST, REDIS_PORT, REDIS_MODE and REDIS_STREAM_NAME'
