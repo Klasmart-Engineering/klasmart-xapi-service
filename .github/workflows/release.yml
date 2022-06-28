@@ -3,6 +3,11 @@ name: Release
 on:
   workflow_dispatch:
     inputs:
+      prerelease:
+        description: Prerelease tag (optional)
+        required: false
+        type: string
+        default: ''
       release_as:
         required: true
         type: choice
@@ -28,7 +33,9 @@ jobs:
     needs: [npm-ci]
     uses: ./.github/workflows/job-create-release.yml
     with:
+      prerelease: ${{ github.event.inputs.prerelease }}
       release_as: ${{ github.event.inputs.release_as }}
+      ecr_repository: kidsloop-h5p-xapi-service
     secrets:
       ECR_AWS_ACCESS_KEY_ID: ${{ secrets.ECR_AWS_ACCESS_KEY_ID }}
       ECR_AWS_SECRET_ACCESS_KEY: ${{ secrets.ECR_AWS_SECRET_ACCESS_KEY }}

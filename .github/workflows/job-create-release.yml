@@ -3,11 +3,18 @@ name: Create Release (job)
 on:
   workflow_call:
     inputs:
+      prerelease:
+        required: false
+        type: string
+        default: ''
       release_as:
         # https://github.com/conventional-changelog/standard-version#release-as-a-target-type-imperatively-npm-version-like
         required: true
         type: string
         description: auto, major, minor, or patch
+      ecr_repository:
+        required: true
+        type: string
     secrets:
       ECR_AWS_ACCESS_KEY_ID:
         required: true
@@ -15,7 +22,7 @@ on:
         required: true
 
 env:
-  ECR_REPOSITORY: kidsloop-h5p-xapi-service
+  ECR_REPOSITORY: ${{ inputs.ecr_repository }}
 
 jobs:
   create-release:
@@ -38,9 +45,11 @@ jobs:
         ports:
           - 5432:5432
     outputs:
-      VERSION_TAG: ${{ steps.version-bump.outputs.VERSION_TAG }}
+      VERSION_TAG: ${{ steps.get-versions.outputs.VERSION_TAG }}
     steps:
       - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v2
         with:
           node-version: 16.x
@@ -58,22 +67,26 @@ jobs:
           git config user.name "GitHub Actions Bot"
           git config user.email "<>"
 
-      - name: Version bump
-        id: version-bump
-        env:
-          RELEASE_AS: ${{ inputs.release_as }}
+      - name: Generate release version
+        run: npx standard-version --skip.changelog
+          ${{ inputs.prerelease != '' && format('--prerelease {0}', inputs.prerelease) || '' }}
+          ${{ inputs.release_as != 'auto' && format('--release-as {0}', inputs.release_as) || '' }}
+
+      - name: npm build
+        run: npm run build
+
+      - name: Get versions
+        id: get-versions
         run: |
-          npm run build
-          if [[ "$RELEASE_AS" == "auto" ]]
-          then
-            npm run release
-          else
-            npm run release -- --release-as $RELEASE_AS
-          fi
+          version=$(git describe --tags --abbrev=0)
+          previous_version=$(git describe --tags --abbrev=0 $version^)
+          echo ::set-output name=version::$version
+          echo ::set-output name=previous-version::$previous_version
+
+      - name: Docker build
+        run: |
           npm prune --production
           docker build -t $ECR_REPOSITORY .
-          export VERSION_TAG=$(git describe --tags --abbrev=0)
-          echo "::set-output name=VERSION_TAG::$VERSION_TAG"
 
       - name: Container startup check
         run: |
@@ -102,7 +115,7 @@ jobs:
         id: build-image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          VERSION_TAG: ${{ steps.version-bump.outputs.VERSION_TAG }}
+          VERSION_TAG: ${{ steps.get-versions.outputs.version }}
         run: |
           export BRANCH_TAG=$(echo "${GITHUB_REF_NAME}" | sed -E 's/([^0-9a-zA-Z]+)/-/g' | awk '{print tolower($0)}')
           export COMMIT_TAG=${GITHUB_SHA::7}
@@ -115,7 +128,54 @@ jobs:
 
       - name: Commit changes
         env:
-          VERSION_TAG: ${{ steps.version-bump.outputs.VERSION_TAG }}
+          VERSION_TAG: ${{ steps.get-versions.outputs.version }}
         run: |
-          git push origin main
           git push origin $VERSION_TAG
+          git push origin main
+
+      - name: Generate changelog
+        id: changelog
+        uses: cabauman/changelogger-action@main
+
+      - name: Upsert GitHub release
+        uses: actions/github-script@v6.1.0
+        env:
+          PREVIOUS_VERSION: ${{ steps.get-versions.outputs.previous-version }}
+          RELEASE_NAME: ${{ steps.get-versions.outputs.version }}
+          PRERELEASE: ${{ inputs.prerelease != '' }}
+          BODY: ${{ steps.changelog.outputs.changelog }}
+        with:
+          script: |
+            const { PREVIOUS_VERSION, RELEASE_NAME, PRERELEASE, BODY } = process.env
+            const { owner, repo } = context.repo
+            const { data } = await github.rest.repos.listReleases({ owner, repo, per_page: 1 })
+            const release = data.length > 0 ? data[0] : undefined
+            let updateExisting = false
+            if (release?.prerelease === true) {
+              const regex = /^(v[0-9]+\.[0-9]+\.[0-9]+)-.*$/
+              const match = regex.exec(PREVIOUS_VERSION)
+              if (match) {
+                const previousBaseVersion = match[1]
+                updateExisting = release.tag_name.startsWith(previousBaseVersion)
+              }
+            }
+            if (updateExisting) {
+              await github.rest.repos.updateRelease({
+                owner,
+                repo,
+                release_id: release.id,
+                prerelease: PRERELEASE === 'true',
+                name: RELEASE_NAME,
+                tag_name: RELEASE_NAME,
+                body: BODY,
+              })
+            } else {
+              await github.rest.repos.createRelease({
+                owner,
+                repo,
+                prerelease: PRERELEASE === 'true',
+                name: RELEASE_NAME,
+                tag_name: RELEASE_NAME,
+                body: BODY,
+              })
+            }
