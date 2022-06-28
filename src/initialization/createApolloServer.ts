@@ -13,6 +13,7 @@ import { withLogger } from '@kl-engineering/kidsloop-nodejs-logger'
 import { IncomingHttpHeaders } from 'http'
 import { ApplicationError } from '../errorHandling/applicationError'
 import error2Json from '../errorHandling/error2Json'
+import { Context } from '../helpers/context'
 
 const log = withLogger('createApolloServer')
 
@@ -35,16 +36,27 @@ export function createApolloServer(
     subscriptions: {
       path: `${routePrefix}/graphql`,
       keepAlive: 1000,
-      onConnect: async (connectionParams, _websocket, connectionContext) => {
+      onConnect: async (
+        connectionParams,
+        _websocket,
+        connectionContext,
+      ): Promise<Context> => {
         const headers = connectionContext?.request?.headers
         const ip = headers
-          ? headers['x-forwarded-for']
+          ? extractHeader(headers['x-forwarded-for'])
           : connectionContext.request.socket.remoteAddress
-        const authenticationToken = await extractAuthenticationToken(headers)
+        const { authenticationToken, encodedAuthenticationToken } =
+          await extractAuthenticationToken(headers)
         const { roomId, isReview } = await extractClassInfo(
           connectionParams['live-authorization'],
         )
-        return { roomId, authenticationToken, ip, isReview }
+        return {
+          roomId,
+          authenticationToken,
+          ip,
+          isReview,
+          encodedAuthenticationToken,
+        }
       },
     },
     resolvers: {
@@ -58,19 +70,26 @@ export function createApolloServer(
           ),
       },
     },
-    context: async ({ req, connection }) => {
+    context: async ({ req, connection }): Promise<Context> => {
       if (connection) {
         return connection.context
       }
-      const ip = req.headers['x-forwarded-for'] || req.ip
-      const authenticationToken = await extractAuthenticationToken(req.headers)
+      const ip = extractHeader(req.headers['x-forwarded-for']) || req.ip
+      const { authenticationToken, encodedAuthenticationToken } =
+        await extractAuthenticationToken(req.headers)
       const encodedLiveAuthorizationToken = extractHeader(
         req.headers['live-authorization'],
       )
       const { roomId, isReview } = await extractClassInfo(
         encodedLiveAuthorizationToken,
       )
-      return { roomId, authenticationToken, ip, isReview }
+      return {
+        roomId,
+        authenticationToken,
+        ip,
+        isReview,
+        encodedAuthenticationToken,
+      }
     },
     plugins: [
       // Note: New Relic plugin should always be listed last
@@ -93,7 +112,7 @@ async function extractAuthenticationToken(headers: IncomingHttpHeaders) {
       const authenticationToken = await checkAuthenticationToken(
         encodedAuthenticationToken,
       )
-      return authenticationToken
+      return { authenticationToken, encodedAuthenticationToken }
     } catch (error) {
       log.error(
         error2Json(
@@ -106,6 +125,7 @@ async function extractAuthenticationToken(headers: IncomingHttpHeaders) {
       )
     }
   }
+  return {}
 }
 
 async function extractClassInfo(
