@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 1.10.1 (2022-06-28)
+
+
+### Bug Fixes
+
+* authentication token not being added to context ([16df685](https://github.com/KL-Engineering/kidsloop-xapi-service/commit/16df685098569fe4be2092da48bec68cd59f10bb))
+
 ## 1.10.0 (2022-06-28)
 
 
