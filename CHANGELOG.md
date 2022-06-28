@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## 1.10.0 (2022-06-28)
+
+
+### Features
+
+* send auth token through redis stream ([f9417ef](https://github.com/KL-Engineering/kidsloop-xapi-service/commit/f9417ef7c390c51b7f39c3cbe26ad4892123f797))
+
 ### 1.9.1 (2022-04-22)
 
 ## 1.9.0 (2022-04-21)
