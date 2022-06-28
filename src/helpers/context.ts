@@ -3,6 +3,7 @@ import { KidsloopAuthenticationToken } from '@kl-engineering/kidsloop-token-vali
 export interface Context {
   roomId?: string
   authenticationToken?: KidsloopAuthenticationToken
+  encodedAuthenticationToken?: string
   ip: string
   isReview?: boolean
 }

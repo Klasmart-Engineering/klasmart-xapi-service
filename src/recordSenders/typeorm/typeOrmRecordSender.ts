@@ -3,6 +3,7 @@ import { XapiRecord } from '../../interfaces/xapiRecord'
 import { IXapiRecordSender } from '../../interfaces/xapiRecordSender'
 import { XapiDbRecord } from './entities/xapiDbRecord'
 import { withLogger } from '@kl-engineering/kidsloop-nodejs-logger'
+import { Context } from '../../helpers/context'
 
 const log = withLogger('typeoOrmRecordSender')
 
@@ -11,6 +12,7 @@ export class TypeOrmRecordSender implements IXapiRecordSender {
 
   public async sendRecords(
     xapiRecords: ReadonlyArray<XapiRecord>,
+    context?: Context,
   ): Promise<boolean> {
     try {
       const dbRecords = this.mapToDbRecords(xapiRecords)

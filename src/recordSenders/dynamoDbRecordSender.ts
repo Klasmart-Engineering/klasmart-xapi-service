@@ -2,6 +2,7 @@ import { DocumentClient } from 'aws-sdk/clients/dynamodb'
 import { XapiRecord } from '../interfaces/xapiRecord'
 import { IXapiRecordSender } from '../interfaces/xapiRecordSender'
 import { withLogger } from '@kl-engineering/kidsloop-nodejs-logger'
+import { Context } from '../helpers/context'
 
 const log = withLogger('dynamoDbRecordSender')
 
@@ -20,6 +21,7 @@ export class DynamoDbRecordSender implements IXapiRecordSender {
 
   public async sendRecords(
     xapiRecords: ReadonlyArray<XapiRecord>,
+    context?: Context,
   ): Promise<boolean> {
     try {
       const requestItems: DocumentClient.BatchWriteItemRequestMap = {}

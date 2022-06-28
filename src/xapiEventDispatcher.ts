@@ -60,7 +60,7 @@ export class XapiEventDispatcher {
       },
     )
     const results = await Promise.allSettled(
-      this.recordSenders.map((x) => x.sendRecords(xapiRecords)),
+      this.recordSenders.map((x) => x.sendRecords(xapiRecords, context)),
     )
     const allSucceeded = results.every(
       (result) => result.status === 'fulfilled' && result.value === true,

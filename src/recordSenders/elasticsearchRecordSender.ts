@@ -5,6 +5,7 @@ import { getEnvironmentVariableOrDefault } from '../helpers/envUtil'
 import { XapiRecord } from '../interfaces/xapiRecord'
 import { IXapiRecordSender } from '../interfaces/xapiRecordSender'
 import { withLogger } from '@kl-engineering/kidsloop-nodejs-logger'
+import { Context } from '../helpers/context'
 
 const log = withLogger('elasticsearchRecordSender')
 
@@ -30,6 +31,7 @@ export class ElasticsearchRecordSender implements IXapiRecordSender {
 
   public async sendRecords(
     xapiRecords: ReadonlyArray<XapiRecord>,
+    context?: Context,
   ): Promise<boolean> {
     const body = xapiRecords.flatMap((xapiRecord) => [
       { index: { _index: 'xapi' } },

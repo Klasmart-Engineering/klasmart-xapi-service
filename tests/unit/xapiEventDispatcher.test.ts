@@ -48,6 +48,7 @@ describe('xapiEventDispatcher.dispatchEvents', () => {
             records[0].geo === geo
           )
         }),
+        Arg.any(),
       )
 
       expect(success).to.be.true
@@ -70,7 +71,7 @@ describe('xapiEventDispatcher.dispatchEvents', () => {
         authContext,
       )
       geolocationProvider.received(0).getInfo(ip)
-      recordSender.received(0).sendRecords(Arg.any())
+      recordSender.received(0).sendRecords(Arg.all())
 
       expect(response).to.be.false
     })
@@ -86,8 +87,8 @@ describe('xapiEventDispatcher.dispatchEvents', () => {
 
       before(() => {
         geolocationProvider.getInfo(ip).returns(geo)
-        recordSender1.sendRecords(Arg.any()).rejects('oops')
-        recordSender2.sendRecords(Arg.any()).resolves(true)
+        recordSender1.sendRecords(Arg.any(), Arg.any()).rejects('oops')
+        recordSender2.sendRecords(Arg.any(), Arg.any()).resolves(true)
       })
 
       it('recordSender2 executes successfully and returns true', async () => {
@@ -110,6 +111,7 @@ describe('xapiEventDispatcher.dispatchEvents', () => {
               records[0].geo === geo
             )
           }),
+          Arg.any(),
         )
 
         expect(success).to.be.false
@@ -124,7 +126,7 @@ describe('xapiEventDispatcher.dispatchEvents', () => {
 
     before(() => {
       geolocationProvider.getInfo(ip).returns(geo)
-      recordSender.sendRecords(Arg.any()).resolves(false)
+      recordSender.sendRecords(Arg.any(), Arg.any()).resolves(false)
     })
 
     it('returns false', async () => {
@@ -154,7 +156,7 @@ describe('xapiEventDispatcher.dispatchEvents', () => {
         authContext,
       )
       geolocationProvider.received(0).getInfo(ip)
-      recordSender.received(0).sendRecords(Arg.any())
+      recordSender.received(0).sendRecords(Arg.any(), Arg.any())
 
       expect(response).to.be.false
     })
@@ -198,6 +200,7 @@ describe('xapiEventDispatcher.dispatchEvents', () => {
             records[0].geo === geo
           )
         }),
+        Arg.any(),
       )
     })
 

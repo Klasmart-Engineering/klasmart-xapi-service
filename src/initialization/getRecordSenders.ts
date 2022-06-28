@@ -11,6 +11,7 @@ import { connectToTypeOrmDatabase } from '../recordSenders/typeorm/connectToType
 import { TypeOrmRecordSender } from '../recordSenders/typeorm/typeOrmRecordSender'
 import { withLogger } from '@kl-engineering/kidsloop-nodejs-logger'
 import { logError } from '../helpers/errorLogUtil'
+import { RecordSenderAuthTokenDecorator } from '../recordSenders/recordSenderAuthTokenDecorator'
 
 const log = withLogger('getRecordSenders')
 
@@ -114,7 +115,10 @@ export default async function getRecordSenders(): Promise<
         redisPort,
         redisStreamName,
       )
-      recordSenders.push(redisStreamRecordSender)
+      const recordSender = new RecordSenderAuthTokenDecorator(
+        redisStreamRecordSender,
+      )
+      recordSenders.push(recordSender)
       log.info('🏎  Redis Stream record sender added')
     } catch (e) {
       logError(log, e, 'Error adding Redis Stream record sender')

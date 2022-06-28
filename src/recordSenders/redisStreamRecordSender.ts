@@ -2,6 +2,7 @@ import Redis, { Cluster } from 'ioredis'
 import { withLogger } from '@kl-engineering/kidsloop-nodejs-logger'
 import { XapiRecord } from '../interfaces/xapiRecord'
 import { IXapiRecordSender } from '../interfaces/xapiRecordSender'
+import { Context } from '../helpers/context'
 
 export type RedisClientType = Redis | Cluster
 export type RedisMode = 'NODE' | 'CLUSTER'
@@ -110,6 +111,7 @@ export class RedisStreamRecordSender implements IXapiRecordSender {
   @RedisErrorRecovery()
   public async sendRecords(
     xapiRecords: ReadonlyArray<XapiRecord>,
+    context?: Context,
   ): Promise<boolean> {
     try {
       const entryIds = await Promise.all(

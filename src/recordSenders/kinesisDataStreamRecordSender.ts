@@ -2,6 +2,7 @@ import { KinesisClient, PutRecordsCommand } from '@aws-sdk/client-kinesis'
 import { XapiRecord } from '../interfaces/xapiRecord'
 import { IXapiRecordSender } from '../interfaces/xapiRecordSender'
 import { withLogger } from '@kl-engineering/kidsloop-nodejs-logger'
+import { Context } from '../helpers/context'
 
 const log = withLogger('kinesisDataStreamRecordSender')
 
@@ -22,6 +23,7 @@ export class KinesisDataStreamRecordSender implements IXapiRecordSender {
 
   public async sendRecords(
     xapiRecords: ReadonlyArray<XapiRecord>,
+    context?: Context,
   ): Promise<boolean> {
     try {
       const command = new PutRecordsCommand({
