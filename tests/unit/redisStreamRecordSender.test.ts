@@ -26,14 +26,14 @@ describe('redisStreamRecordSender', () => {
 
       // Assert
       expect(success).to.be.true
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       redisClient.received(2).xadd(
         Arg.is((stream) => stream === deliveryStream),
         Arg.is((id) => id === '*'),
         Arg.is((field) => field === 'data'),
-        // @ts-ignore
         Arg.is((data) => {
-          return data && data === JSON.stringify(xapiRecord)
+          return data != null && data === JSON.stringify(xapiRecord)
         }),
       )
     })

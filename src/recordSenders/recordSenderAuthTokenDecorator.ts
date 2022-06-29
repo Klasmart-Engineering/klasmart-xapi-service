@@ -18,7 +18,11 @@ export class RecordSenderAuthTokenDecorator implements IXapiRecordSender {
     if (xapiRecords.length === 0) {
       return true
     }
-    if (!context?.roomId || this.roomIdHash.has(context.roomId)) {
+    if (
+      !context?.roomId ||
+      !context?.encodedAuthenticationToken ||
+      this.roomIdHash.has(context.roomId)
+    ) {
       return this.recordSender.sendRecords(xapiRecords)
     }
 
