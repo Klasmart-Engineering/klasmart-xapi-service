@@ -14,7 +14,9 @@ Used by [kidsloop-h5p-library](https://github.com/KL-Engineering/kidsloop-h5p-li
 
 - `feature/fix/etc` -> squash or rebase into `main`
 - The main branch pipeline has a manual _release_ workflow.
-- That workflow will build/push the docker image to ECR, and deploy to alpha.
+- That workflow will build the docker image, push it to ECR, deploy to alpha, and create a GitHub release.
+- GitHub prereleases are *upserted* in order to reduce changelog duplication.
+- Slack notifications will be sent for non-prereleases.
 
 📢 Follow the specification covered in [CONTRIBUTING.md](docs/CONTRIBUTING.md) 📢
 
